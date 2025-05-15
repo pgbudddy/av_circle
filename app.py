@@ -57,14 +57,6 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 # app.config['CACHE_REDIS_PORT'] = 6379
 # cache = Cache(app)
 
-GOOGLE_MAPS_API_KEY = ""
-razorpay_client = ""
-
-Cashfree.XClientId = ""
-Cashfree.XClientSecret = ""
-Cashfree.XEnvironment = ""
-x_api_version = ""
-
 
 # Upload folder configuration
 UPLOAD_FOLDER = 'uploads'
