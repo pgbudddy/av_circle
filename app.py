@@ -60,10 +60,10 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 GOOGLE_MAPS_API_KEY = "AIzaSyCdc5N7AzzvPiWddsegRCRmna3LxG5HCmk"
 razorpay_client = razorpay.Client(auth=("rzp_test_7TJCqucHMY4JS2", "489v1D9RIMDuqzWH8JmeWMZr"))
 
-Cashfree.XClientId = "879351867ef3119b9f8f6ffa21153978"
-Cashfree.XClientSecret = "cfsk_ma_prod_fe15187663924595a6fa8413775d4d34_682b88cc"
-Cashfree.XEnvironment = Cashfree.PRODUCTION
-x_api_version = "2023-08-01"
+# Cashfree.XClientId = "879351867ef3119b9f8f6ffa21153978"
+# Cashfree.XClientSecret = "cfsk_ma_prod_fe15187663924595a6fa8413775d4d34_682b88cc"
+# Cashfree.XEnvironment = Cashfree.PRODUCTION
+# x_api_version = "2023-08-01"
 
 
 # Upload folder configuration
