@@ -65,7 +65,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-
 @app.route("/")
 def index():
     username = request.cookies.get('username')
