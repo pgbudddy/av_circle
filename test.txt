@@ -1,0 +1,4 @@
+Cashfree.XClientId = "879351867ef3119b9f8f6ffa21153978"
+Cashfree.XClientSecret = "cfsk_ma_prod_fe15187663924595a6fa8413775d4d34_682b88cc"
+Cashfree.XEnvironment = Cashfree.PRODUCTION
+x_api_version = "2023-08-01"
