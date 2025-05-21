@@ -389,9 +389,12 @@ def fetch_products():
         # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
         
-        query = 'SELECT * FROM products'
+        query = 'SELECT name, brand, product_id, price, product_images FROM products'
         mycursor.execute(query)
         myresult = mycursor.fetchall()
+
+        print("myresult ", myresult)
+
         return myresult
         
     except:
@@ -401,6 +404,33 @@ def fetch_products():
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
+
+def fetch_profile(uniqueid):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        query = 'SELECT * FROM signup where number="'+str(uniqueid)+'"'
+        mycursor.execute(query)
+        myresult = mycursor.fetchone()
+
+        # print(myresult)
+        
+        if myresult == None:  
+            return False
+        else:
+            return myresult
+
+    except:
+        return False
+    
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+        
 
 def buy_product(product_id):
     try:

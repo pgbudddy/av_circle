@@ -90,10 +90,71 @@
         }
 
 
+        #equalizer-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#equalizer-loader .bar {
+    width: 5px;
+    height: 30px;
+    background-color: black;
+    animation: equalizer 1s infinite ease-in-out;
+}
+
+#equalizer-loader .bar:nth-child(1) {
+    animation-delay: -0.4s;
+}
+#equalizer-loader .bar:nth-child(2) {
+    animation-delay: -0.3s;
+}
+#equalizer-loader .bar:nth-child(3) {
+    animation-delay: -0.2s;
+}
+#equalizer-loader .bar:nth-child(4) {
+    animation-delay: -0.1s;
+}
+#equalizer-loader .bar:nth-child(5) {
+    animation-delay: 0s;
+}
+
+@keyframes equalizer {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(2.5);
+    }
+}
 
     </style>
 </head>
 <body>
+    
+    <div id="equalizer-loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
 
 
     <header class="navbar">

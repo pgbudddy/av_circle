@@ -19,18 +19,6 @@ from urllib.parse import quote
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-
-
-from cashfree_pg.models.create_order_request import CreateOrderRequest
-from cashfree_pg.api_client import Cashfree
-from cashfree_pg.models.customer_details import CustomerDetails
-from cashfree_pg.models.order_meta import OrderMeta
-from cashfree_pg.models import (  # ✅ Import missing models
-    PaymentMethodAppInPaymentsEntity,
-    PaymentMethodUPIInPaymentsEntity,
-    PaymentMethodNetBankingInPaymentsEntity,
-    PaymentMethodCardInPaymentsEntity
-)
 import uuid
 import urllib3
 
@@ -59,11 +47,6 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 GOOGLE_MAPS_API_KEY = "AIzaSyCdc5N7AzzvPiWddsegRCRmna3LxG5HCmk"
 razorpay_client = razorpay.Client(auth=("rzp_test_7TJCqucHMY4JS2", "489v1D9RIMDuqzWH8JmeWMZr"))
-
-Cashfree.XClientId = "879351867ef3119b9f8f6ffa21153978"
-Cashfree.XClientSecret = "cfsk_ma_prod_fe15187663924595a6fa8413775d4d34_682b88cc"
-Cashfree.XEnvironment = Cashfree.PRODUCTION
-x_api_version = "2023-08-01"
 
 
 # Upload folder configuration
@@ -208,9 +191,9 @@ def dashboard():
 
         name = item[0]
         brand = item[1]
-        product_id = item[4]
+        product_id = item[2]
         price = item[3]
-        image_string = item[5]  # '1.jpg, 2.jpg, 3.jpg, 4.jpg, 5.jpg'
+        image_string = item[4]  # '1.jpg, 2.jpg, 3.jpg, 4.jpg, 5.jpg'
         
         # Use only the first image for product display
         all_image = image_string.split(',')
@@ -230,7 +213,19 @@ def dashboard():
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html")
+    username = request.cookies.get('username')
+
+    print("username ", username)
+
+    def fetch_data(username):
+        return api.fetch_profile(username)
+
+    # Use ThreadPoolExecutor to get return value
+    with ThreadPoolExecutor() as executor:
+        future = executor.submit(fetch_data, username)
+        profile_details = future.result()  # Wait for result
+
+    return render_template("profile.html", name=profile_details[0], email=profile_details[2])
 
 
 @app.route("/contactus", methods=['GET', 'POST'])
@@ -339,6 +334,87 @@ def buynow():
     total_price = int(price) * int(qty)
 
     return render_template("buynow.html", cart_products=[product], total_price=total_price)
+
+
+@app.route("/create_order", methods=["POST"])
+def create_order():
+    data = request.get_json()
+    amount = int(float(data["price"]) * 100)  # Convert ₹ to paise
+
+    order = razorpay_client.order.create({
+        "amount": amount,
+        "currency": "INR",
+        "payment_capture": 1
+    })
+    return jsonify(order)
+
+@app.route("/verify", methods=["POST"])
+def verify():
+    data = request.get_json()
+
+    try:
+        params_dict = {
+            'razorpay_order_id': data['order_id'],
+            'razorpay_payment_id': data['payment_id'],
+            'razorpay_signature': data['signature']
+        }
+
+        razorpay_client.utility.verify_payment_signature(params_dict)
+
+        print("=== Payment Verified Successfully ===")
+        print("Payment ID:", data['payment_id'])
+        print("Order ID:", data['order_id'])
+        print("Signature:", data['signature'])
+
+        if 'user' in data:
+            print("=== User Details ===")
+            print("Name:", data['user']['name'])
+            print("Phone:", data['user']['phone'])
+            print("Address:", data['user']['address'])
+            print("Pincode:", data['user']['pincode'])
+            print("City:", data['user']['city'])
+            print("State:", data['user']['state'])
+            print("Price:", data['user']['price'])
+
+        return jsonify({ "redirect_url": "/paymentsuccess" })
+
+    except Exception as e:
+        print("Payment verification failed:", e)
+        return jsonify({ "redirect_url": "/paymentfailed" })
+
+
+@app.route("/paymentsuccess")
+def paymentsuccess():
+    return render_template("paymentsuccess.html")
+
+
+@app.route("/paymentfailed")
+def paymentfailed():
+    return render_template("paymentfailed.html")
+    
+
+@app.route("/checkout", methods=["POST"])
+def checkout():
+    name = request.form.get("name")
+    phone = request.form.get("phone")
+    address = request.form.get("address")
+    pincode = request.form.get("pincode")
+    city = request.form.get("city")
+    state = request.form.get("state")
+    # price = request.form.get("price")
+    price = 1000
+
+    print("name ", name)
+    print("phone ", phone)
+    print("address ", address)
+    print("pincode ", pincode)
+    print("city ", city)
+    print("state ", state)
+    print("price ", price)
+
+    # You can now process or store the above data
+    return render_template("checkout.html", name=name, phone=phone, address=address,
+                           pincode=pincode, city=city, state=state, price=price)
 
 
 @app.route("/favourite")
@@ -462,9 +538,9 @@ def search_products():
 
         name = item[0]
         brand = item[1]
-        product_id = item[4]
+        product_id = item[2]
         price = item[3]
-        image_string = item[5]  # '1.jpg, 2.jpg, 3.jpg, 4.jpg, 5.jpg'
+        image_string = item[4]  # '1.jpg, 2.jpg, 3.jpg, 4.jpg, 5.jpg'
         
         # Use only the first image for product display
         all_image = image_string.split(',')
@@ -540,6 +616,32 @@ def myorders():
         })
 
     return render_template("myorders.html", cart_products=cart_products, total_price=total_price)
+
+
+@app.route("/register_token", methods=['GET', 'POST'])
+def register_token():
+    if request.method == "GET":
+        token = request.args.get("token")  # Get token from URL
+        public_ip = request.remote_addr  # Get client's IP from request
+    else:
+        data = request.json
+        token = data.get("token")
+        public_ip = data.get("public_ip")  # Public IP sent by Android
+
+    session['token'] = token
+    session['public_ip'] = public_ip
+
+    print("Stored Token in Session:", session.get("token"))
+    print("Stored Public IP:", session.get("public_ip"))
+
+    print("updatetoken: ", api.updatetoken("None", token, public_ip))
+
+    #return redirect(url_for('home'))
+    return jsonify({
+        "message": "Token stored successfully",
+        "token": token,
+        "public_ip": public_ip
+    })  # ✅ No Redirect (JSON Response)
 
 
 if __name__ == '__main__':
