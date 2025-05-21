@@ -166,9 +166,54 @@ def otp_verification():
         email = session.get('signup_info', {}).get('email', None)
         return render_template("otp_verification.html", email=email)
 
-
 @app.route("/dashboard")
 def dashboard():
+    buttons = [
+        {"text": "B&W", "image": "b-w.jpeg"},
+        {"text": "DENON", "image": "denon.jpeg"},
+        {"text": "MARANTZ", "image": "marantz.jpeg"},
+        {"text": "JBL", "image": "jbl.svg"},
+        {"text": "DALI", "image": "dali.png"},
+        {"text": "KRIX", "image": "krix.png"},
+        {"text": "KLIPSCH", "image": "klipsch.jpeg"},
+        {"text": "FOCAL", "image": "focal.jpeg"}
+    ]
+
+    # Fetch products from your API
+    fetch_product = api.fetch_products()
+    print("fetch_product", fetch_product)
+
+    # Function to process each product
+    def process_product(item):
+        try:
+            name = item[0]
+            brand = item[1]
+            product_id = item[2]
+            price = item[3]
+            image_string = item[4]
+            all_image = image_string.split(',')
+            return {
+                "brand": brand,
+                "name": name,
+                "price": price,
+                "image": all_image[0].strip() if all_image else "default.jpg",
+                "product_id": str(product_id)
+            }
+        except Exception as e:
+            print(f"Error processing item: {item} - {e}")
+            return None
+
+    # Use ThreadPoolExecutor to process products in parallel
+    products = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        results = executor.map(process_product, fetch_product)
+        products = [p for p in results if p is not None]
+
+    return render_template("dashboard.html", buttons=buttons, products=products)
+    
+
+@app.route("/dashboard")
+def dashboard2():
     buttons = [
         {"text": "B&W", "image": "b-w.jpeg"},
         {"text": "DENON", "image": "denon.jpeg"},
