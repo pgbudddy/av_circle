@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Scroll Buttons</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-style: normal;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0px;
+            width: 99%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            /* border: 1px solid black; */
+            /* border-bottom: 1px solid grey; */
+        }
+
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            width: 35px;
+            margin-left: 10px;
+        }
+
+
+
+        #equalizer-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#equalizer-loader .bar {
+    width: 5px;
+    height: 30px;
+    background-color: black;
+    animation: equalizer 1s infinite ease-in-out;
+}
+
+#equalizer-loader .bar:nth-child(1) {
+    animation-delay: -0.4s;
+}
+#equalizer-loader .bar:nth-child(2) {
+    animation-delay: -0.3s;
+}
+#equalizer-loader .bar:nth-child(3) {
+    animation-delay: -0.2s;
+}
+#equalizer-loader .bar:nth-child(4) {
+    animation-delay: -0.1s;
+}
+#equalizer-loader .bar:nth-child(5) {
+    animation-delay: 0s;
+}
+
+@keyframes equalizer {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(2.5);
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    
+    <div id="equalizer-loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+    
+    <header class="navbar">
+        <div class="left-section">
+            <!-- <div class="menu">
+                <img src="{{ url_for('static', filename='images/hamburger_dark.svg') }}" alt="Menu">
+            </div> -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/leftarrow.png') }}" onclick="location.href='{{ url_for('profile') }}'" alt="Back">
+            </div>
+        </div>
+    </header>
+
+    <br><br>
+
+    <center>
+        <h2 style="color: #3a3a3a;">Privacy Policy</h2>
+        <br>
+        <p style="color: #3a3a3a; text-align: left;">At Miniplex India, we are committed to protecting your privacy. This Privacy Policy outlines how we collect, use, disclose, and protect your personal information when you visit our website or engage with our services.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Information We Collect:</strong></p>
+        <p style="color: #3a3a3a; text-align: left;"><strong>Personal Information: </strong>We may collect personal information such as your name, email address, phone number, and address when you fill out forms on our website or communicate with us.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Usage Data: </strong> We may collect information about how you interact with our website, including your IP address, browser type, pages visited, and timestamps.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>How We Use Your Information: </strong></p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Provide Services: </strong>We use your personal information to deliver the services you request, such as responding to inquiries and processing orders.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Improve User Experience: </strong>We may analyze usage data to improve our website's functionality and tailor our services to better meet your needs.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Marketing Purposes: </strong>With your consent, we may send you promotional emails about our products, services, and special offers.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Data Security: </strong>We implement industry-standard security measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Third-Party Disclosure: </strong>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as required by law or to facilitate services you request.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Your Rights: </strong>You have the right to access, update, or delete your personal information. You may also opt-out of receiving marketing communications from us at any time.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Changes to This Policy: </strong>We may update this Privacy Policy from time to time. We encourage you to review this page periodically for any changes.</p>
+
+        <p style="color: #3a3a3a; text-align: left;"><strong>Contact Us: </strong>If you have any questions or concerns about our Privacy Policy, please contact us at [contact@miniplexindia.com].</p>
+
+        <p style="color: #3a3a3a; text-align: left;">This privacy policy is intended to inform users about how their personal information is handled by Miniplex India and ensure transparency in our data practices.</p>
+
+
+    </center>
+</body>
+</html>

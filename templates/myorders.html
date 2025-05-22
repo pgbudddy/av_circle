@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: white;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            width: 35px;
+            cursor: pointer;
+        }
+
+        /* Cart List */
+        .cart-container {
+            margin-top: 60px;
+            padding: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-top {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .item-middle {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            color: #555;
+            margin-top: 3px;
+        }
+
+        .item-bottom {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: green;
+            margin-top: 5px;
+        }
+
+        /* Final Price Section */
+        .final-price {
+            padding: 15px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        .final-price-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .final-price-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            color: black;
+            padding-top: 10px;
+        }
+
+        /* Shipping Details */
+        .shipping-details {
+            padding: 15px;
+            background-color: #ffffff;
+            border-top: 2px solid #ddd;
+            margin-top: 10px;
+            max-width: 100%;  /* Prevents overflow */
+            box-sizing: border-box;
+        }
+
+
+#equalizer-loader {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: white;
+z-index: 9999;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 5px;
+}
+
+#equalizer-loader .bar {
+width: 5px;
+height: 30px;
+background-color: black;
+animation: equalizer 1s infinite ease-in-out;
+}
+
+#equalizer-loader .bar:nth-child(1) {
+animation-delay: -0.4s;
+}
+#equalizer-loader .bar:nth-child(2) {
+animation-delay: -0.3s;
+}
+#equalizer-loader .bar:nth-child(3) {
+animation-delay: -0.2s;
+}
+#equalizer-loader .bar:nth-child(4) {
+animation-delay: -0.1s;
+}
+#equalizer-loader .bar:nth-child(5) {
+animation-delay: 0s;
+}
+
+@keyframes equalizer {
+0%, 100% {
+transform: scaleY(1);
+}
+50% {
+transform: scaleY(2.5);
+}
+}
+
+    </style>
+</head>
+<body>
+    
+    <div id="equalizer-loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="left-section">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/leftarrow.png') }}" onclick="location.href='{{ url_for('profile') }}'" alt="Back">
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart List -->
+    <div class="cart-container">
+        {% for product in cart_products %}
+        <div class="cart-item" id="cart-item-{{ product.id }}">
+            <img src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" alt="{{ product.name }}">
+            <div class="item-details">
+                <div class="item-top">
+                    <span>{{ product.name }}</span>
+                </div>
+                <div class="item-middle">
+                    <span>₹{{ product.price }}</span>
+                    <span>Qty: {{ product.qty }}</span>
+                </div>
+                <div class="item-bottom">
+                    <span>Datetime: </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+
+</body>
+</html>
