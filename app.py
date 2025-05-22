@@ -196,7 +196,7 @@ def dashboard():
                 "brand": brand,
                 "name": name,
                 "price": price,
-                "image": all_image[0].strip() if all_image else "default.jpg",
+                "image": all_image[0].strip() if all_image else "default.webp",
                 "product_id": str(product_id)
             }
         except Exception as e:
@@ -263,35 +263,39 @@ def contactus():
 def product_details(product_id):
     print("product_id", product_id)
 
+    # Use thread pool to fetch product & bid data concurrently
     with ThreadPoolExecutor() as executor:
-        future_product = executor.submit(api.fetch_product_details, product_id, user_id="999")
-        future_bids = executor.submit(api.fetch_bids_details, product_id)
+        futures = {
+            'product': executor.submit(api.fetch_product_details, product_id, user_id="999"),
+            'bids': executor.submit(api.fetch_bids_details, product_id)
+        }
 
-        fetch_product = future_product.result()
-        fetch_bids = future_bids.result()
+        fetch_product = futures['product'].result()
+        fetch_bids = futures['bids'].result()
 
-    print("fetch_product", fetch_product)
-    print("fetch_bids", fetch_bids)
-
-    if fetch_product and fetch_product[0]:
-        product_data = fetch_product[0]
+    if fetch_product and isinstance(fetch_product, tuple):
+        product_data, fav_data = fetch_product
         name = product_data.get("name", "")
         brand = product_data.get("brand", "")
         description = product_data.get("description", "")
+        db_product_id = product_data.get("product_id", "")
         
+        # Parse and sanitize price
         try:
             current_price = int(product_data.get("current_price", 0))
             base_price = int(product_data.get("price", 0))
-            price = current_price if current_price > base_price else base_price
-        except ValueError:
+            price = max(current_price, base_price)
+        except Exception as e:
+            print("Price parsing error:", e)
             price = product_data.get("price", "")
-        
-        db_product_id = product_data.get("product_id", "")
-        image_string = product_data.get("product_images", "")
-        images = [img.strip() for img in image_string.split(',')] if image_string else []
-    else:
-        name, brand, description, price, db_product_id, images = "", "", "", "", "", []
 
+        # Image processing
+        image_string = product_data.get("product_images", "")
+        images = [img.strip() for img in image_string.split(',') if img.strip()]
+        
+        in_watchlist = bool(fav_data and fav_data != "None")
+    else:
+        name, brand, description, price, db_product_id, images, in_watchlist = "", "", "", "", "", [], False
 
     return render_template(
         "product_details.html",
@@ -301,8 +305,8 @@ def product_details(product_id):
         price=price,
         images=images,
         product_id=str(db_product_id),
-        in_watchlist=fetch_product[1] is not None if fetch_product else False,
-        fetch_bids=fetch_bids
+        in_watchlist=in_watchlist,
+        fetch_bids=fetch_bids or []
     )
 
 
@@ -534,7 +538,7 @@ def cart():
                 'name': name,
                 'price': price,
                 'qty': qty,
-                'image': '1.jpg'  # Placeholder
+                'image': '1.webp'  # Placeholder
             })
 
         result["cart_products"] = cart_products
@@ -621,7 +625,7 @@ def search_suggestions():
                 'name': p[1],
                 'brand': p[2],
                 'price': p[3],
-                'image': '1.jpg'  # Replace with actual image if available
+                'image': '1.webp'  # Replace with actual image if available
             })
         result["products"] = results
 
@@ -669,7 +673,7 @@ def myorders():
                 'name': name,
                 'price': price,
                 'qty': qty,
-                'image': '1.jpg'  # Placeholder image
+                'image': '1.webp'  # Placeholder image
             })
 
         result["cart_products"] = cart_products

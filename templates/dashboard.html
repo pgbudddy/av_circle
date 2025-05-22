@@ -269,7 +269,7 @@
     <header class="navbar">
         <div class="left-section">
             <div class="menu">
-                <img src="{{ url_for('static', filename='images/logo2.svg') }}" alt="Menu">
+                <img src="{{ url_for('static', filename='images/logo2.svg') }}" loading="lazy"  alt="Menu">
             </div>
             <div class="logo">
                 
@@ -277,8 +277,8 @@
             <!-- <input type="text" class="search-input" placeholder="Search..."> -->
         </div>
         <div class="user">
-            <img src="{{ url_for('static', filename='images/cart.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent;" alt="User">
-            <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" style="-webkit-tap-highlight-color: transparent;" alt="User">
+            <img src="{{ url_for('static', filename='images/cart.svg') }}" onclick="location.href='{{ url_for('cart') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+            <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
         </div>
     </header>
 
@@ -291,7 +291,7 @@
         {% for button in buttons %}
         <div class="button-container">
             <button class="round-button">
-                <img src="{{ url_for('static', filename='images/brand-icons/' + button.image) }}" alt="{{ button.text }}">
+                <img src="{{ url_for('static', filename='images/brand-icons/' + button.image) }}" loading="lazy" alt="{{ button.text }}">
             </button>
             <div class="button-text">{{ button.text }}</div>
         </div>
@@ -306,7 +306,7 @@
     <div class="product-scroller">
         {% for product in products %}
         <div class="product-item" onclick="location.href='{{ url_for('product_details', product_id=product.product_id) }}'">
-            <img src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" alt="{{ product.name }}" class="product-image">
+            <img src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" loading="lazy"  alt="{{ product.name }}" class="product-image">
             <div class="brand-name">{{ product.brand }}</div>
             <div class="product-name">{{ product.name }}</div>
             <div class="price">{{ product.price }}</div>

@@ -323,7 +323,7 @@
         const message = document.getElementById('description').value;
 
         if (!name || !number || !message) {
-            alert("Please fill in all fields.");
+            console.log("Please fill in all fields.");
             return;
         }
 
@@ -346,12 +346,12 @@
             if (data.success) {
                 document.getElementById('email-verification-popup').style.display = 'flex';
             } else {
-                alert('Error: ' + (data.error || 'Unknown error occurred.'));
+                console.log('Error: ' + (data.error || 'Unknown error occurred.'));
             }
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            alert('Something went wrong. Check the console for details.');
+            console.log('Something went wrong. Check the console for details.');
         });
     }
 </script>
