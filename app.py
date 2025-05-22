@@ -229,19 +229,34 @@ def profile():
     return render_template("profile.html", name=profile_details[0], email=profile_details[2])
 
 
-@app.route("/contactus", methods=['GET', 'POST'])
+@app.route('/contactus', methods=['GET', 'POST'])
 def contactus():
     if request.method == 'POST':
-        name = request.form['name']
-        number = request.form['number']
-        description = request.form['description']
-        
-        # Here you can save the data to a database or process it
-        print(f"Ticket Raised by {name}, {number} - {description}")
-        
-        return "Ticket Submitted Successfully!"  # You can redirect to a success page
+        # Get required data from request
+        username = request.cookies.get('username')
+        data = request.get_json()
+        name = data.get('name')
+        number = data.get('number')
+        message = data.get('message')
 
-    return render_template("contactus.html")
+        if not name or not number or not message:
+            return jsonify({'success': False, 'error': 'All fields are required'}), 400
+
+        # Define the background function with arguments
+        def process_ticket(username, name, number, message):
+            print(f"Ticket raised by {name}, Number: {number}, Message: {message}")
+            try:
+                api.contactus(username, name, number, message)
+            except Exception as e:
+                print("Error in ticket processing:", e)
+
+        # Start the thread safely
+        thread = threading.Thread(target=process_ticket, args=(username, name, number, message))
+        thread.start()
+
+        return jsonify({'success': True})
+
+    return render_template('contactus.html')
 
 
 @app.route("/product_details/<product_id>")

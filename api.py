@@ -81,8 +81,7 @@ def get_recent_messages():
         close_connection(mydb, mycursor)
 
 
-def save_message(username, message, timestamp):
-    print("save_message")
+def contactus(userid, name, number, message):
     try:
         # Get a connection from the pool
         mydb = get_db_connection()
@@ -91,9 +90,8 @@ def save_message(username, message, timestamp):
         mycursor = mydb.cursor(buffered=True)
         
         date = datetime.datetime.now()
-        print(username, message, timestamp)
-        trade = "INSERT INTO messages (username, message, timestamp) VALUES (%s, %s, %s)"
-        mycursor.execute(trade, (username, message, timestamp))
+        trade = "INSERT INTO contactus (userid, name, number, message, datetime) VALUES (%s, %s, %s, %s, %s)"
+        mycursor.execute(trade, (userid, name, number, message, date))
         mydb.commit()
         
         # Check if insertion was successful
