@@ -124,7 +124,7 @@
         }
 
         .auction-input {
-            width: 70%;
+            width: 60%;
             padding: 8px;
             font-size: 14px;
             border: 1px solid lightgray;
@@ -402,7 +402,7 @@
     <!-- Image Slider -->
     <div class="image-slider">
         {% for image in images %}
-            <img src="{{ url_for('static', filename='images/product_images/' + product_id + '/' + image) }}" alt="{{ name }}">
+            <img src="{{ url_for('static', filename='images/product_images/' + product_id + '/' + image) }}" loading="lazy" alt="{{ name }}">
         {% endfor %}
     </div>
 

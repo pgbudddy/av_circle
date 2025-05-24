@@ -325,7 +325,7 @@
     <div class="product-scroller">
         {% for product in products %}
         <div class="product-item" onclick="location.href='{{ url_for('product_details', product_id=product.product_id) }}'">
-            <img src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" alt="{{ product.name }}" class="product-image">
+            <img src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" loading="lazy" alt="{{ product.name }}" class="product-image">
             <div class="brand-name">{{ product.brand }}</div>
             <div class="product-name">{{ product.name }}</div>
             <div class="price">{{ product.price }}</div>

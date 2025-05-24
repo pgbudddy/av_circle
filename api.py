@@ -458,7 +458,7 @@ def fetch_product_details(product_id, user_id):
         mycursor = mydb.cursor(dictionary=True, buffered=True)
 
         # Query to fetch product with max bid or default price
-        query = 'SELECT p.*, COALESCE(MAX(b.price), p.price) AS current_price FROM products p LEFT JOIN bids b ON p.product_id = b.product_id WHERE p.product_id = %s GROUP BY p.product_id'
+        query = 'SELECT p.product_id, p.name, p.discription, p.price, COALESCE(MAX(b.price), p.price) AS current_price, p.product_images FROM products p LEFT JOIN bids b ON p.product_id = b.product_id WHERE p.product_id = %s GROUP BY p.product_id, p.name, p.discription, p.price, p.product_images'
         mycursor.execute(query, (product_id,))
         product_result = mycursor.fetchone()
 

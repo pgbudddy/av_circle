@@ -337,27 +337,34 @@ def buynow():
         raw_cart_products = api.buy_product(product_id)
         print("raw_cart_products", raw_cart_products)
 
-        name = raw_cart_products[0]
-        brand = raw_cart_products[1]
-        description = raw_cart_products[2]
-        price = raw_cart_products[3]
-        qty = raw_cart_products[4]
-        current_price = raw_cart_products[6]
-        images = raw_cart_products[5].split(",")
-        image = images[0].strip()
+        if not raw_cart_products or not isinstance(raw_cart_products, (list, tuple)):
+            result["error"] = "Invalid product data"
+            return
 
-        product = {
-            "product_id": product_id,
-            "name": name,
-            "price": price,
-            "image": image,
-            "qty": qty
-        }
+        try:
+            name = raw_cart_products[0]
+            brand = raw_cart_products[1]
+            description = raw_cart_products[2]
+            price = raw_cart_products[3]
+            qty = raw_cart_products[4]
+            current_price = raw_cart_products[6]
+            images = raw_cart_products[5].split(",")
+            image = images[0].strip()
 
-        total_price = int(price) * int(qty)
+            product = {
+                "product_id": product_id,
+                "name": name,
+                "price": price,
+                "image": image,
+                "qty": qty
+            }
 
-        result["product"] = product
-        result["total_price"] = total_price
+            total_price = int(price) * int(qty)
+
+            result["product"] = product
+            result["total_price"] = total_price
+        except Exception as e:
+            result["error"] = str(e)
 
     thread = threading.Thread(target=process_product)
     thread.start()
@@ -431,8 +438,8 @@ def checkout():
     pincode = request.form.get("pincode")
     city = request.form.get("city")
     state = request.form.get("state")
-    # price = request.form.get("price")
-    price = 1000
+    price = request.form.get("price")
+    #price = 1000
 
     print("name ", name)
     print("phone ", phone)

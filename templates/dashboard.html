@@ -157,6 +157,27 @@
             border: 1px solid #ddd;
         }
 
+        .view-all-product {
+            grid-column: span 2; /* Span across both columns */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .view-all-button {
+            padding: 10px 30px;
+            font-size: 16px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .view-all-button:hover {
+            background-color: #333;
+        }
+
         .brand-name {
             margin-top: 5px;
             color: grey;
@@ -312,6 +333,13 @@
             <div class="price">{{ product.price }}</div>
         </div>
         {% endfor %}
+
+        <!-- Centered View All Button -->
+        <div class="product-item view-all-product">
+            <button onclick="location.href='{{ url_for('search_products') }}'" style="-webkit-tap-highlight-color: transparent;" class="view-all-button">
+                View All
+            </button>
+        </div>
     </div>
     
 
