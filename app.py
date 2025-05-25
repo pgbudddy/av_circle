@@ -346,20 +346,21 @@ def buynow():
             brand = raw_cart_products[1]
             description = raw_cart_products[2]
             price = raw_cart_products[3]
-            qty = raw_cart_products[4]
-            current_price = raw_cart_products[6]
+            #qty = raw_cart_products[4]
+            qty = 1
+            current_price = raw_cart_products[7]
             images = raw_cart_products[5].split(",")
             image = images[0].strip()
 
             product = {
                 "product_id": product_id,
                 "name": name,
-                "price": price,
+                "price": current_price,
                 "image": image,
                 "qty": qty
             }
 
-            total_price = int(price) * int(qty)
+            total_price = int(current_price) * int(qty)
 
             result["product"] = product
             result["total_price"] = total_price

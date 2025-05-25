@@ -451,6 +451,8 @@ def buy_product(product_id):
         close_connection(mydb, mycursor)
 
 
+print(buy_product(16))
+
 def fetch_product_details(product_id, user_id):
     try:
         # Get a connection from the pool
