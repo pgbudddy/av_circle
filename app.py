@@ -584,7 +584,7 @@ def search_products():
     result = {"products": []}
 
     def fetch_and_process():
-        fetch_product = api.fetch_products()
+        fetch_product = api.fetch_all_products()
         print("fetch_product", fetch_product)
 
         products = []
@@ -724,6 +724,20 @@ def register_token():
         "token": token,
         "public_ip": public_ip
     })
+
+
+@app.route("/pinkvilla")
+def pinkvilla():
+    profile = {
+        "name": "Pink Villla",
+        "bio": "The ONLY place for premium adult board games and accessories!",
+        "avatar": "https://i.pravatar.cc/150?img=3",
+        "links": [
+            {"title": "Adultopoly", "url": "https://meesho.com/adultopoly-board-game--the-ultimate-adult-party-experience/p/8w5ue0?_ms=1.2"},
+            {"title": "Adultopoly Drunk", "url": "https://meesho.com/adultopoly-drunk/p/90mg52?_ms=1.2"},
+        ]
+    }
+    return render_template("pinkvilla.html", profile=profile)
 
 
 if __name__ == '__main__':

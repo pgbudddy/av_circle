@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ profile.name }} | Link in Bio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #fed8f1;
+            text-align: center;
+            padding: 40px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            /* border: 3px solid #333; */
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            margin-top: -5px;
+            color: #ff5757;
+        }
+
+        .bio {
+            font-size: 1.0em;
+            margin-bottom: 30px;
+            color: #ff5757;
+        }
+
+        .links a {
+            display: block;
+            margin: 10px 0;
+            padding: 12px 20px;
+            background-color: white;
+            border: 3px solid #ff5757;
+            color: #ff5757;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: 0.3s;
+            box-shadow: 0 4px 8px rgba(255, 87, 87, 0.3);  /* Added soft red shadow */
+        }
+
+        .links a:hover {
+            box-shadow: 0 6px 12px rgba(255, 87, 87, 0.5); /* Slightly deeper on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/Pink_Villla.png') }}" alt="Avatar" class="avatar">
+        <h1>{{ profile.name }}</h1>
+        <p class="bio">{{ profile.bio }}</p>
+
+        <div class="links">
+            {% for link in profile.links %}
+                <a href="{{ link.url }}" target="_blank">{{ link.title }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

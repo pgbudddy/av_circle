@@ -403,6 +403,30 @@ def fetch_products():
         close_connection(mydb, mycursor)
 
 
+def fetch_all_products():
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        query = 'SELECT name, brand, product_id, price, product_images FROM products'
+        mycursor.execute(query)
+        myresult = mycursor.fetchall()
+
+        print("myresult ", myresult)
+
+        return myresult
+        
+    except:
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
 def fetch_profile(uniqueid):
     try:
         # Get a connection from the pool
@@ -450,8 +474,6 @@ def buy_product(product_id):
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
-
-print(buy_product(16))
 
 def fetch_product_details(product_id, user_id):
     try:
