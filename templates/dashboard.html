@@ -27,6 +27,30 @@
             background-color: white;
         }
 
+        .image-slider {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            margin-top: 60px; /* adjust based on navbar height */
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .image-slider img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .image-slider img.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
         .left-section {
             display: flex;
             align-items: center;
@@ -77,7 +101,7 @@
             padding: 0px;
             scroll-behavior: smooth;
             gap: 5px;
-            margin-top: 80px; /* Adjust this value based on the navbar height */
+            margin-top: 30px; /* Adjust this value based on the navbar height */
 
             /* Hide scrollbar */
             scrollbar-width: none; /* Firefox */
@@ -222,50 +246,50 @@
         }
 
         #equalizer-loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: white;
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-}
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
 
-#equalizer-loader .bar {
-    width: 5px;
-    height: 30px;
-    background-color: black;
-    animation: equalizer 1s infinite ease-in-out;
-}
+        #equalizer-loader .bar {
+            width: 5px;
+            height: 30px;
+            background-color: black;
+            animation: equalizer 1s infinite ease-in-out;
+        }
 
-#equalizer-loader .bar:nth-child(1) {
-    animation-delay: -0.4s;
-}
-#equalizer-loader .bar:nth-child(2) {
-    animation-delay: -0.3s;
-}
-#equalizer-loader .bar:nth-child(3) {
-    animation-delay: -0.2s;
-}
-#equalizer-loader .bar:nth-child(4) {
-    animation-delay: -0.1s;
-}
-#equalizer-loader .bar:nth-child(5) {
-    animation-delay: 0s;
-}
+        #equalizer-loader .bar:nth-child(1) {
+            animation-delay: -0.4s;
+        }
+        #equalizer-loader .bar:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+        #equalizer-loader .bar:nth-child(3) {
+            animation-delay: -0.2s;
+        }
+        #equalizer-loader .bar:nth-child(4) {
+            animation-delay: -0.1s;
+        }
+        #equalizer-loader .bar:nth-child(5) {
+            animation-delay: 0s;
+        }
 
-@keyframes equalizer {
-    0%, 100% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(2.5);
-    }
-}
+        @keyframes equalizer {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(2.5);
+            }
+        }
 
     </style>
 </head>
@@ -302,6 +326,15 @@
             <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
         </div>
     </header>
+
+    <!-- Auto Image Slider -->
+    <div class="image-slider">
+        <img src="{{ url_for('static', filename='images/product_images/49/3.webp') }}" loading="lazy" alt="Slide 1">
+        <img src="{{ url_for('static', filename='images/product_images/50/3.webp') }}" loading="lazy" alt="Slide 2">
+        <img src="{{ url_for('static', filename='images/product_images/61/6.webp') }}" loading="lazy" alt="Slide 3">
+        <img src="{{ url_for('static', filename='images/product_images/85/5.webp') }}" loading="lazy" alt="Slide 4">
+        <img src="{{ url_for('static', filename='images/product_images/87/3.webp') }}" loading="lazy" alt="Slide 5">
+    </div>
 
     <!-- Search Bar Section -->
     <!-- <div class="search-container">
@@ -356,3 +389,21 @@
 
 </body>
 </html>
+
+
+<script>
+    const slides = document.querySelectorAll('.image-slider img');
+    let currentIndex = 0;
+
+    function showNextSlide() {
+        slides[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % slides.length;
+        slides[currentIndex].classList.add('active');
+    }
+
+    // Show the first image initially
+    slides[currentIndex].classList.add('active');
+
+    // Auto slide every 3 seconds
+    setInterval(showNextSlide, 3000);
+</script>
