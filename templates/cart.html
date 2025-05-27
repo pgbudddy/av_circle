@@ -32,7 +32,7 @@
         }
 
         .logo img {
-            width: 35px;
+            width: 30px;
             cursor: pointer;
         }
 
@@ -284,7 +284,7 @@
     <header class="navbar">
         <div class="left-section">
             <div class="logo">
-                <img src="{{ url_for('static', filename='images/leftarrow.png') }}" onclick="location.href='{{ url_for('dashboard') }}'" alt="Back">
+                <img src="{{ url_for('static', filename='images/leftarrow.png') }}" onclick="location.href='{{ url_for('dashboard') }}'" style="-webkit-tap-highlight-color: transparent;" alt="Back">
             </div>
         </div>
     </header>
@@ -309,7 +309,7 @@
                 </div>
             </div>
             <!-- Remove Button -->
-            <button class="remove-btn" onclick="removeFromCart({{ product.id }})">✖</button>
+            <button class="remove-btn" onclick="removeFromCart({{ product.id }})" style="-webkit-tap-highlight-color: transparent;">✖</button>
         </div>
         {% endfor %}
     </div>

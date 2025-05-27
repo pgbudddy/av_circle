@@ -8,6 +8,7 @@
         body {
             font-family: 'Arial', sans-serif;
             font-style: normal;
+            background-color: #eeeeee;
         }
 
         /* Navbar */
@@ -23,14 +24,14 @@
             left: 0;
             z-index: 10;
             /* border: 1px solid black; */
-            border-bottom: 1px solid grey;
+            /* border-bottom: 1px solid grey; */
             background-color: white;
         }
 
         .image-slider {
             position: relative;
             width: 100%;
-            height: 300px;
+            height: 350px;
             overflow: hidden;
             margin-top: 60px; /* adjust based on navbar height */
             border-bottom-right-radius: 10px;
@@ -169,7 +170,7 @@
             padding: 10px;
             /* border: 1px solid #ddd; Optional: Add border */
             border-radius: 10px;
-            background-color: #fff;
+            background-color: white;
         }
 
         .product-image {
@@ -178,7 +179,7 @@
             height: 150px;
             object-fit: cover;
             border-radius: 10px;
-            border: 1px solid #ddd;
+            /* border: 1px solid #ddd; */
         }
 
         .view-all-product {
@@ -202,19 +203,29 @@
             background-color: #333;
         }
 
-        .brand-name {
-            margin-top: 5px;
-            color: grey;
-        }
-
         .product-name {
-            color: #555;
-            margin-top: 3px;
+            color: black;
         }
 
-        .price {
+        .brand-price-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 14px;
             color: grey;
-            margin-top: 3px;
+        }
+
+        .price{
+            color: #2e6aff;
+        }
+
+        .brand-price-row .brand-name {
+            text-align: left;
+        }
+
+        .brand-price-row .price {
+            text-align: right;
         }
 
         /* Bottom Navigation Bar */
@@ -223,8 +234,11 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: #282828;
+            height: 25px;
+            background: #eeeeee;
             display: flex;
+            border-top-right-radius: 10px;
+            border-top-left-radius: 10px;
             justify-content: space-around;
             align-items: center;
             padding: 12px 0;
@@ -322,8 +336,8 @@
             <!-- <input type="text" class="search-input" placeholder="Search..."> -->
         </div>
         <div class="user">
-            <img src="{{ url_for('static', filename='images/cart.svg') }}" onclick="location.href='{{ url_for('cart') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
-            <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+            <img src="{{ url_for('static', filename='images/search.svg') }}" onclick="location.href='{{ url_for('search_products') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+            <img src="{{ url_for('static', filename='images/profile_profile.png') }}" onclick="location.href='{{ url_for('profile') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
         </div>
     </header>
 
@@ -361,9 +375,11 @@
         {% for product in products %}
         <div class="product-item" onclick="location.href='{{ url_for('product_details', product_id=product.product_id) }}'">
             <img src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" loading="lazy"  alt="{{ product.name }}" class="product-image">
-            <div class="brand-name">{{ product.brand }}</div>
             <div class="product-name">{{ product.name }}</div>
-            <div class="price">{{ product.price }}</div>
+            <div class="brand-price-row">
+                <span class="brand-name">{{ product.brand }}</span>
+                <span class="price">₹ {{ product.price }}</span>
+            </div>
         </div>
         {% endfor %}
 
@@ -381,9 +397,15 @@
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-        <a href="#" onclick="location.href='{{ url_for('dashboard') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">Home</a>
-        <a href="#" onclick="location.href='{{ url_for('search_products') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">Search</a>
-        <a href="#" onclick="location.href='{{ url_for('profile') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">Profile</a>
+        <a href="#" onclick="location.href='{{ url_for('dashboard') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/home_blue.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+        </a>
+        <a href="#" onclick="location.href='{{ url_for('favourite') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent; width: 25px;" alt="User">
+        </a>
+        <a href="#" onclick="location.href='{{ url_for('cart') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/cart.svg') }}" onclick="location.href='{{ url_for('cart') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent; width: 25px;" alt="User">
+        </a>
     </nav>
 
 
