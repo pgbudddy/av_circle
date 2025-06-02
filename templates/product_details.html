@@ -484,19 +484,22 @@
             </form>
         </div>
     
-        <!-- VS Text
+        <!-- VS Text -->
         <div class="vs-text">VS</div>
     
-        Competitor Platform 1
-        <div class="platform-box">
-            <img src="{{ url_for('static', filename='images/logo2.svg') }}" alt="Amazon" class="platform-logo">
-            <span class="platform-name">Amazon</span>
-            <button class="buy-now-btn">
+        <!-- Competitor Platform 1 -->
+        <div class="platform-box" style="-webkit-tap-highlight-color: transparent;">
+            <!-- <img src="{{ url_for('static', filename='images/logo2.svg') }}" alt="Amazon" class="platform-logo"> -->
+            {% for c in competitors %}
+                <span class="platform-name">{{ c.name }}</span>        
+                <span style="font-size: 15px;">₹ {{ c.price }}</span>
+            {% endfor %}
+            <!-- <button class="buy-now-btn">
                 ₹ 10,80,000
-            </button>
+            </button> -->
         </div>
     
-        Competitor Platform 2
+        <!-- Competitor Platform 2
         <div class="platform-box">
             <img src="{{ url_for('static', filename='images/logo2.svg') }}" alt="Flipkart" class="platform-logo">
             <span class="platform-name">Flipkart</span>
@@ -512,9 +515,9 @@
             <button class="buy-now-btn">
                 ₹ 10,75,000
             </button>
-        </div>
+        </div> -->
     
-    </div> -->
+    </div>
 
 
     <div class="faq-container">

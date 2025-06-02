@@ -384,7 +384,7 @@
         {% endfor %}
 
         <!-- Centered View All Button -->
-        <div class="product-item view-all-product">
+        <div class="product-item view-all-product" style="background-color: transparent;">
             <button onclick="location.href='{{ url_for('search_products') }}'" style="-webkit-tap-highlight-color: transparent;" class="view-all-button">
                 View All
             </button>
@@ -398,13 +398,13 @@
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <a href="#" onclick="location.href='{{ url_for('dashboard') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
-            <img src="{{ url_for('static', filename='images/home_blue.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+            <img src="{{ url_for('static', filename='images/home_blue.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent;" alt="User">
         </a>
         <a href="#" onclick="location.href='{{ url_for('favourite') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
-            <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent; width: 25px;" alt="User">
+            <img src="{{ url_for('static', filename='images/watchlist.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" style="-webkit-tap-highlight-color: transparent; width: 25px;" alt="User">
         </a>
         <a href="#" onclick="location.href='{{ url_for('cart') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
-            <img src="{{ url_for('static', filename='images/cart.svg') }}" onclick="location.href='{{ url_for('cart') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent; width: 25px;" alt="User">
+            <img src="{{ url_for('static', filename='images/cart.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent; width: 25px;" alt="User">
         </a>
     </nav>
 

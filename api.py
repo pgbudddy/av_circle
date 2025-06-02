@@ -411,7 +411,11 @@ def fetch_all_products():
         # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
         
-        query = 'SELECT name, brand, product_id, price, product_images FROM products'
+        query = '''
+            SELECT name, brand, product_id, price, product_images FROM products
+            UNION ALL
+            SELECT name, brand, product_id, price, product_images FROM projector_products
+        '''
         mycursor.execute(query)
         myresult = mycursor.fetchall()
 
@@ -551,6 +555,29 @@ def fetch_bids_details(product_id):
         query = 'SELECT b.*, s.name FROM bids b JOIN signup s ON b.user_id = s.user_id WHERE b.product_id = %s'
         mycursor.execute(query, (product_id,))
         myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        print("Error:", str(e))
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
+def fetch_competitors(product_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Use dictionary cursor for better readability
+        mycursor = mydb.cursor(dictionary=True, buffered=True)
+
+        # Updated query with JOIN
+        query = 'SELECT * FROM competitors WHERE product_id = %s'
+        mycursor.execute(query, (product_id,))
+        myresult = mycursor.fetchone()
 
         return myresult
 

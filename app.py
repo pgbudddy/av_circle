@@ -46,7 +46,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 # cache = Cache(app)
 
 GOOGLE_MAPS_API_KEY = "AIzaSyCdc5N7AzzvPiWddsegRCRmna3LxG5HCmk"
-razorpay_client = razorpay.Client(auth=("rzp_test_7TJCqucHMY4JS2", "489v1D9RIMDuqzWH8JmeWMZr"))
+razorpay_client = razorpay.Client(auth=("rzp_test_TwtlZLsdicgI4j", "T59quSWQ52ENj5Uf9oNOXTk6"))
 
 
 # Upload folder configuration
@@ -267,11 +267,18 @@ def product_details(product_id):
     with ThreadPoolExecutor() as executor:
         futures = {
             'product': executor.submit(api.fetch_product_details, product_id, user_id="999"),
-            'bids': executor.submit(api.fetch_bids_details, product_id)
+            'bids': executor.submit(api.fetch_bids_details, product_id),
+            'competitors': executor.submit(api.fetch_competitors, product_id)
         }
 
         fetch_product = futures['product'].result()
         fetch_bids = futures['bids'].result()
+        raw_competitor = futures['competitors'].result()
+
+        competitors = [raw_competitor] if isinstance(raw_competitor, dict) else (raw_competitor or [])
+
+        print("competitors ", competitors)
+
 
     if fetch_product and isinstance(fetch_product, tuple):
         product_data, fav_data = fetch_product
@@ -306,7 +313,8 @@ def product_details(product_id):
         images=images,
         product_id=str(db_product_id),
         in_watchlist=in_watchlist,
-        fetch_bids=fetch_bids or []
+        fetch_bids=fetch_bids or [],
+        competitors=competitors or []  # ✅ Add this line
     )
 
 
