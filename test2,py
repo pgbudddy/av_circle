@@ -1,0 +1,13 @@
+import pandas as pd
+
+# Load the CSV with header
+df = pd.read_csv("cleaned.csv")
+
+# Drop rows where product_id is not a number
+df = df[pd.to_numeric(df['product_id'], errors='coerce').notnull()]
+
+# Convert product_id to integer (optional but safe)
+df['product_id'] = df['product_id'].astype(int)
+
+# Save clean CSV with no header, ready for MySQL
+df.to_csv("final_cleaned.csv", index=False, header=True)

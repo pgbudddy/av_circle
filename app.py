@@ -341,6 +341,7 @@ def buynow():
     product_id = request.form.get('product_id')
     result = {}
 
+    
     def process_product():
         raw_cart_products = api.buy_product(product_id)
         print("raw_cart_products", raw_cart_products)
@@ -356,7 +357,7 @@ def buynow():
             price = raw_cart_products[3]
             #qty = raw_cart_products[4]
             qty = 1
-            current_price = raw_cart_products[7]
+            current_price = raw_cart_products[12]
             images = raw_cart_products[5].split(",")
             image = images[0].strip()
 
@@ -369,6 +370,9 @@ def buynow():
             }
 
             total_price = int(current_price) * int(qty)
+
+            print("product ", product)
+            print("total_price ", total_price)
 
             result["product"] = product
             result["total_price"] = total_price
@@ -622,6 +626,38 @@ def search_products():
     thread.join()
 
     return render_template("search_products.html", products=result["products"])
+
+
+@app.route("/send_message", methods=["POST"])
+def send_message():
+    user_msg = request.json.get("message")
+
+    print("user_msg: ", user_msg)
+
+    url = "https://grok-3-0-ai.p.rapidapi.com/"
+    payload = {
+        "model": "grok-3",
+        "messages": [
+            {"role": "user", "content": user_msg}
+        ]
+    }
+    headers = {
+        "x-rapidapi-key": "61d6e1e530msh362ab2cba9dd614p1c18fcjsnec1702960611",
+        "x-rapidapi-host": "grok-3-0-ai.p.rapidapi.com",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=20)
+        data = response.json()
+
+        print("data ", data)
+
+        reply = data["choices"][0]["message"]["content"]
+    except Exception as e:
+        reply = f"Error: {str(e)}"
+
+    return jsonify({"reply": reply})
 
 
 @app.route('/api/search_suggestions')

@@ -411,11 +411,7 @@ def fetch_all_products():
         # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
         
-        query = '''
-            SELECT name, brand, product_id, price, product_images FROM products
-            UNION ALL
-            SELECT name, brand, product_id, price, product_images FROM projector_products
-        '''
+        query = 'SELECT name, brand, product_id, price, product_images FROM products'
         mycursor.execute(query)
         myresult = mycursor.fetchall()
 
