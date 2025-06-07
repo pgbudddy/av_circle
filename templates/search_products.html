@@ -241,119 +241,6 @@
             filter: invert(0); /* make white icon visible on black bg */
         }
 
-        /* Chat Box */
-        .chat-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 95vw;
-            height: 95vh;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            z-index: 99999; /* highest possible z-index */
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-
-        .chat-header {
-            background-color: #2e6aff;
-            color: white;
-            padding: 15px;
-            font-size: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .close-chat {
-            cursor: pointer;
-            font-size: 20px;
-        }
-
-        .chat-messages {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            flex: 1;
-            overflow-y: auto;
-            background: #f9f9f9;
-        }
-
-        .messages{
-            display: flex;
-            margin-bottom: 8px;
-        }
-
-        .message.bot {
-            justify-content: flex-start;
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
-
-        .message .bubble {
-            max-width: 80%;
-            padding: 8px 10px;
-            border-radius: 15px;
-            font-size: 14px;
-        }
-
-        .message.bot .bubble {
-            background: #e0e0e0;
-            color: black;
-            border-bottom-left-radius: 0;
-        }
-
-        .message.user .bubble {
-            background: #2e6aff;
-            color: white;
-            border-bottom-right-radius: 0;
-        }
-
-        .chat-input {
-            border: none;
-            border-top: 1px solid #ccc;
-            padding: 15px;
-            font-size: 16px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        #chat-input:focus {
-            outline: none;
-            border-top: 1px solid #ccc;
-            box-shadow: none;
-        }
-
-        /* Hide class */
-        .hidden {
-            display: none;
-        }
-
-        /* Example messages */
-        .bot {
-            background: #e0e0e0;
-            padding: 6px 10px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            max-width: 80%;
-        }
-        .user {
-            background: #2e6aff;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            align-self: flex-end;
-            max-width: 80%;
-        }
-
-
         /* Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
@@ -431,6 +318,227 @@
             }
         }
 
+
+
+/* Chat Wrapper for Positioning */
+.chat-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 90vh;
+    z-index: 1000;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+/* Hidden State */
+.chat-wrapper.hidden {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+    pointer-events: none;
+}
+
+/* Chat Container */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Messages Area */
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Message Styling */
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+    margin-bottom: 10px;
+}
+
+.ai-message {
+    align-self: flex-start;
+}
+
+.user-message {
+    align-self: flex-end;
+}
+
+.message-content {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    background-color: inherit; /* Inherit from parent */
+}
+
+/* Formatting for AI response content */
+.message-content h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0 8px;
+    color: inherit;
+}
+
+.message-content p {
+    margin: 8px 0;
+}
+
+.message-content ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.message-content li {
+    margin-bottom: 6px;
+}
+
+.ai-message .message-content {
+    background-color: #e6f0fa;
+    color: #333;
+    border-radius: 12px 12px 12px 0;
+}
+
+.user-message .message-content {
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 12px 12px 0 12px;
+}
+
+.message-timestamp {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    align-self: flex-end;
+}
+
+/* Waiting Animation */
+.waiting-animation .message-content {
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.waiting-video {
+    max-width: 100px;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Input Container */
+.chat-input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: none;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.chat-input:focus {
+    border-color: #007bff;
+}
+
+.send-button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}
+
+/* Close Button */
+.close-chat {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-chat:hover {
+    color: #000;
+}
+
+/* Scrollbar Styling */
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f9f9f9;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .chat-wrapper {
+        width: 95vw;
+        height: 95vh;
+    }
+
+    .message-content {
+        font-size: 13px;
+    }
+
+    .message-content h3 {
+        font-size: 15px;
+    }
+
+    .chat-input {
+        font-size: 13px;
+    }
+
+    .send-button {
+        padding: 8px 15px;
+    }
+
+    .waiting-video {
+        max-width: 80px;
+    }
+}
     </style>
 </head>
 <body>
@@ -484,20 +592,30 @@
 
     <br><br>
 
-    <button class="floating-btn" onclick="toggleChatBox()">
+    <button class="floating-btn">
         <img src="{{ url_for('static', filename='images/bot_mini.png') }}" style="width: 95%; height: auto;" alt="Chat">
     </button>
 
-    <div id="chat-box" class="chat-box hidden">
-        <div class="chat-header">
-            Welcome to AV Circle AI
-            <span class="close-chat" onclick="toggleChatBox()">×</span>
+    <chat-messages>
+        <div class="chat-wrapper hidden">
+            <div class="chat-container" id="chatBox">
+                <!-- Chat Messages Area -->
+                <div class="chat-messages">
+                    <div class="message ai-message">
+                        <div class="message-content">Hello! How can I assist you today?</div>
+                        <span class="message-timestamp">01:00 AM</span>
+                    </div>
+                </div>
+                <!-- Chat Input Area -->
+                <div class="chat-input-container">
+                    <textarea class="chat-input" placeholder="Type your message..." rows="1"></textarea>
+                    <button class="send-button">Send</button>
+                </div>
+                <!-- Close Button -->
+                <button class="close-chat">×</button>
+            </div>
         </div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="message bot"><div class="bubble">Hi! How can I help you?</div></div>
-        </div>
-        <input type="text" class="chat-input" id="chat-input" placeholder="Type your message..." onkeydown="handleChatInput(event)">
-    </div>
+    </chat-messages>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
@@ -518,73 +636,116 @@
 
 <script>
 
-function toggleChatBox() {
-    const chatBox = document.getElementById('chat-box');
-    chatBox.classList.toggle('hidden');
-}
+const floatingBtn = document.querySelector('.floating-btn');
+const chatWrapper = document.querySelector('.chat-wrapper');
+const closeChat = document.querySelector('.close-chat');
+const chatMessages = document.querySelector('.chat-messages');
+const chatInput = document.querySelector('.chat-input');
+const sendButton = document.querySelector('.send-button');
 
-function handleChatInput(event) {
-    if (event.key === "Enter") {
-        const input = document.getElementById('chat-input');
-        const msg = input.value.trim();
-        if (msg === "") return;
+// Toggle chat visibility
+floatingBtn.addEventListener('click', () => {
+    chatWrapper.classList.toggle('hidden');
+    if (!chatWrapper.classList.contains('hidden')) {
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        chatInput.focus();
+    }
+});
 
-        const chatMessages = document.getElementById('chat-messages');
+// Close chat
+closeChat.addEventListener('click', () => {
+    chatWrapper.classList.add('hidden');
+});
 
+// Send message to Flask endpoint
+sendButton.addEventListener('click', async () => {
+    const messageText = chatInput.value.trim();
+    if (messageText) {
         // Append user message
-        const userMsg = document.createElement('div');
-        userMsg.className = 'message user';
-        userMsg.innerHTML = `<div class="bubble">${msg}</div>`;
-        chatMessages.appendChild(userMsg);
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.classList.add('message', 'user-message');
+        userMessageDiv.innerHTML = `
+            <div class="message-content">${messageText}</div>
+            <span class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
+        `;
+        chatMessages.appendChild(userMessageDiv);
+        chatInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Append bot waiting animation
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot';
-        botMsg.id = 'waiting-msg';
-        botMsg.innerHTML = `
-            <div class="bubble" style="padding: 5px;">
-                <video autoplay muted loop playsinline style="width: 40px;">
+        // Append waiting animation
+        const waitingAnimation = document.createElement('div');
+        waitingAnimation.classList.add('message', 'ai-message', 'waiting-animation');
+        waitingAnimation.innerHTML = `
+            <div class="message-content">
+                <video autoplay loop muted playsinline class="waiting-video">
                     <source src="{{ url_for('static', filename='images/reply_waiting.webm') }}" type="video/webm">
                     Your browser does not support the video tag.
                 </video>
-            </div>`;
-        chatMessages.appendChild(botMsg);
-
-        input.value = "";
+            </div>
+            <span class="message-timestamp"></span>
+        `;
+        chatMessages.appendChild(waitingAnimation);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Send to Flask
-        fetch("/send_message", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ message: msg })
-        })
-        .then(res => res.json())
-        .then(data => {
-            // Remove loading animation
-            const waiting = document.getElementById('waiting-msg');
-            if (waiting) waiting.remove();
+        // Send message to Flask
+        try {
+            const response = await fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: messageText }),
+            });
+            const data = await response.json();
+            let aiReply = data.reply;
 
-            // Show bot response
-            const botResponse = document.createElement('div');
-            botResponse.className = 'message bot';
-            botResponse.innerHTML = `<div class="bubble">${data.reply}</div>`;
-            chatMessages.appendChild(botResponse);
+            // Convert Markdown-like response to HTML for formatting
+            aiReply = aiReply
+                .replace(/^###\s*(.+)$/gm, '<h3>$1</h3>') // Headings
+                .replace(/^- (.+)$/gm, '<li>$1</li>') // List items
+                .replace(/^(\s*)\n/gm, '</ul><ul>') // Handle list groups
+                .replace(/\n/g, '<br>') // Line breaks
+                .replace(/<ul>\s*<\/ul>/g, ''); // Remove empty ul tags
+            aiReply = `<ul>${aiReply}</ul>`; // Wrap lists in ul
+
+            // Remove waiting animation
+            waitingAnimation.remove();
+
+            // Append AI response
+            const aiMessageDiv = document.createElement('div');
+            aiMessageDiv.classList.add('message', 'ai-message');
+            aiMessageDiv.innerHTML = `
+                <div class="message-content">${aiReply}</div>
+                <span class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
+            `;
+            chatMessages.appendChild(aiMessageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-        })
-        .catch(err => {
-            const waiting = document.getElementById('waiting-msg');
-            if (waiting) waiting.remove();
+        } catch (error) {
+            // Remove waiting animation
+            waitingAnimation.remove();
 
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'message bot';
-            errorMsg.innerHTML = `<div class="bubble">Something went wrong: ${err.message}</div>`;
-            chatMessages.appendChild(errorMsg);
-        });
+            // Append error message
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.classList.add('message', 'ai-message');
+            errorMessageDiv.innerHTML = `
+                <div class="message-content">Error: Could not get response. Please try again.</div>
+                <span class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
+            `;
+            chatMessages.appendChild(errorMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     }
-}
+});
+
+// Send with Enter key
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendButton.click();
+    }
+});
+
+
 
 
     const input = document.getElementById('search-input');
@@ -616,4 +777,3 @@ function handleChatInput(event) {
         suggestions.style.display = data.products.length ? 'block' : 'none';
     });
 </script>
-chat-messages

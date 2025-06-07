@@ -46,7 +46,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 # cache = Cache(app)
 
 GOOGLE_MAPS_API_KEY = "AIzaSyCdc5N7AzzvPiWddsegRCRmna3LxG5HCmk"
-razorpay_client = razorpay.Client(auth=("rzp_test_TwtlZLsdicgI4j", "T59quSWQ52ENj5Uf9oNOXTk6"))
+razorpay_client = razorpay.Client(auth=("rzp_test_SWjvcpME4fGCmq", "ZuTowFTbz7voWmL6VmstfMgc"))
 
 
 # Upload folder configuration
@@ -383,7 +383,7 @@ def buynow():
     thread.start()
     thread.join()  # Wait for the thread to complete before rendering
 
-    return render_template("buynow.html", cart_products=[result["product"]], total_price=result["total_price"])
+    return render_template("buynow.html", cart_products=[result["product"]], total_price=result["total_price"], product_id=product_id)
 
 
 @app.route("/create_order", methods=["POST"])
@@ -400,7 +400,10 @@ def create_order():
 
 @app.route("/verify", methods=["POST"])
 def verify():
+    username = request.cookies.get('username')
     data = request.get_json()
+
+    print("data ", data)
 
     try:
         params_dict = {
@@ -415,6 +418,35 @@ def verify():
         print("Payment ID:", data['payment_id'])
         print("Order ID:", data['order_id'])
         print("Signature:", data['signature'])
+        print("price:", str(data['user']['price']))
+        print("product_id:", str(data['user']['product_id']))
+
+        # Prepare payment details for insert_payment
+        payment_details = {
+            "cf_payment_id": data['payment_id'],
+            "order_id": data['order_id'],
+            "order_amount": str(int(data['user']['price']) / 100),  # Convert paise to INR
+            "payment_currency": "INR",
+            "payment_amount": str(int(data['user']['price']) / 100),
+            "payment_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "payment_completion_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "payment_status": "SUCCESS",
+            "payment_message": "Payment verified successfully",
+            "bank_reference": data.get('bank_reference', ""),
+            "payment_group": data.get('payment_method', "card"),  # Default to card if not provided
+            "payment_method": data.get('payment_method', "card"),
+            "uniqueid": str(data['user']['product_id']),
+            "contact": data.get('user', {}).get('phone', "")
+        }
+
+        print("payment_details ", payment_details)
+
+        # Call insert_payment
+        if api.insert_payment(payment_details):
+            print("Payment details saved to database.")
+        else:
+            print("Failed to save payment details to database.")
+
 
         if 'user' in data:
             print("=== User Details ===")
@@ -425,6 +457,9 @@ def verify():
             print("City:", data['user']['city'])
             print("State:", data['user']['state'])
             print("Price:", data['user']['price'])
+
+
+        api.insert_orders(str(data['user']['product_id']), username, str(data['user']['price']), str(data['order_id']))
 
         return jsonify({ "redirect_url": "/paymentsuccess" })
 
@@ -452,6 +487,7 @@ def checkout():
     city = request.form.get("city")
     state = request.form.get("state")
     price = request.form.get("price")
+    product_id = request.form.get("product_id")
     #price = 1000
 
     print("name ", name)
@@ -461,18 +497,20 @@ def checkout():
     print("city ", city)
     print("state ", state)
     print("price ", price)
+    print("product_id ", product_id)
 
     # You can now process or store the above data
     return render_template("checkout.html", name=name, phone=phone, address=address,
-                           pincode=pincode, city=city, state=state, price=price)
+                           pincode=pincode, city=city, state=state, price=price, product_id=product_id)
 
 
 @app.route("/favourite")
 def favourite():
+    username = request.cookies.get('username')
     result = {"products": []}
 
     def fetch_and_process():
-        fetch_fav_product = api.fetch_fav_product(user_id='999')
+        fetch_fav_product = api.fetch_fav_product(user_id=username)
         print("fetch_fav_product", fetch_fav_product)
 
         products = []
@@ -538,10 +576,11 @@ def add_to_cart():
 
 @app.route("/cart")
 def cart():
+    username = request.cookies.get('username')
     result = {"cart_products": [], "total_price": 0}
 
     def fetch_and_process_cart():
-        raw_cart_products = api.fetch_cart_product(user_id='999')
+        raw_cart_products = api.fetch_cart_product(user_id=username)
         print("raw_cart_products", raw_cart_products)
 
         cart_products = []
@@ -575,7 +614,8 @@ def cart():
 @app.route('/remove_from_cart/<int:product_id>', methods=['POST'])
 def remove_from_cart(product_id):
     print("remove product_id", product_id)
-    user_id = '999'
+    username = request.cookies.get('username')
+    user_id = username
     result_holder = {}
 
     def remove_product():
@@ -631,7 +671,6 @@ def search_products():
 @app.route("/send_message", methods=["POST"])
 def send_message():
     user_msg = request.json.get("message")
-
     print("user_msg: ", user_msg)
 
     url = "https://grok-3-0-ai.p.rapidapi.com/"
@@ -642,20 +681,117 @@ def send_message():
         ]
     }
     headers = {
-        "x-rapidapi-key": "61d6e1e530msh362ab2cba9dd614p1c18fcjsnec1702960611",
+        "x-rapidapi-key": "7bd4782765mshb0db8959358aa3fp162d27jsn4d575dcfff26",
         "x-rapidapi-host": "grok-3-0-ai.p.rapidapi.com",
         "Content-Type": "application/json"
     }
 
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=20)
-        data = response.json()
+    # try:
+    #     response = requests.post(url, json=payload, headers=headers)
+    #     data = response.json()
+    #     print("data ", data)
+    #     reply = data["choices"][0]["message"]["content"]
+    # except Exception as e:
+    #     reply = f"Error: {str(e)}"
 
-        print("data ", data)
+    reply = '''
+        Finding the "best" JBL speaker for you depends on your specific needs, budget, and preferences. JBL offers a wide range of speakers, from portable Bluetooth models to party speakers and home audio systems. I'll break this down based on common use cases and highlight some of the best JBL speakers in each category as of 2023. Let’s go through the key factors to consider and recommend a speaker based on popular models.
 
-        reply = data["choices"][0]["message"]["content"]
-    except Exception as e:
-        reply = f"Error: {str(e)}"
+        ---
+
+        ### Key Factors to Consider
+        1. **Purpose/Use Case**: Are you looking for a portable speaker for outdoor use, a party speaker for large gatherings, or something for home use?
+        2. **Budget**: JBL speakers range from budget-friendly ($50) to premium models ($500+).
+        3. **Sound Quality**: Do you prioritize bass, clarity, or balanced sound?
+        4. **Portability**: Do you need something lightweight and easy to carry?
+        5. **Battery Life**: Important for portable speakers if you’ll use them on the go.
+        6. **Additional Features**: Waterproofing, party lights, connectivity (e.g., JBL PartyBoost), or voice assistant support.
+        7. **Size**: Smaller for personal use or larger for bigger spaces?
+
+        Let me know your specific needs, but for now, I'll recommend some of the best JBL speakers across different categories based on reviews, features, and popularity.
+
+        ---
+
+        ### Best JBL Speakers by Category
+
+        #### 1. Best Portable Speaker for Everyday Use: JBL Flip 6
+        - **Price**: Around $100–$130
+        - **Why It’s Great**:
+        - Compact and lightweight (1.2 lbs), easy to carry.
+        - Excellent sound quality with punchy bass for its size.
+        - IP67 waterproof and dustproof rating (perfect for beach or poolside).
+        - 12-hour battery life.
+        - Supports JBL PartyBoost to connect with other compatible JBL speakers.
+        - **Best For**: Casual listeners, travel, small gatherings, or personal use.
+        - **Downside**: Not ideal for large spaces or parties due to limited volume.
+
+        #### 2. Best Mid-Range Portable Speaker: JBL Charge 5
+        - **Price**: Around $150–$180
+        - **Why It’s Great**:
+        - Louder and more powerful than the Flip 6 with deeper bass.
+        - IP67 waterproof and dustproof.
+        - 20-hour battery life, plus a built-in power bank to charge your devices.
+        - Supports JBL PartyBoost for multi-speaker pairing.
+        - **Best For**: Outdoor enthusiasts, camping, or medium-sized gatherings.
+        - **Downside**: Slightly heavier (2.1 lbs) than the Flip 6, less compact.
+
+        #### 3. Best Party Speaker: JBL PartyBox 110
+        - **Price**: Around $350–$400
+        - **Why It’s Great**:
+        - Powerful sound with deep bass, suitable for large gatherings.
+        - Dynamic LED party lights for ambiance.
+        - 12-hour battery life and IPX4 splash resistance.
+        - Microphone and guitar inputs for karaoke or live performances.
+        - Supports JBL PartyBoost to connect multiple PartyBox speakers.
+        - **Best For**: Parties, events, or anyone who loves loud music with bass.
+        - **Downside**: Not very portable (23 lbs), and it’s not fully waterproof.
+
+        #### 4. Best Budget Speaker: JBL Go 3
+        - **Price**: Around $40–$50
+        - **Why It’s Great**:
+        - Ultra-portable (0.46 lbs) with a grab-and-go design.
+        - Decent sound for its size, good for personal listening.
+        - IP67 waterproof and dustproof.
+        - 5-hour battery life.
+        - **Best For**: Budget-conscious buyers, casual use, or as a secondary speaker.
+        - **Downside**: Limited volume and bass, short battery life.
+
+        #### 5. Best Premium Speaker for Audiophiles: JBL Xtreme 3
+        - **Price**: Around $300–$350
+        - **Why It’s Great**:
+        - Superior sound quality with powerful bass and clear highs.
+        - IP67 waterproof and dustproof.
+        - 15-hour battery life with a built-in power bank.
+        - Comes with a carrying strap for easier transport.
+        - Supports JBL PartyBoost for multi-speaker setups.
+        - **Best For**: Those who want premium sound in a portable package, outdoor adventures.
+        - **Downside**: Heavy (4.3 lbs) compared to smaller models.
+
+        #### 6. Best Home Speaker: JBL Bar 5.1 (Soundbar)
+        - **Price**: Around $500–$600
+        - **Why It’s Great**:
+        - Designed for home theater setups with immersive surround sound.
+        - Detachable wireless speakers for flexible placement.
+        - 4K Ultra HD support with HDMI ARC.
+        - Powerful bass with a wireless subwoofer.
+        - **Best For**: Home entertainment, movies, and music in a fixed setup.
+        - **Downside**: Not portable, expensive, and lacks some smart features compared to competitors.
+
+        ---
+
+        ### My Recommendation
+        If you're unsure of your exact needs, I’d recommend starting with the **JBL Charge 5**. It strikes a great balance between portability, sound quality, battery life, and price. It’s versatile enough for indoor and outdoor use, offers excellent value for money, and is durable with its waterproof design. If you’re looking for something cheaper, go for the **JBL Flip 6**. For parties, the **JBL PartyBox 110** is a fantastic choice.
+
+        ---
+
+        ### Questions for You
+        To narrow it down further, could you tell me:
+        1. Where will you primarily use the speaker (indoors, outdoors, parties, etc.)?
+        2. What’s your budget range?
+        3. Do you need specific features like waterproofing, long battery life, or party lights?
+
+        Let me know, and I can refine the recommendation! Also, check for deals on platforms like Amazon, Best Buy, or JBL’s official website, as prices often fluctuate.
+    '''
 
     return jsonify({"reply": reply})
 
@@ -705,26 +841,28 @@ def privacy_policy():
 
 @app.route("/myorders")
 def myorders():
+    username = request.cookies.get('username')
     result = {"cart_products": [], "total_price": 0}
 
     def fetch_and_process_orders():
-        raw_cart_products = api.fetch_cart_product(user_id='999')
+        raw_cart_products = api.fetch_orders_product(user_id=username)
         print("raw_cart_products", raw_cart_products)
 
         cart_products = []
         total_price = 0
 
         for item in raw_cart_products:
-            product_id, name, price, qty = item
+            product_id, user_id, price, order_id, datetime_value, product_name = item
             price = int(price)
-            total_price += price * qty
+            total_price += price
 
             cart_products.append({
-                'id': product_id,
+                'id': order_id,
                 'product_id': str(product_id),
-                'name': name,
+                'name': product_name,
                 'price': price,
-                'qty': qty,
+                'qty': 1,  # Default quantity
+                'datetime': str(datetime_value),
                 'image': '1.webp'  # Placeholder image
             })
 

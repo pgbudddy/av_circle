@@ -174,6 +174,36 @@ def insert_payment(payment):
             mydb.close()
 
 
+def insert_orders(product_id, user_id, price, order_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        date = datetime.datetime.now()
+        trade = "INSERT INTO orders (product_id, user_id, price, order_id, datetime) VALUES (%s, %s, %s, %s, %s)"
+        mycursor.execute(trade, (product_id, user_id, price, order_id, date))
+        mydb.commit()
+        
+        # Check if insertion was successful
+        if mycursor.rowcount > 0:
+            print("Data inserted successfully.")
+            return True
+        else:
+            print("Data insertion failed.")
+            return False
+        
+    except Exception as e:
+        print(e)
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
 def signup(name, email, number, password, public_ip):
     try:
         # Get a connection from the pool
@@ -670,6 +700,43 @@ def fetch_cart_product(user_id):
         return myresult
         
     except:
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
+def fetch_orders_product(user_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+
+        query = '''
+        SELECT 
+            o.product_id,
+            o.user_id,
+            o.price,
+            o.order_id,
+            o.datetime,
+            p.name
+        FROM 
+            orders o
+        JOIN 
+            products p ON o.product_id = p.product_id
+        WHERE 
+            o.user_id = %s;
+        '''
+        mycursor.execute(query, (user_id,))
+        myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        print("Error:", e)
         return False
 
     finally:

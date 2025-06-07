@@ -84,7 +84,8 @@
             pincode: "{{ pincode }}",
             city: "{{ city }}",
             state: "{{ state }}",
-            price: "{{ price }}"
+            price: "{{ price }}",
+            product_id: "{{ product_id }}"
         };
 
         async function payNow() {
@@ -97,7 +98,7 @@
             const order = await res.json();
 
             const options = {
-                key: "rzp_test_7TJCqucHMY4JS2",
+                key: "rzp_test_SWjvcpME4fGCmq",
                 amount: order.amount,
                 currency: order.currency,
                 name: "Buy Product",
