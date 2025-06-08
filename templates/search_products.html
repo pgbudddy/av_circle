@@ -318,227 +318,6 @@
             }
         }
 
-
-
-/* Chat Wrapper for Positioning */
-.chat-wrapper {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90vw;
-    height: 90vh;
-    z-index: 1000;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-}
-
-/* Hidden State */
-.chat-wrapper.hidden {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
-    pointer-events: none;
-}
-
-/* Chat Container */
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    background-color: #f9f9f9;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    position: relative;
-}
-
-/* Messages Area */
-.chat-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Message Styling */
-.message {
-    display: flex;
-    flex-direction: column;
-    max-width: 90%;
-    margin-bottom: 10px;
-}
-
-.ai-message {
-    align-self: flex-start;
-}
-
-.user-message {
-    align-self: flex-end;
-}
-
-.message-content {
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    background-color: inherit; /* Inherit from parent */
-}
-
-/* Formatting for AI response content */
-.message-content h3 {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 10px 0 8px;
-    color: inherit;
-}
-
-.message-content p {
-    margin: 8px 0;
-}
-
-.message-content ul {
-    margin: 8px 0;
-    padding-left: 20px;
-}
-
-.message-content li {
-    margin-bottom: 6px;
-}
-
-.ai-message .message-content {
-    background-color: #e6f0fa;
-    color: #333;
-    border-radius: 12px 12px 12px 0;
-}
-
-.user-message .message-content {
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 12px 12px 0 12px;
-}
-
-.message-timestamp {
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
-    align-self: flex-end;
-}
-
-/* Waiting Animation */
-.waiting-animation .message-content {
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.waiting-video {
-    max-width: 100px;
-    height: auto;
-    border-radius: 8px;
-}
-
-/* Input Container */
-.chat-input-container {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #fff;
-    border-top: 1px solid #ddd;
-}
-
-.chat-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    resize: none;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-.chat-input:focus {
-    border-color: #007bff;
-}
-
-.send-button {
-    margin-left: 10px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.send-button:hover {
-    background-color: #0056b3;
-}
-
-/* Close Button */
-.close-chat {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #666;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.close-chat:hover {
-    color: #000;
-}
-
-/* Scrollbar Styling */
-.chat-messages::-webkit-scrollbar {
-    width: 8px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-    background: #f9f9f9;
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-    .chat-wrapper {
-        width: 95vw;
-        height: 95vh;
-    }
-
-    .message-content {
-        font-size: 13px;
-    }
-
-    .message-content h3 {
-        font-size: 15px;
-    }
-
-    .chat-input {
-        font-size: 13px;
-    }
-
-    .send-button {
-        padding: 8px 15px;
-    }
-
-    .waiting-video {
-        max-width: 80px;
-    }
-}
     </style>
 </head>
 <body>
@@ -592,7 +371,7 @@
 
     <br><br>
 
-    <button class="floating-btn">
+    <button class="floating-btn" onclick="location.href='{{ url_for('chat') }}'" style="-webkit-tap-highlight-color: transparent;">
         <img src="{{ url_for('static', filename='images/bot_mini.png') }}" style="width: 95%; height: auto;" alt="Chat">
     </button>
 
@@ -617,6 +396,7 @@
         </div>
     </chat-messages>
 
+
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <a href="#" onclick="location.href='{{ url_for('dashboard') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
@@ -636,107 +416,6 @@
 
 <script>
 
-const floatingBtn = document.querySelector('.floating-btn');
-const chatWrapper = document.querySelector('.chat-wrapper');
-const closeChat = document.querySelector('.close-chat');
-const chatMessages = document.querySelector('.chat-messages');
-const chatInput = document.querySelector('.chat-input');
-const sendButton = document.querySelector('.send-button');
-
-// Toggle chat visibility
-floatingBtn.addEventListener('click', () => {
-    chatWrapper.classList.toggle('hidden');
-    if (!chatWrapper.classList.contains('hidden')) {
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
-        chatInput.focus();
-    }
-});
-
-// Close chat
-closeChat.addEventListener('click', () => {
-    chatWrapper.classList.add('hidden');
-});
-
-// Send message to Flask endpoint
-sendButton.addEventListener('click', async () => {
-    const messageText = chatInput.value.trim();
-    if (messageText) {
-        // Append user message
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.classList.add('message', 'user-message');
-        userMessageDiv.innerHTML = `
-            <div class="message-content">${messageText}</div>
-            <span class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
-        `;
-        chatMessages.appendChild(userMessageDiv);
-        chatInput.value = '';
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Append waiting animation
-        const waitingAnimation = document.createElement('div');
-        waitingAnimation.classList.add('message', 'ai-message', 'waiting-animation');
-        waitingAnimation.innerHTML = `
-            <div class="message-content">
-                <video autoplay loop muted playsinline class="waiting-video">
-                    <source src="{{ url_for('static', filename='images/reply_waiting.webm') }}" type="video/webm">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <span class="message-timestamp"></span>
-        `;
-        chatMessages.appendChild(waitingAnimation);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Send message to Flask
-        try {
-            const response = await fetch('/send_message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: messageText }),
-            });
-            const data = await response.json();
-            let aiReply = data.reply;
-
-            // Convert Markdown-like response to HTML for formatting
-            aiReply = aiReply
-                .replace(/^###\s*(.+)$/gm, '<h3>$1</h3>') // Headings
-                .replace(/^- (.+)$/gm, '<li>$1</li>') // List items
-                .replace(/^(\s*)\n/gm, '</ul><ul>') // Handle list groups
-                .replace(/\n/g, '<br>') // Line breaks
-                .replace(/<ul>\s*<\/ul>/g, ''); // Remove empty ul tags
-            aiReply = `<ul>${aiReply}</ul>`; // Wrap lists in ul
-
-            // Remove waiting animation
-            waitingAnimation.remove();
-
-            // Append AI response
-            const aiMessageDiv = document.createElement('div');
-            aiMessageDiv.classList.add('message', 'ai-message');
-            aiMessageDiv.innerHTML = `
-                <div class="message-content">${aiReply}</div>
-                <span class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
-            `;
-            chatMessages.appendChild(aiMessageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        } catch (error) {
-            // Remove waiting animation
-            waitingAnimation.remove();
-
-            // Append error message
-            const errorMessageDiv = document.createElement('div');
-            errorMessageDiv.classList.add('message', 'ai-message');
-            errorMessageDiv.innerHTML = `
-                <div class="message-content">Error: Could not get response. Please try again.</div>
-                <span class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}</span>
-            `;
-            chatMessages.appendChild(errorMessageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-    }
-});
-
 // Send with Enter key
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -744,7 +423,6 @@ chatInput.addEventListener('keypress', (e) => {
         sendButton.click();
     }
 });
-
 
 
 
