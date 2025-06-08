@@ -1,215 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-    <style>
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-          font-family: Arial, sans-serif;
-        }
-    
-        body, html {
-          /* height: 100%; */
-          background: #f2f2f2;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
 
-        /* Navbar */
-        .navbar {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: white;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
 
-        .left-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .navbar {
+      height: 60px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+    }
 
-        .logo img {
-            width: 30px;
-            cursor: pointer;
-        }
-    
-        .chat-container {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-          width: 100%;
-          max-width: 600px;
-          margin: auto;
-          background: #fff;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-    
-        .chat-header {
-          padding: 15px;
-          background: #2e6aff;
-          color: white;
-          text-align: center;
-          font-weight: bold;
-          font-size: 18px;
-        }
-    
-        .chat-messages {
-          flex: 1;
-          padding: 15px;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-    
-        .message {
-          max-width: 80%;
-          padding: 10px 14px;
-          border-radius: 16px;
-          font-size: 14px;
-          line-height: 1.4;
-        }
-    
-        .bot-message {
-          background: #e6f0fa;
-          align-self: flex-start;
-          width: 90%;
-        }
-    
-        .user-message {
-          background: #2e6aff;
-          color: white;
-          align-self: flex-end;
-        }
-    
-        .chat-input-container {
-          display: flex;
-          padding: 10px;
-          border-top: 1px solid #ddd;
-          background: #fff;
-        }
-    
-        .chat-input {
-          flex: 1;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 20px;
-          outline: none;
-        }
-    
-        .send-button {
-          margin-left: 10px;
-          padding: 10px 20px;
-          background: #2e6aff;
-          color: white;
-          border: none;
-          border-radius: 20px;
-          cursor: pointer;
-        }
-    
-        .send-button:hover {
-          background: #1c50c0;
-        }
-      </style>
+    .logo img {
+      width: 30px;
+      cursor: pointer;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding-top: 60px; /* height of navbar */
+      padding-bottom: 100px; /* height of suggestions + input */
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .bot-message {
+      background: #e6f0fa;
+      align-self: flex-start;
+      width: 90%;
+    }
+
+    .bot-message ul {
+      margin-left: 0;
+      padding-left: 0;
+      list-style-position: inside;
+    }
+
+    .user-message {
+      background: #2e6aff;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-suggestions {
+      position: fixed;
+      bottom: 58px;
+      left: 0;
+      width: 100%;
+      background: #f9f9f9;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #ddd;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding: 10px 15px;
+      display: flex;
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .suggestion-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #e6e6e6;
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .suggestion-btn:hover {
+      background-color: #ccc;
+    }
+
+    .chat-input-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      display: flex;
+      padding: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      margin-right: 10px;
+      outline: none;
+    }
+
+    .send-button {
+      margin-right: 20px;
+      padding: 10px 20px;
+      background: #2e6aff;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      background: #1c50c0;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <header class="navbar">
-        <div class="left-section">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/leftarrow.png') }}" onclick="location.href='{{ url_for('search_products') }}'" style="-webkit-tap-highlight-color: transparent;" alt="Back">
-            </div>
-        </div>
-    </header>
-    
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='images/leftarrow.png') }}"
+           onclick="location.href='{{ url_for('search_products') }}'"
+           alt="Back"
+           style="-webkit-tap-highlight-color: transparent;">
+    </div>
+  </header>
 
-    <div class="chat-container">
-        <div class="chat-header">Chat with AV Circle</div>
-    
-        <div class="chat-messages" id="chatMessages">
-          <div class="message bot-message">Hello! How can I help you today?</div>
-        </div>
-    
-        <div class="chat-input-container">
-          <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
-          <button class="send-button" onclick="sendMessage()">Send</button>
-        </div>
-      </div>
+  <!-- Main area -->
+  <div class="main-container">
+    <div class="chat-container" id="chatMessages">
+      <div class="message bot-message">Hello! How can I help you today?</div>
+    </div>
+  </div>
 
-      <script>
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const sendButton = document.querySelector('.send-button');
-        
-        function appendMessage(text, sender = 'bot') {
-          const messageDiv = document.createElement('div');
-          messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-          messageDiv.innerHTML = formatText(text);
-          chatMessages.appendChild(messageDiv);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        function formatText(text) {
-          return text
-            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')                      // Bold **text**
-            .replace(/^###\s*(.+)$/gm, '<h3>$1</h3>')                    // Heading
-            .replace(/^- (.+)$/gm, '<li>$1</li>')                        // List item
-            .replace(/\n{2,}/g, '</ul><ul>')                             // Separate list blocks
-            .replace(/\n/g, '<br>')                                      // Line breaks
-            .replace(/<ul>\s*<\/ul>/g, '')                               // Remove empty ul
-            .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');                  // Wrap list items with <ul>
-        }
-        
-        async function sendMessage() {
-          const message = chatInput.value.trim();
-          if (!message) return;
-        
-          appendMessage(message, 'user');
-          chatInput.value = '';
-        
-          const loadingDiv = document.createElement('div');
-          loadingDiv.classList.add('message', 'bot-message');
-          loadingDiv.innerHTML = `<video autoplay loop muted playsinline class="waiting-video" style="width: 40px;">
-              <source src="/static/images/reply_waiting.webm" type="video/webm">
-              Your browser does not support the video tag.
-          </video>`;
-          chatMessages.appendChild(loadingDiv);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-          try {
-            const res = await fetch('/send_message', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ message })
-            });
-            const data = await res.json();
-            loadingDiv.remove();
-            appendMessage(data.reply, 'bot');
-          } catch (err) {
-            loadingDiv.remove();
-            appendMessage('⚠️ Error: Could not get response. Please try again.', 'bot');
-          }
-        }
-        
-        sendButton.addEventListener('click', sendMessage);
-        
-        chatInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-          }
+  <!-- Suggestions -->
+  <div class="chat-suggestions" id="chatSuggestions">
+    <button class="suggestion-btn">Find best JBL speaker</button>
+    <button class="suggestion-btn">Tell me about this speaker</button>
+    <button class="suggestion-btn">Compare with Sony</button>
+    <button class="suggestion-btn">Suggest cheaper options</button>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-container">
+    <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
+    <button class="send-button" onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.querySelector('.send-button');
+
+    function appendMessage(text, sender = 'bot') {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+      messageDiv.innerHTML = formatText(text);
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function formatText(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/^###\s*(.+)$/gm, '<h3>$1</h3>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/\n{2,}/g, '</ul><ul>')
+        .replace(/\n/g, '<br>')
+        .replace(/<ul>\s*<\/ul>/g, '')
+        .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+    }
+
+    async function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      appendMessage(message, 'user');
+      chatInput.value = '';
+
+      const loadingDiv = document.createElement('div');
+      loadingDiv.classList.add('message', 'bot-message');
+      loadingDiv.innerHTML = `<video autoplay loop muted playsinline style="width: 40px;">
+        <source src="/static/images/reply_waiting.webm" type="video/webm">
+        Your browser does not support the video tag.
+      </video>`;
+      chatMessages.appendChild(loadingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        const res = await fetch('/send_message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
         });
-        </script>
-        
+        const data = await res.json();
+        loadingDiv.remove();
+        appendMessage(data.reply, 'bot');
+      } catch (err) {
+        loadingDiv.remove();
+        appendMessage('⚠️ Error: Could not get response. Please try again.', 'bot');
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    document.querySelectorAll('.suggestion-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        chatInput.value = btn.textContent;
+        chatInput.focus();
+      });
+    });
+  </script>
 </body>
 </html>

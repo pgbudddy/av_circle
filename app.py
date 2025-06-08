@@ -167,6 +167,7 @@ def otp_verification():
         email = session.get('signup_info', {}).get('email', None)
         return render_template("otp_verification.html", email=email)
 
+
 @app.route("/dashboard")
 def dashboard():
     buttons = [
@@ -817,6 +818,72 @@ def register_token():
         "token": token,
         "public_ip": public_ip
     })
+
+
+@app.route("/forgetpassword", methods=["GET", "POST"])
+def forgetpassword():
+    if request.method == 'POST':
+        details = request.form.get('details')
+
+        print("Signup Creds ", details)
+
+        checkuser = api.forgetpassword_checkuser(details)
+
+        if checkuser[0] == True:
+            otp = random.randint(1000, 9999)
+
+            session['otp'] = str(otp)
+            session['forgetpasswordemail'] = checkuser[1][1]  # ✅ Save email to session
+
+            print("Otp ", otp)
+
+            threading.Thread(target=api.send_mail, args=(checkuser[1][1], otp)).start()
+
+            return redirect(url_for('forgetpassword_otp'))
+        else:
+            return render_template("forgetpassword.html", error="User does not exist!")
+    else:
+        return render_template("forgetpassword.html")
+
+
+@app.route("/forgetpassword_otp", methods=["GET", "POST"])
+def forgetpassword_otp():
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        stored_otp = str(session.get('otp'))
+
+        if entered_otp == stored_otp:
+            return redirect(url_for('change_password'))  # You can pass email if needed
+        else:
+            return render_template("otp_verification.html", error="Enter valid OTP")
+    else:
+        return render_template("otp_verification.html")
+
+
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    forgetpasswordemail = session.get('forgetpasswordemail')  # ✅ Retrieve the email from session
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        if str(password) == str(confirm_password):
+
+            def threaded_send_otp(password, forgetpasswordemail):
+                status = api.change_password(password, forgetpasswordemail)
+
+            thread = threading.Thread(
+                target=threaded_send_otp,
+                args=(password, forgetpasswordemail)
+            )
+            thread.start()
+        
+            return redirect(url_for('login'))  # Update as needed
+        else:
+            return render_template("change_password.html", error="Password not mached")
+        
+    else:
+        return render_template("change_password.html")
 
 
 @app.route("/pinkvilla")

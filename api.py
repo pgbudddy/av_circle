@@ -1,10 +1,11 @@
 from conn import *
 import datetime
 import requests
-import googlemaps
-import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import smtplib
+import os
+
 
 def login(number, password):
     try:
@@ -265,18 +266,15 @@ def change_password(number, password):
 
 
 def send_mail(receiver_email, otp):
-    # Sender's Gmail credentials (login credentials of 'vivekparmar75@gmail.com')
-    sender_email = "carrykar108@gmail.com"  # Your Gmail address
-    sender_password = "becr ckiw pgxr hcua"  # Your Gmail app password
+    # Sender's Gmail credentials
+    sender_email = "carrykar108@gmail.com"
+    sender_password = os.getenv("GMAIL_APP_PASSWORD", "typz bgyg bcgs jxfs")  # Use env var for security
+    sender_alias = "noreply@avcircles.com"  # Custom domain email
 
-    # Sender's email alias (custom domain email created through Cloudflare)
-    sender_alias = "noreply@avcircles.com"  # The email you're sending from
-    receiver_email = receiver_email  # The recipient's email
-
-    # Email subject and body
+    # Email subject
     subject = "Welcome to AV Circle"
 
-    # HTML content for the email body
+    # HTML content with absolute URLs
     html_body = """
     <html>
         <head>
@@ -287,13 +285,13 @@ def send_mail(receiver_email, otp):
                     color: #333; 
                     background-color: #f4f4f4; 
                     padding: 20px;
-                    display: flex; /* Use flexbox */
-                    justify-content: center; /* Horizontally center the mainbox */
-                    align-items: flex-start; /* Align to the top */
-                    height: 100vh; /* Full viewport height for alignment */
-                    margin: 0; /* Remove default body margin */
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    height: 100vh;
+                    margin: 0;
                 }
-                .mainbox{
+                .mainbox {
                     border: 1px solid lightgrey;
                     border-radius: 10px;
                     padding: 50px 50px;
@@ -322,65 +320,60 @@ def send_mail(receiver_email, otp):
                     font-style: normal;
                     text-decoration: none;
                 }
-                .line{
+                .line {
                     border-top: 1px solid lightgrey;
                 }
             </style>
         </head>
         <body>
             <div class="mainbox">
-            <img src="./static/images/play_store_logo.png" style="width: 50px;" alt="Logo">
-            <p>Hello User,</p>
-            <p>Welcome to AV Circle! Your verificatoin code is:</p>
-            <h1>"""+str(otp)+"""</h1>
-            <br>
-            <div class="line"></div>
-            <img src="./static/images/play_store_logo.png" style="margin-top: 30px; width: 30px;" alt="Logo">
-            <p style="font-size: 13px;">Regards,<br>CarryKar Team</p>
+                <img src="{{ url_for('static', filename='images/play_store_logo.png') }}"style="width: 50px;" alt="Logo">
+                <p>Hello User,</p>
+                <p>Welcome to AV Circle! Your verification code is:</p>
+                <h1>""" + str(otp) + """</h1>
+                <br>
+                <div class="line"></div>
+                <img src="{{ url_for('static', filename='images/play_store_logo.png') }}" style="margin-top: 30px; width: 30px;" alt="Logo">
+                <p style="font-size: 13px;">Regards,<br>AV Circle Team</p>
             </div>
-        </p>
+        </body>
     </html>
     """
 
     # Setup the MIME
     message = MIMEMultipart()
-    message["From"] = sender_alias  # Set the 'From' to your custom domain email
+    message["From"] = f"AV Circle <{sender_alias}>"  # Format with display name
     message["To"] = receiver_email
     message["Subject"] = subject
 
-    # Attach the HTML body to the MIME message
+    # Attach HTML body
     message.attach(MIMEText(html_body, "html"))
 
     # Gmail SMTP server configuration
     smtp_server = "smtp.gmail.com"
-    smtp_port = 587  # TLS port
+    smtp_port = 587
 
     try:
-        # Get a connection from the pool
+        # Database connection (assuming get_db_connection is defined)
         mydb = get_db_connection()
-
-        # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
-        
+
         # Connect to Gmail's SMTP server
         server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()  # Secure the connection using TLS
+        server.starttls()  # Secure the connection
+        server.login(sender_email, sender_password)  # Login with Gmail credentials
 
-        # Login to your Gmail account
-        server.login(sender_email, sender_password)
-
-        # Send the email
-        server.sendmail(sender_alias, receiver_email, message.as_string())
-        print("Email sent successfully!")
+        # Send email with sender_email as envelope sender
+        server.sendmail(sender_email, receiver_email, message.as_string())
+        print(f"Email sent successfully from {sender_alias}!")
         return True
-        # print(updatekyc)
 
     except Exception as e:
         print(f"Error: {e}")
+        return False
 
     finally:
-        # Ensure that the cursor and connection are closed
-        close_connection(mydb, mycursor)
+        close_connection(mydb, mycursor)  # Ensure DB connection is closed
 
 
 def checkuser(email, number):
@@ -408,7 +401,56 @@ def checkuser(email, number):
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
+
+def forgetpassword_checkuser(details):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        query = 'SELECT number, email_id FROM signup where email_id="'+str(details)+'" OR number="'+str(details)+'" '
+        mycursor.execute(query)
+        myresult = mycursor.fetchone()
+        print("myresult ", myresult)
+        
+        if myresult == None:  
+            return False, 0
+        else:
+            return True, myresult
+
+    except:
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
     
+def change_password(password, email_id):
+    print(password, email_id)
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        trade = "UPDATE signup SET password='"+str(password)+"' WHERE email_id='"+str(email_id)+"'"
+        mycursor.execute(trade)
+        mydb.commit()
+        
+        return True
+    
+    except:
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
 def fetch_products():
     try:
         # Get a connection from the pool
