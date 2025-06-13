@@ -3,6 +3,7 @@ eventlet.monkey_patch()
 
 
 from flask import Flask, render_template, request, redirect, url_for, session, make_response, jsonify
+from werkzeug.utils import secure_filename
 import api
 import datetime
 from flask_caching import Cache
@@ -263,6 +264,10 @@ def contactus():
 
 @app.route("/product_details/<product_id>")
 def product_details(product_id):
+    username = request.cookies.get('username')
+
+
+    print("username", username)
     print("product_id", product_id)
 
     # Use thread pool to fetch product & bid data concurrently
@@ -316,7 +321,8 @@ def product_details(product_id):
         product_id=str(db_product_id),
         in_watchlist=in_watchlist,
         fetch_bids=fetch_bids or [],
-        competitors=competitors or []  # ✅ Add this line
+        competitors=competitors or [],  # ✅ Add this line
+        username=username
     )
 
 
@@ -341,6 +347,7 @@ def place_bid():
 @app.route('/buynow', methods=['POST'])
 def buynow():
     product_id = request.form.get('product_id')
+    username = request.form.get('username')
     result = {}
 
     
@@ -385,7 +392,7 @@ def buynow():
     thread.start()
     thread.join()  # Wait for the thread to complete before rendering
 
-    return render_template("buynow.html", cart_products=[result["product"]], total_price=result["total_price"], product_id=product_id)
+    return render_template("buynow.html", cart_products=[result["product"]], total_price=result["total_price"], product_id=product_id, username=username)
 
 
 @app.route("/create_order", methods=["POST"])
@@ -399,6 +406,7 @@ def create_order():
         "payment_capture": 1
     })
     return jsonify(order)
+
 
 @app.route("/verify", methods=["POST"])
 def verify():
@@ -419,6 +427,7 @@ def verify():
         print("=== Payment Verified Successfully ===")
         print("Payment ID:", data['payment_id'])
         print("Order ID:", data['order_id'])
+        print("User ID:", data['order_id'])
         print("Signature:", data['signature'])
         print("price:", str(data['user']['price']))
         print("product_id:", str(data['user']['product_id']))
@@ -427,9 +436,9 @@ def verify():
         payment_details = {
             "cf_payment_id": data['payment_id'],
             "order_id": data['order_id'],
-            "order_amount": str(int(data['user']['price']) / 100),  # Convert paise to INR
+            "order_amount": str(int(data['user']['price'])),  # Convert paise to INR
             "payment_currency": "INR",
-            "payment_amount": str(int(data['user']['price']) / 100),
+            "payment_amount": str(int(data['user']['price'])),
             "payment_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "payment_completion_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "payment_status": "SUCCESS",
@@ -480,17 +489,17 @@ def paymentfailed():
     return render_template("paymentfailed.html")
     
 
-@app.route("/checkout", methods=["POST"])
+@app.route("/checkout", methods=["GET"])
 def checkout():
-    name = request.form.get("name")
-    phone = request.form.get("phone")
-    address = request.form.get("address")
-    pincode = request.form.get("pincode")
-    city = request.form.get("city")
-    state = request.form.get("state")
-    price = request.form.get("price")
-    product_id = request.form.get("product_id")
-    #price = 1000
+    name = request.args.get("name")
+    phone = request.args.get("phone")
+    address = request.args.get("address")
+    pincode = request.args.get("pincode")
+    city = request.args.get("city")
+    state = request.args.get("state")
+    price = request.args.get("price")
+    product_id = request.args.get("product_id")
+    username = request.args.get("username")
 
     print("name ", name)
     print("phone ", phone)
@@ -500,8 +509,8 @@ def checkout():
     print("state ", state)
     print("price ", price)
     print("product_id ", product_id)
+    print("username ", username)
 
-    # You can now process or store the above data
     return render_template("checkout.html", name=name, phone=phone, address=address,
                            pincode=pincode, city=city, state=state, price=price, product_id=product_id)
 
@@ -895,9 +904,298 @@ def pinkvilla():
         "links": [
             {"title": "Adultopoly", "url": "https://meesho.com/adultopoly-board-game--the-ultimate-adult-party-experience/p/8w5ue0?_ms=1.2"},
             {"title": "Adultopoly Drunk", "url": "https://meesho.com/adultopoly-drunk/p/90mg52?_ms=1.2"},
+            {"title": "Adultopoly Uno Card", "url": "https://meesho.com/18-uno-dare-adults-only-card-game-for-adult-game-night/p/92bm1q?_ms=1.2"},
         ]
     }
     return render_template("pinkvilla.html", profile=profile)
+
+
+
+@app.route("/seller_dashboard")
+def seller_dashboard():
+    orders = [
+        {
+            "image": "/static/images/product_images/1/1.webp",
+            "name": "JBL Bluetooth Speaker",
+            "quantity": 1,
+            "date": "13-06-2025",
+            "price": 2999
+        },
+        {
+            "image": "/static/images/product_images/2/1.webp",
+            "name": "Sony Headphones",
+            "quantity": 2,
+            "date": "13-06-2025",
+            "price": 4499
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        }
+    ]
+
+    orders=[]
+    return render_template("seller_dashboard.html", orders=orders)
+
+
+@app.route("/return_order")
+def return_order():
+    orders = [
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        }
+    ]
+
+    return render_template("return_order.html", orders=orders)
+
+
+@app.route("/old_orders")
+def old_orders():
+
+    orders = [
+        {
+            "image": "/static/images/product_images/1/1.webp",
+            "name": "JBL Bluetooth Speaker",
+            "quantity": 1,
+            "date": "13-06-2025",
+            "price": 2999
+        },
+        {
+            "image": "/static/images/product_images/2/1.webp",
+            "name": "Sony Headphones",
+            "quantity": 2,
+            "date": "13-06-2025",
+            "price": 4499
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "quantity": 3,
+            "date": "13-06-2025",
+            "price": 999
+        }
+    ]
+
+    return render_template("old_orders.html", orders=orders)
+
+
+@app.route("/upload_products")
+def upload_products():
+    orders = [
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },{
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },{
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },{
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },{
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },{
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "inventory": 3,
+            "date": "13-06-2025",
+            "price": 999
+        },
+        
+    ]
+    
+
+    return render_template("upload_products.html", orders=orders)
+
+
+@app.route("/upload_upload_page")
+def upload_upload_page():
+    orders = [
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        }
+    ]
+    return render_template("upload_upload_page.html", orders=orders)
+
+
+@app.route('/submit_upload_button', methods=['POST'])
+def submit_upload_button():
+    category = request.form.get('category')
+    product_name = request.form.get('product_name')
+    product_price = request.form.get('product_price')
+    inventory = request.form.get('inventory')
+    product_description = request.form.get('product_description')
+
+    uploaded_files = request.files.getlist('product_images[]')
+    image_names = []
+
+    upload_folder = os.path.join('static', 'uploads')
+    os.makedirs(upload_folder, exist_ok=True)
+
+    for file in uploaded_files:
+        if file and file.filename != '':
+            if not file.filename.lower().endswith('.jpg'):
+                print(f"Skipped non-JPG: {file.filename}")
+                continue
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(upload_folder, filename))
+            image_names.append(filename)  # Only filename (e.g., '1.jpg')
+
+    print("Category:", category)
+    print("Product Name:", product_name)
+    print("Price:", product_price)
+    print("Inventory:", inventory)
+    print("Description:", product_description)
+    print("Images:", image_names)  # Will print ['1.jpg', '2.jpg', ...]
+
+    return redirect(url_for('upload_products'))
+
 
 
 if __name__ == '__main__':

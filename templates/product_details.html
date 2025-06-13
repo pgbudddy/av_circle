@@ -418,6 +418,7 @@
     <center>
         <form action="{{ url_for('buynow') }}" method="POST">
             <input type="hidden" name="product_id" value="{{ product_id }}">
+            <input type="hidden" name="username" value="{{ username }}">
             <button class="buy-button" style="-webkit-tap-highlight-color: transparent;">BUY NOW</button>
         </form>
     </center>

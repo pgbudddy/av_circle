@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Scroll Buttons</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-style: normal;
+            background-color: #eeeeee;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            position: fixed;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0px;
+            width: 99%;
+            /* position: absolute; */
+            top: 0;
+            left: 0;
+            z-index: 10;
+            /* border: 1px solid black; */
+            /* border-bottom: 1px solid grey; */
+            background-color: white;
+        }
+
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 77%;
+        }
+
+        .menu img {
+            width: 35px;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+
+        .logo img {
+            width: 33px;
+            margin-left: 20px;
+            
+        }
+
+        .user img {
+            width: 29px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+
+
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background: #eeeeee;
+            display: flex;
+            border-top-right-radius: 10px;
+            border-top-left-radius: 10px;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .nav-item {
+            font-size: 15px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: white;
+            /* font-weight: bold; */
+            text-decoration: underline;
+        }
+
+        #equalizer-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #equalizer-loader .bar {
+            width: 5px;
+            height: 30px;
+            background-color: black;
+            animation: equalizer 1s infinite ease-in-out;
+        }
+
+        #equalizer-loader .bar:nth-child(1) {
+            animation-delay: -0.4s;
+        }
+        #equalizer-loader .bar:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+        #equalizer-loader .bar:nth-child(3) {
+            animation-delay: -0.2s;
+        }
+        #equalizer-loader .bar:nth-child(4) {
+            animation-delay: -0.1s;
+        }
+        #equalizer-loader .bar:nth-child(5) {
+            animation-delay: 0s;
+        }
+
+        @keyframes equalizer {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(2.5);
+            }
+        }
+
+    </style>
+</head>
+<body style="background-color: white;">
+
+    <div id="equalizer-loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+    
+    <header class="navbar">
+        <div class="left-section">
+            <div class="menu">
+                <!-- <img src="{{ url_for('static', filename='images/logo2.svg') }}" loading="lazy"  alt="Menu"> -->
+                <p style="font-weight: 600; margin-left: 10px; font-size: 16px; color: #464646;">Pending orders</p>
+            </div>
+            <div class="logo">
+                
+            </div>
+            <!-- <input type="text" class="search-input" placeholder="Search..."> -->
+        </div>
+        <div class="user">
+            <!-- <img src="{{ url_for('static', filename='images/search.svg') }}" onclick="location.href='{{ url_for('search_products') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User"> -->
+            <img src="{{ url_for('static', filename='images/profile_profile.png') }}" onclick="location.href='{{ url_for('profile') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+        </div>
+    </header>
+
+
+    <!-- Scrollable orders list -->
+    <div class="main-content" style="
+        overflow-y: auto;
+        height: calc(100vh - 65px - 48px); /* Navbar (65) + Bottom Nav (48) */
+        padding: 10px;
+        box-sizing: border-box;
+        margin-top: 65px; /* Push below navbar */
+    ">
+    <div class="orders_list" style="width: 100%;">
+        {% if orders %}
+            {% for order in orders %}
+            <div style="background: white; border-radius: 10px; padding: 10px; margin-bottom: 15px; display: flex; flex-direction: column; box-shadow: 0 5px 4px rgba(0,0,0,0.1);">
+                <!-- Product Info -->
+                <div style="display: flex;">
+                    <img src="{{ order.image }}" alt="{{ order.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;">
+                    <div style="flex: 1;">
+                        <p style="margin: 0; font-weight: bold; color: #333;">{{ order.name }}</p>
+                        <p style="margin: 5px 0 0; font-size: 14px; color: #555;">Qty: {{ order.quantity }}</p>
+                        <p style="margin: 2px 0; font-size: 14px; color: #2e6aff;">Price: ₹{{ order.price }}</p>
+                        <p style="margin: 2px 0; font-size: 14px; color: #555;">Datetime: {{ order.date }}</p>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                    <button style="flex: 1; background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; margin-right: 5px;">Approve</button>
+                    <button style="flex: 1; background: #dc3545; color: white; border: none; padding: 8px; border-radius: 5px;">Reject</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
+                <img src="{{ url_for('static', filename='images/product.svg') }}" alt="No Orders" style="width: 120px; opacity: 0.8; margin-bottom: -20px;">
+                <p style="font-size: 16px; color: #999; font-weight: bold;">No Orders Found</p>
+            </div>
+        {% endif %}
+    </div>
+
+    </div>
+
+
+    
+    
+
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="#" onclick="location.href='{{ url_for('seller_dashboard') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/orders_blue.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
+        </a>
+        <a href="#" onclick="location.href='{{ url_for('old_orders') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/inventory.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" style="-webkit-tap-highlight-color: transparent; width: 33px;" alt="User">
+        </a>
+        <a href="#" onclick="location.href='{{ url_for('return_order') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/return.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent; width: 33px;" alt="User">
+        </a>
+        <a href="#" onclick="location.href='{{ url_for('upload_products') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/upload_orders.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
+        </a>
+    </nav>
+
+
+</body>
+</html>

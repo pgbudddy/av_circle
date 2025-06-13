@@ -378,7 +378,7 @@
     <!-- Shipping Details -->
     <p class="shipping-details-p">Shipping Details</p>
     <div class="shipping-details">
-        <form action="/checkout" method="POST">
+        <form action="/checkout" method="GET" target="_blank">
             <input type="text" placeholder="Full Name" id="name" name="name" required>
             <input type="number" placeholder="Phone Number" id="phone" name="phone" required>
             <input type="text" placeholder="Address" id="address" name="address" required>
@@ -395,6 +395,7 @@
         
             <input type="hidden" name="price" value="{{ total_price }}">
             <input type="hidden" name="product_id" value="{{ product_id }}">
+            <input type="hidden" name="username" value="{{ username }}">
         
             <button type="submit" class="submit-btn" style="-webkit-tap-highlight-color: transparent;">CHECKOUT</button>
         </form>
