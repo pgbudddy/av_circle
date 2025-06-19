@@ -23,6 +23,8 @@ from google import genai
 from google.genai import types
 import uuid
 import urllib3
+import shutil
+
 
 # Disable SSL warnings (for testing only, not recommended for production)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -57,6 +59,20 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
+@app.route('/.well-known/assetlinks.json')
+def serve_assetlinks():
+    assetlinks = [{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.miniplex.miniplex",
+            "sha256_cert_fingerprints": ["A7:28:84:3D:60:E6:27:CC:61:94:14:4D:F0:EA:2A:4E:0D:82:7E:68:2E:10:83:60:CD:82:CA:2C:62:DD:C4:CD", "C8:36:0D:66:AA:6B:51:1A:A3:38:28:4A:18:DF:D0:41:54:0D:46:05:D7:27:95:EF:8F:E6:A7:24:3C:35:24:22"]
+        }
+    }]
+    response = make_response(jsonify(assetlinks))
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 @app.route("/")
@@ -422,6 +438,7 @@ def verify():
             'razorpay_signature': data['signature']
         }
 
+
         razorpay_client.utility.verify_payment_signature(params_dict)
 
         print("=== Payment Verified Successfully ===")
@@ -431,6 +448,7 @@ def verify():
         print("Signature:", data['signature'])
         print("price:", str(data['user']['price']))
         print("product_id:", str(data['user']['product_id']))
+        print("username:", str(data['user']['username']))
 
         # Prepare payment details for insert_payment
         payment_details = {
@@ -447,7 +465,8 @@ def verify():
             "payment_group": data.get('payment_method', "card"),  # Default to card if not provided
             "payment_method": data.get('payment_method', "card"),
             "uniqueid": str(data['user']['product_id']),
-            "contact": data.get('user', {}).get('phone', "")
+            "contact": data.get('user', {}).get('phone', ""),
+            "username": str(data['user']['username'])
         }
 
         print("payment_details ", payment_details)
@@ -468,9 +487,10 @@ def verify():
             print("City:", data['user']['city'])
             print("State:", data['user']['state'])
             print("Price:", data['user']['price'])
+            print("username:", data['user']['username'])
 
 
-        api.insert_orders(str(data['user']['product_id']), username, str(data['user']['price']), str(data['order_id']))
+        api.insert_orders(str(data['user']['product_id']), str(data['user']['username']), str(data['user']['price']), "pending", str(data['order_id']))
 
         return jsonify({ "redirect_url": "/paymentsuccess" })
 
@@ -512,7 +532,7 @@ def checkout():
     print("username ", username)
 
     return render_template("checkout.html", name=name, phone=phone, address=address,
-                           pincode=pincode, city=city, state=state, price=price, product_id=product_id)
+                           pincode=pincode, city=city, state=state, price=price, product_id=product_id, username=username)
 
 
 @app.route("/favourite")
@@ -910,91 +930,186 @@ def pinkvilla():
     return render_template("pinkvilla.html", profile=profile)
 
 
-
 @app.route("/seller_dashboard")
 def seller_dashboard():
+    # Example chart data (past 7 days sales)
+    chart_data = [
+        {'date': (datetime.datetime.now() - datetime.timedelta(days=i)).strftime('%Y-%m-%d'), 'value': 100 + i * 10}
+        for i in reversed(range(7))
+    ]
+
+    # Example orders
     orders = [
         {
-            "image": "/static/images/product_images/1/1.webp",
-            "name": "JBL Bluetooth Speaker",
-            "quantity": 1,
-            "date": "13-06-2025",
-            "price": 2999
+            'product_id': 'P001',
+            'name': 'Bluetooth Speaker',
+            'quantity': 2,
+            'price': 1499,
+            'date': '2025-06-06 14:23'
         },
         {
-            "image": "/static/images/product_images/2/1.webp",
-            "name": "Sony Headphones",
-            "quantity": 2,
-            "date": "13-06-2025",
-            "price": 4499
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         },
         {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
+            'product_id': 'P002',
+            'name': 'LED Projector',
+            'quantity': 1,
+            'price': 4299,
+            'date': '2025-06-07 10:15'
         }
     ]
 
-    orders=[]
-    return render_template("seller_dashboard.html", orders=orders)
+    # Extracting chart data into separate lists
+    dates = [entry['date'] for entry in chart_data]
+    values = [entry['value'] for entry in chart_data]
+
+
+    return render_template("seller_dashboard.html", dates=dates, values=values, orders=orders)
+
+
+@app.route("/seller_pending_orders")
+def seller_pending_orders():
+    username = request.cookies.get('username')
+    
+    raw_orders = api.fetch_seller_orders(username, 'pending')  # Must return 6 columns
+    orders = []
+
+    for order in raw_orders:
+        price, dt, status, name, product_id, order_id = order  # Expect exactly 6
+
+        formatted_date = datetime.datetime.strptime(
+            str(dt), "%Y-%m-%d %H:%M:%S.%f"
+        ).strftime("%d-%m-%Y")
+
+        orders.append({
+            "image": f"/static/images/product_images/{product_id}/1.webp",
+            "name": name,
+            "quantity": 1,
+            "date": formatted_date,
+            "price": int(price),
+            "status": status,
+            "product_id": product_id,
+            "order_id": order_id
+        })
+
+    return render_template("seller_pending_orders.html", orders=orders)
+
+
+@app.route('/update_order_status', methods=['POST'])
+def update_order_status():
+    data = request.get_json()
+    order_id = data.get('order_id')
+    product_id = data.get('product_id')
+    user_id = data.get('user_id')
+    status = data.get('status')
+
+    print("data ", data)
+
+    api.update_order_status(status, order_id)
+    
+    return jsonify({"message": "Order status updated successfully."})
+    
+
+@app.route("/seller_approved_orders")
+def seller_approved_orders():
+    username = request.cookies.get('username')
+    
+    raw_orders = api.fetch_seller_orders(username, 'approve')  # Must return 6 columns
+    orders = []
+
+    for order in raw_orders:
+        price, dt, status, name, product_id, order_id = order  # Expect exactly 6
+
+        formatted_date = datetime.datetime.strptime(
+            str(dt), "%Y-%m-%d %H:%M:%S.%f"
+        ).strftime("%d-%m-%Y")
+
+        orders.append({
+            "image": f"/static/images/product_images/{product_id}/1.webp",
+            "name": name,
+            "quantity": 1,
+            "date": formatted_date,
+            "price": int(price),
+            "status": status,
+            "product_id": product_id,
+            "order_id": order_id
+        })
+
+    return render_template("seller_approved_orders.html", orders=orders)
+
+
+@app.route("/seller_rejected_orders")
+def seller_rejected_orders():
+    username = request.cookies.get('username')
+    
+    raw_orders = api.fetch_seller_orders(username, 'reject')  # Must return 6 columns
+    orders = []
+
+    for order in raw_orders:
+        price, dt, status, name, product_id, order_id = order  # Expect exactly 6
+
+        formatted_date = datetime.datetime.strptime(
+            str(dt), "%Y-%m-%d %H:%M:%S.%f"
+        ).strftime("%d-%m-%Y")
+
+        orders.append({
+            "image": f"/static/images/product_images/{product_id}/1.webp",
+            "name": name,
+            "quantity": 1,
+            "date": formatted_date,
+            "price": int(price),
+            "status": status,
+            "product_id": product_id,
+            "order_id": order_id
+        })
+
+    return render_template("seller_rejected_orders.html", orders=orders)
 
 
 @app.route("/return_order")
@@ -1005,148 +1120,97 @@ def return_order():
             "name": "Apple Watch Strap",
             "reason": "wrong product delivered",
             "date": "13-06-2025"
-        }
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        },
+        {
+            "image": "/static/images/product_images/3/1.webp",
+            "name": "Apple Watch Strap",
+            "reason": "wrong product delivered",
+            "date": "13-06-2025"
+        },
     ]
 
+    orders = []
     return render_template("return_order.html", orders=orders)
 
 
 @app.route("/old_orders")
 def old_orders():
+    username = request.cookies.get('username')
+    
+    raw_orders = api.fetch_old_seller_orders(username)  # Must return 6 columns
+    orders = []
 
-    orders = [
-        {
-            "image": "/static/images/product_images/1/1.webp",
-            "name": "JBL Bluetooth Speaker",
+    for order in raw_orders:
+        price, dt, status, name, product_id, order_id = order  # Expect exactly 6
+
+        formatted_date = datetime.datetime.strptime(
+            str(dt), "%Y-%m-%d %H:%M:%S.%f"
+        ).strftime("%d-%m-%Y")
+
+        orders.append({
+            "image": f"/static/images/product_images/{product_id}/1.webp",
+            "name": name,
             "quantity": 1,
-            "date": "13-06-2025",
-            "price": 2999
-        },
-        {
-            "image": "/static/images/product_images/2/1.webp",
-            "name": "Sony Headphones",
-            "quantity": 2,
-            "date": "13-06-2025",
-            "price": 4499
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "quantity": 3,
-            "date": "13-06-2025",
-            "price": 999
-        }
-    ]
+            "date": formatted_date,
+            "price": int(price),
+            "status": status,
+            "product_id": product_id,
+            "order_id": order_id
+        })
 
     return render_template("old_orders.html", orders=orders)
 
 
 @app.route("/upload_products")
 def upload_products():
-    orders = [
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },{
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },{
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },{
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },{
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },{
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "inventory": 3,
-            "date": "13-06-2025",
-            "price": 999
-        },
-        
-    ]
-    
+    username = request.cookies.get('username')
+
+    results = api.fetch_upload_products(username)  # assuming your function returns the above list
+
+    orders = []
+    for name, price, product_id, bid_price in results:
+        if not name or not price:
+            continue  # skip empty records
+
+        print("product_id ", product_id)
+
+        orders.append({
+            "image": f"/static/images/product_images/{product_id}/1.webp",
+            "name": name,
+            "date": datetime.datetime.now().strftime("%d-%m-%Y"),
+            "price": price,
+            "bidprice": bid_price if bid_price else "0"
+        })
 
     return render_template("upload_products.html", orders=orders)
 
@@ -1166,10 +1230,13 @@ def upload_upload_page():
 
 @app.route('/submit_upload_button', methods=['POST'])
 def submit_upload_button():
+    username = request.cookies.get('username')
+
     category = request.form.get('category')
     product_name = request.form.get('product_name')
+    brand_name = request.form.get('brand_name')
     product_price = request.form.get('product_price')
-    inventory = request.form.get('inventory')
+    start_bid_price = request.form.get('start_bid_price')
     product_description = request.form.get('product_description')
 
     uploaded_files = request.files.getlist('product_images[]')
@@ -1178,23 +1245,69 @@ def submit_upload_button():
     upload_folder = os.path.join('static', 'uploads')
     os.makedirs(upload_folder, exist_ok=True)
 
+    count = 1
     for file in uploaded_files:
         if file and file.filename != '':
             if not file.filename.lower().endswith('.jpg'):
                 print(f"Skipped non-JPG: {file.filename}")
                 continue
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(upload_folder, filename))
-            image_names.append(filename)  # Only filename (e.g., '1.jpg')
 
-    print("Category:", category)
-    print("Product Name:", product_name)
-    print("Price:", product_price)
-    print("Inventory:", inventory)
-    print("Description:", product_description)
-    print("Images:", image_names)  # Will print ['1.jpg', '2.jpg', ...]
+            new_filename = f"{count}.jpg"
+            save_path = os.path.join(upload_folder, new_filename)
+            file.save(save_path)
+            image_names.append(new_filename)
+            count += 1
+
+    # Join image names to a single string
+    image_string = ", ".join(image_names)
+
+    executor = ThreadPoolExecutor(max_workers=2)
+
+    args = (
+        product_name,
+        brand_name,
+        product_description,
+        product_price,
+        image_string,
+        category,
+        "0", "0", "0", "0",
+        category,
+        username,
+        start_bid_price
+    )
+
+    # Submit the function to be executed in a separate thread
+    future = executor.submit(api.insert_product, *args)
+
+    # Wait for the result (blocking here, remove `.result()` if you want async)
+    product_id = future.result()
+
+    # Print the returned product_id
+    print("Returned product_id from thread:", product_id)
+
+    # Create folder for product_id and move images
+    product_image_folder = os.path.join('static', 'images', 'product_images', str(product_id))
+    os.makedirs(product_image_folder, exist_ok=True)
+
+    for img_name in image_names:
+        src = os.path.join(upload_folder, img_name)
+        dst = os.path.join(product_image_folder, img_name)
+        shutil.move(src, dst)
+
+    print("Images moved to:", product_image_folder)
+
+    # Debug prints
+    print("Category: ", category)
+    print("Product Name: ", product_name)
+    print("Product Brand Name: ", brand_name)
+    print("Price: ", product_price)
+    print("Start Bid Price: ", start_bid_price)
+    print("Description: ", product_description)
+    print("Images:", image_string)
 
     return redirect(url_for('upload_products'))
+
+
 
 
 

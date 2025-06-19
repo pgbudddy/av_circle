@@ -1,0 +1,18 @@
+PS C:\Program Files\Android\Android Studio1\jbr\bin> keytool -list -v -keystore 'C:\Users\Vivek Parmar\AndroidStudioProjects\miniplex\Miniplex.jks' -alias key0
+Enter keystore password:
+
+Alias name: key0
+Creation date: 19-May-2025
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=AV Cirlce
+Issuer: CN=AV Cirlce
+Serial number: 1
+Valid from: Mon May 19 15:01:36 IST 2025 until: Fri May 13 15:01:36 IST 2050
+Certificate fingerprints:
+         SHA1: BB:1C:9E:C5:B8:A1:3B:90:AD:ED:1D:D1:3B:F9:47:40:31:D8:B1:C3
+         SHA256: C8:36:0D:66:AA:6B:51:1A:A3:38:28:4A:18:DF:D0:41:54:0D:46:05:D7:27:95:EF:8F:E6:A7:24:3C:35:24:22
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 1

@@ -174,7 +174,6 @@
     <!-- Scrollable orders list -->
     <div class="main-content" style="
         overflow-y: auto;
-        height: calc(100vh - 65px - 48px); /* Navbar (65) + Bottom Nav (48) */
         padding: 10px;
         box-sizing: border-box;
         margin-top: 65px; /* Push below navbar */
@@ -200,18 +199,21 @@
             {% else %}
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
                     <img src="{{ url_for('static', filename='images/product.svg') }}" alt="No Orders" style="width: 120px; opacity: 0.8; margin-bottom: -20px;">
-                    <p style="font-size: 16px; color: #999; font-weight: bold;">No Orders Found</p>
+                    <p style="font-size: 16px; color: #999; font-weight: bold;">No orders found</p>
                 </div>
             {% endif %}
         </div>
     </div>
-
+    <br><br>
 
     
     
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <a href="#" onclick="location.href='{{ url_for('seller_dashboard') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/home.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
+        </a>
+        <a href="#" onclick="location.href='{{ url_for('seller_pending_orders') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
             <img src="{{ url_for('static', filename='images/orders.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
         </a>
         <a href="#" onclick="location.href='{{ url_for('old_orders') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">

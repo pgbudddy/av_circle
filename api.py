@@ -133,7 +133,7 @@ def insert_payment(payment):
         bank_reference = payment["bank_reference"]
         payment_group = payment["payment_group"]
         payment_method = payment["payment_method"]  # Assuming this is already a string or valid data
-        uniqueid = payment["uniqueid"]  # Use `getattr` to avoid AttributeError if email is missing
+        uniqueid = payment["uniqueid"]  # Use getattr to avoid AttributeError if email is missing
         contact = payment["contact"] 
 
         date = datetime.datetime.now()
@@ -184,7 +184,7 @@ def insert_orders(product_id, user_id, price, order_id):
         mycursor = mydb.cursor(buffered=True)
         
         date = datetime.datetime.now()
-        trade = "INSERT INTO orders (product_id, user_id, price, order_id, datetime) VALUES (%s, %s, %s, %s, %s)"
+        trade = "INSERT INTO orders (product_id, user_id, price, order_id, staus, datetime) VALUES (%s, %s, %s, %s, %s, %s)"
         mycursor.execute(trade, (product_id, user_id, price, order_id, date))
         mydb.commit()
         
@@ -679,7 +679,7 @@ def fetch_fav_product(user_id):
         close_connection(mydb, mycursor)
 
 
-def add_to_favourite(product_id, user_id = "999"):
+def add_to_favourite(product_id, user_id):
     print("save_message")
     try:
         # Get a connection from the pool
@@ -786,6 +786,82 @@ def fetch_orders_product(user_id):
         close_connection(mydb, mycursor)
 
 
+def fetch_seller_orders(user_id, status):
+    try:
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(buffered=True)
+
+        query = '''
+        SELECT o.price, o.datetime, o.status, p.name, p.product_id, o.order_id
+        FROM orders o
+        JOIN products p ON o.product_id = p.product_id
+        WHERE o.user_id = %s AND o.status = %s;
+        '''
+        mycursor.execute(query, (user_id, status,))
+        myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        print("Error:", e)
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
+def update_order_status(status, order_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        trade = "update orders set status = '"+str(status)+"' where order_id = '"+str(order_id)+"'"
+        mycursor.execute(trade)
+        mydb.commit()
+        
+        # Check if insertion was successful
+        if mycursor.rowcount > 0:
+            print("Data inserted successfully.")
+            return True
+        else:
+            print("Data insertion failed.")
+            return False
+        
+    except:
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
+def fetch_old_seller_orders(user_id):
+    try:
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(buffered=True)
+
+        query = '''
+        SELECT o.price, o.datetime, o.status, p.name, p.product_id, o.order_id
+        FROM orders o
+        JOIN products p ON o.product_id = p.product_id
+        WHERE o.user_id = %s AND o.status = 'approve';
+        '''
+        mycursor.execute(query, (user_id,))
+        myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        print("Error:", e)
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
 def remove_product_from_cart(product_id, user_id):
     try:
         # Get a connection from the pool
@@ -831,7 +907,7 @@ def search_product_db(query):
     return results
 
 
-def add_to_cart(product_id, user_id = "999"):
+def add_to_cart(product_id, user_id):
     print("save_message")
     try:
         # Get a connection from the pool
@@ -858,6 +934,114 @@ def add_to_cart(product_id, user_id = "999"):
         print(e)
         return False
 
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
+def insert_product(name, brand, discription, price, product_images, category, brightness, contrast_ratio, HDR_HLG, lamp_life_hrs_Normal_rco_mode, type, user_id, bid_price):
+    print("save_message")
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(buffered=True)
+
+        date = datetime.datetime.now()
+
+        # Insert into products table (product_id is AUTO_INCREMENT)
+        insert_product = """
+            INSERT INTO products(
+                name, brand, discription, price, product_images, category,
+                brightness, contrast_ratio, HDR_HLG,
+                lamp_life_hrs_Normal_rco_mode, type
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        mycursor.execute(insert_product, (
+            name, brand, discription, price, product_images, category,
+            brightness, contrast_ratio, HDR_HLG,
+            lamp_life_hrs_Normal_rco_mode, type
+        ))
+        mydb.commit()
+
+        # Get the auto-incremented product_id
+        product_id = mycursor.lastrowid
+        print("Inserted product_id:", product_id)
+
+        # Insert into uploaded_products table (or orders, depending on your table name)
+        insert_product_profile = """
+            INSERT INTO uploaded_products(product_id, user_id, datetime)
+            VALUES (%s, %s, %s)
+        """
+        mycursor.execute(insert_product_profile, (product_id, user_id, date))
+        mydb.commit()
+
+        print("Inserted uploaded_products")
+
+        # Insert into bids table (or orders, depending on your table name)
+        insert_bids = """
+            INSERT INTO bids(user_id, price, product_id, datetime)
+            VALUES (%s, %s, %s, %s)
+        """
+        mycursor.execute(insert_bids, (user_id, bid_price, product_id, date))
+        mydb.commit()
+
+        print("Inserted bids")
+
+        if mycursor.rowcount > 0:
+            print("All data inserted successfully.")
+            return product_id
+        else:
+            print("All data insertion failed.")
+            return False
+
+    except Exception as e:
+        print("Error:", e)
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
+def fetch_upload_products(user_id):
+    try:
+        mydb = get_db_connection()
+
+            # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(buffered=True)
+        query = """
+        SELECT 
+            p.name,
+            p.price AS original_price,
+            p.product_id,
+            COALESCE(MAX(b.price), 0) AS highest_bid_price
+        FROM 
+            products p
+        LEFT JOIN 
+            bids b ON p.product_id = b.product_id
+        WHERE 
+            p.product_id IN (
+                SELECT product_id 
+                FROM uploaded_products 
+                WHERE user_id = %s
+            )
+        GROUP BY 
+            p.product_id, p.name, p.price;
+        """
+
+        mycursor.execute(query, (user_id,))
+        results = mycursor.fetchall()
+
+        print("results ", results)
+
+        return results
+    
+    except requests.RequestException as e:
+        print(f"Error fetching IP address: {e}")
+        return None
+    
     finally:
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)

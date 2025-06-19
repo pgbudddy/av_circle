@@ -157,7 +157,7 @@
         <div class="left-section">
             <div class="menu">
                 <!-- <img src="{{ url_for('static', filename='images/logo2.svg') }}" loading="lazy"  alt="Menu"> -->
-                <p style="font-weight: 600; margin-left: 10px; font-size: 16px; color: #464646;">Inventory</p>
+                <p style="font-weight: 600; margin-left: 10px; font-size: 16px; color: #464646;">Pending orders</p>
             </div>
             <div class="logo">
                 
@@ -170,63 +170,50 @@
         </div>
     </header>
 
-
-
-    <div style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        margin-top: 65px;
-        background: white;
-        border-bottom: 1px solid #ddd;
-    ">
-        <div style="font-size: 15px; font-weight: bold; color: #464646;">Upload new product</div>
-        <button onclick="location.href='{{ url_for('upload_upload_page') }}'"
-            style="background-color: #2e6aff; color: white; border: none; padding: 8px 14px; border-radius: 5px; font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent;">
-            + Upload
-        </button>
+    <!-- Filter Buttons Row -->
+    <div style="display: flex; justify-content: space-around; margin-top: 60px; padding: 10px 0; background: white; border-bottom: 1px solid #ddd;">
+        <button onclick="location.href='{{ url_for('seller_pending_orders') }}'" style="flex: 1; margin: 0 5px; padding: 10px; font-weight: bold; background: #eeeeee; color: #2e6aff; border: none; border-radius: 5px;">Pending Orders</button>
+        <button onclick="location.href='{{ url_for('seller_approved_orders') }}'" style="flex: 1; margin: 0 5px; padding: 10px; font-weight: bold; background: #eeeeee; color: grey; border: none; border-radius: 5px;">Approved Orders</button>
+        <button onclick="location.href='{{ url_for('seller_rejected_orders') }}'" style="flex: 1; margin: 0 5px; padding: 10px; font-weight: bold; background: #eeeeee; color: grey; border: none; border-radius: 5px;">Rejected Orders</button>
     </div>
-
 
     <!-- Scrollable orders list -->
     <div class="main-content" style="
         overflow-y: auto;
         padding: 10px;
         box-sizing: border-box;
-        margin-top: 0;
+        /* Push below navbar */
     ">
-
-        <div class="orders_list" style="width: 100%;">
+    <div class="orders_list" style="width: 100%;">
         {% if orders %}
             {% for order in orders %}
-            
-            <div style="background: white; border-radius: 10px; padding: 10px; margin-bottom: 15px; display: flex; flex-direction: column; box-shadow: 0 5px 4px rgba(0,0,0,0.1); position: relative;">
-    
-                <!-- Edit Button Top Right -->
-                <button
-                    style="position: absolute; top: 10px; right: 10px; background: #f0f0f0; border: none; color: #2e6aff; font-size: 13px; padding: 6px 10px; border-radius: 5px; cursor: pointer;">
-                    Edit
-                </button>
-            
+            <div style="background: white; border-radius: 10px; padding: 10px; margin-bottom: 15px; display: flex; flex-direction: column; box-shadow: 0 5px 4px rgba(0,0,0,0.1);">
                 <!-- Product Info -->
                 <div style="display: flex;">
                     <img src="{{ order.image }}" alt="{{ order.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;">
                     <div style="flex: 1;">
-                        <p style="margin: 5px 0; font-weight: bold; color: #333;">{{ order.name }}</p>
-                        <p style="margin: 6px 0; font-size: 14px; color: #2e6aff;">Price: ₹{{ order.price }}</p>
-                        <p style="margin: 0px 0; font-size: 14px; color: #2e6aff;">Bid Price: ₹{{ order.bidprice }}</p>
+                        <p style="margin: 0; font-weight: bold; color: #333;">{{ order.name }}</p>
+                        <p style="margin: 5px 0 0; font-size: 14px; color: #555;">Qty: {{ order.quantity }}</p>
+                        <p style="margin: 2px 0; font-size: 14px; color: #2e6aff;">Price: ₹{{ order.price }}</p>
+                        <p style="margin: 2px 0; font-size: 14px; color: #555;">Datetime: {{ order.date }}</p>
                     </div>
                 </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                    <button onclick="updateStatus('{{ order.order_id }}', '{{ order.product_id }}', '{{ order.user_id }}', 'approve')" style="flex: 1; background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; margin-right: 5px;">Approve</button>
+                    <button onclick="updateStatus('{{ order.order_id }}', '{{ order.product_id }}', '{{ order.user_id }}', 'reject')" style="flex: 1; background: #dc3545; color: white; border: none; padding: 8px; border-radius: 5px;">Reject</button>
+                </div>                
             </div>
-        {% endfor %}
-            {% else %}
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
-                    <img src="{{ url_for('static', filename='images/product.svg') }}" alt="No Orders" style="width: 120px; opacity: 0.8; margin-bottom: -20px;">
-                    <p style="font-size: 16px; color: #999; font-weight: bold;">No orders found</p>
-                </div>
-            {% endif %}
-        </div>
+            {% endfor %}
+        {% else %}
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
+                <img src="{{ url_for('static', filename='images/product.svg') }}" alt="No Orders" style="width: 120px; opacity: 0.8; margin-bottom: -20px;">
+                <p style="font-size: 16px; color: #999; font-weight: bold;">No orders found</p>
+            </div>
+        {% endif %}
+    </div>
+
     </div>
     <br><br>
 
@@ -241,7 +228,7 @@
             <img src="{{ url_for('static', filename='images/home.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
         </a>
         <a href="#" onclick="location.href='{{ url_for('seller_pending_orders') }}'" class="nav-item active" style="-webkit-tap-highlight-color: transparent;">
-            <img src="{{ url_for('static', filename='images/orders.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
+            <img src="{{ url_for('static', filename='images/orders_blue.svg') }}" onclick="location.href='{{ url_for('dashboard') }}'"  style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
         </a>
         <a href="#" onclick="location.href='{{ url_for('old_orders') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
             <img src="{{ url_for('static', filename='images/inventory.svg') }}" onclick="location.href='{{ url_for('favourite') }}'" style="-webkit-tap-highlight-color: transparent; width: 33px;" alt="User">
@@ -250,10 +237,39 @@
             <img src="{{ url_for('static', filename='images/return.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent; width: 33px;" alt="User">
         </a>
         <a href="#" onclick="location.href='{{ url_for('upload_products') }}'" class="nav-item" style="-webkit-tap-highlight-color: transparent;">
-            <img src="{{ url_for('static', filename='images/upload_orders_blue.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
+            <img src="{{ url_for('static', filename='images/upload_orders.svg') }}" onclick="location.href='{{ url_for('cart') }}'" style="-webkit-tap-highlight-color: transparent; width: 32px;" alt="User">
         </a>
     </nav>
 
 
 </body>
 </html>
+
+
+
+<script>
+    function updateStatus(orderId, productId, userId, status) {
+        fetch("/update_order_status", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                product_id: productId,
+                user_id: userId,
+                status: status
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload(); // Reload page after action
+        })
+        .catch(error => {
+            console.error("Error updating status:", error);
+            alert("Failed to update status.");
+        });
+    }
+    </script>
+    
