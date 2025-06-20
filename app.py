@@ -1217,19 +1217,14 @@ def upload_products():
 
 @app.route("/upload_upload_page")
 def upload_upload_page():
-    orders = [
-        {
-            "image": "/static/images/product_images/3/1.webp",
-            "name": "Apple Watch Strap",
-            "reason": "wrong product delivered",
-            "date": "13-06-2025"
-        }
-    ]
-    return render_template("upload_upload_page.html", orders=orders)
+    
+    return render_template("upload_upload_page.html")
 
 
 @app.route('/submit_upload_button', methods=['POST'])
 def submit_upload_button():
+    executor = ThreadPoolExecutor(max_workers=4)
+
     username = request.cookies.get('username')
 
     category = request.form.get('category')
@@ -1258,10 +1253,7 @@ def submit_upload_button():
             image_names.append(new_filename)
             count += 1
 
-    # Join image names to a single string
     image_string = ", ".join(image_names)
-
-    executor = ThreadPoolExecutor(max_workers=2)
 
     args = (
         product_name,
@@ -1276,16 +1268,14 @@ def submit_upload_button():
         start_bid_price
     )
 
-    # Submit the function to be executed in a separate thread
-    future = executor.submit(api.insert_product, *args)
+    # Submit product insert task
+    future_insert = executor.submit(api.insert_product, *args)
 
-    # Wait for the result (blocking here, remove `.result()` if you want async)
-    product_id = future.result()
-
-    # Print the returned product_id
+    # Wait for product_id to be returned
+    product_id = future_insert.result()
     print("Returned product_id from thread:", product_id)
 
-    # Create folder for product_id and move images
+    # Create product image folder and move images
     product_image_folder = os.path.join('static', 'images', 'product_images', str(product_id))
     os.makedirs(product_image_folder, exist_ok=True)
 
@@ -1295,6 +1285,9 @@ def submit_upload_button():
         shutil.move(src, dst)
 
     print("Images moved to:", product_image_folder)
+
+    # Submit image_convertor to a separate thread (non-blocking)
+    executor.submit(api.image_convertor, product_id)
 
     # Debug prints
     print("Category: ", category)
@@ -1306,8 +1299,6 @@ def submit_upload_button():
     print("Images:", image_string)
 
     return redirect(url_for('upload_products'))
-
-
 
 
 

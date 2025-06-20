@@ -369,33 +369,11 @@
         {% endfor %}
     </div>
 
-    <br><br>
+    <br><br><br>
 
     <button class="floating-btn" onclick="location.href='{{ url_for('chat') }}'" style="-webkit-tap-highlight-color: transparent;">
         <img src="{{ url_for('static', filename='images/bot_mini.png') }}" style="width: 95%; height: auto;" alt="Chat">
     </button>
-
-    <chat-messages>
-        <div class="chat-wrapper hidden">
-            <div class="chat-container" id="chatBox">
-                <!-- Chat Messages Area -->
-                <div class="chat-messages">
-                    <div class="message ai-message">
-                        <div class="message-content">Hello! How can I assist you today?</div>
-                        <span class="message-timestamp">01:00 AM</span>
-                    </div>
-                </div>
-                <!-- Chat Input Area -->
-                <div class="chat-input-container">
-                    <textarea class="chat-input" placeholder="Type your message..." rows="1"></textarea>
-                    <button class="send-button">Send</button>
-                </div>
-                <!-- Close Button -->
-                <button class="close-chat">×</button>
-            </div>
-        </div>
-    </chat-messages>
-
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">

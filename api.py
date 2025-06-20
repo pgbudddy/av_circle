@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 import os
+from PIL import Image
 
 
 def login(number, password):
@@ -1000,6 +1001,27 @@ def insert_product(name, brand, discription, price, product_images, category, br
 
     finally:
         close_connection(mydb, mycursor)
+
+
+def image_convertor(product_id):
+    try:
+        print(f"[image_convertor] Running for product_id: {product_id}")
+        source_dir = f'static/images/product_images/{product_id}/'
+        print(f"[image_convertor] Looking inside: {source_dir}")
+        
+        for filename in os.listdir(source_dir):
+            if filename.lower().endswith((".jpeg", ".jpg",  ".png")):
+                img = Image.open(os.path.join(source_dir, filename))
+                webp_name = os.path.splitext(filename)[0] + '.webp'
+                img.save(os.path.join(source_dir, webp_name), 'webp', quality=10)
+                print(f"[image_convertor] Converted: {filename} -> {webp_name}")
+
+        return True
+    
+    except Exception as e:
+        print("Error in image_convertor:", e)
+        return False
+   
 
 
 def fetch_upload_products(user_id):
