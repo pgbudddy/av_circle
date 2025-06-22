@@ -525,6 +525,33 @@ def fetch_profile(uniqueid):
     finally:
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
+
+
+def fetch_seller_profile(uniqueid):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        query = 'SELECT * FROM signup where user_id="'+str(uniqueid)+'"'
+        mycursor.execute(query)
+        myresult = mycursor.fetchone()
+
+        # print(myresult)
+        
+        if myresult == None:  
+            return False
+        else:
+            return myresult
+
+    except:
+        return False
+    
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
         
 
 def buy_product(product_id):

@@ -109,15 +109,21 @@
         if (loader) loader.style.display = 'none';
     });
 </script>
+
+
+
 <header class="navbar">
     <div class="left-section">
         <div class="menu">
-            <p style="font-weight: 600; margin-left: 10px; font-size: 16px; color: #464646;">Dashboard</p>
+            <img src="{{ url_for('static', filename='images/leftarrow.png') }}"
+                 onclick="location.href='{{ url_for('profile') }}'"
+                 alt="Back"
+                 style="width: 25px; margin-left: 15px; cursor: pointer;">
         </div>
-        <div class="logo"></div>
+        <p style="font-weight: 600; font-size: 16px; color: #464646; margin: 0;">Dashboard</p>
     </div>
     <div class="user">
-        <img src="{{ url_for('static', filename='images/profile_profile.png') }}" onclick="location.href='{{ url_for('profile') }}'" alt="User">
+        <img src="{{ url_for('static', filename='images/profile_profile.png') }}" onclick="location.href='{{ url_for('seller_profile') }}'" alt="User" style="-webkit-tap-highlight-color: transparent;">
     </div>
 </header>
 

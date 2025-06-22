@@ -127,6 +127,13 @@
 </form>
 
 <script>
+
+document.querySelector("form").addEventListener("submit", function () {
+        const loader = document.getElementById("equalizer-loader");
+        if (loader) loader.style.display = "flex";
+});
+
+
     let maxImages = 5;
     let currentImageIndex = 0;
     let imageInputs = [];

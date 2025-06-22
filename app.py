@@ -50,7 +50,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 # cache = Cache(app)
 
 GOOGLE_MAPS_API_KEY = "AIzaSyCdc5N7AzzvPiWddsegRCRmna3LxG5HCmk"
-razorpay_client = razorpay.Client(auth=("rzp_test_SWjvcpME4fGCmq", "ZuTowFTbz7voWmL6VmstfMgc"))
+razorpay_client = razorpay.Client(auth=("rzp_live_KwWU7BnuboSLCV", "nXSeMZXRHJs0ZcAal1Aljmy5"))
 
 
 # Upload folder configuration
@@ -60,19 +60,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-@app.route('/.well-known/assetlinks.json')
-def serve_assetlinks():
-    assetlinks = [{
-        "relation": ["delegate_permission/common.handle_all_urls"],
-        "target": {
-            "namespace": "android_app",
-            "package_name": "com.miniplex.miniplex",
-            "sha256_cert_fingerprints": ["A7:28:84:3D:60:E6:27:CC:61:94:14:4D:F0:EA:2A:4E:0D:82:7E:68:2E:10:83:60:CD:82:CA:2C:62:DD:C4:CD", "C8:36:0D:66:AA:6B:51:1A:A3:38:28:4A:18:DF:D0:41:54:0D:46:05:D7:27:95:EF:8F:E6:A7:24:3C:35:24:22"]
-        }
-    }]
-    response = make_response(jsonify(assetlinks))
-    response.headers['Content-Type'] = 'application/json'
-    return response
+# @app.route('/.well-known/assetlinks.json')
+# def serve_assetlinks():
+#     assetlinks = [{
+#         "relation": ["delegate_permission/common.handle_all_urls"],
+#         "target": {
+#             "namespace": "android_app",
+#             "package_name": "com.miniplex.miniplex",
+#             "sha256_cert_fingerprints": ["A7:28:84:3D:60:E6:27:CC:61:94:14:4D:F0:EA:2A:4E:0D:82:7E:68:2E:10:83:60:CD:82:CA:2C:62:DD:C4:CD", "C8:36:0D:66:AA:6B:51:1A:A3:38:28:4A:18:DF:D0:41:54:0D:46:05:D7:27:95:EF:8F:E6:A7:24:3C:35:24:22"]
+#         }
+#     }]
+#     response = make_response(jsonify(assetlinks))
+#     response.headers['Content-Type'] = 'application/json'
+#     return response
 
 
 @app.route("/")
@@ -117,6 +117,20 @@ def login():
             return render_template('login.html', error=error)
         
     return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    # Clear all session data
+    session.clear()
+
+    # Prepare response with redirection to login
+    resp = make_response(redirect(url_for('login')))
+
+    # Delete cookies by setting expiry to 0
+    resp.set_cookie('username', '', expires=0)
+
+    return resp
 
 
 @app.route("/signup", methods=['POST', 'GET'])
@@ -173,8 +187,17 @@ def otp_verification():
                 args=(user_info.get("name"), user_info.get("email"), user_info.get("phone"), user_info.get("password"), ip_address)
             )
             thread.start()
-            
-            return redirect(url_for('dashboard'))  # Update as needed
+
+            session.clear()
+            session['username'] = user_info.get("phone")  # or use email if preferred
+
+            expire_date = datetime.datetime.now() + datetime.timedelta(days=30)
+            resp = make_response(redirect(url_for('dashboard')))
+            resp.set_cookie('username', user_info.get("phone"), expires=expire_date)
+
+            return resp
+
+            # return redirect(url_for('dashboard'))  # Update as needed
 
         else:
             return render_template("otp_verification.html", error="Enter valid OTP")
@@ -187,6 +210,9 @@ def otp_verification():
 
 @app.route("/dashboard")
 def dashboard():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+     
     buttons = [
         {"text": "B&W", "image": "b-w.jpeg"},
         {"text": "DENON", "image": "denon.jpeg"},
@@ -228,8 +254,9 @@ def dashboard():
         results = executor.map(process_product, fetch_product)
         products = [p for p in results if p is not None]
 
+
     return render_template("dashboard.html", buttons=buttons, products=products)
-    
+
 
 @app.route("/profile")
 def profile():
@@ -246,6 +273,23 @@ def profile():
         profile_details = future.result()  # Wait for result
 
     return render_template("profile.html", name=profile_details[0], email=profile_details[2])
+
+
+@app.route("/seller_profile")
+def seller_profile():
+    username = request.cookies.get('username')
+
+    print("username ", username)
+
+    def fetch_data(username):
+        return api.fetch_seller_profile(username)
+
+    # Use ThreadPoolExecutor to get return value
+    with ThreadPoolExecutor() as executor:
+        future = executor.submit(fetch_data, username)
+        profile_details = future.result()  # Wait for result
+
+    return render_template("seller_profile.html", name=profile_details[0], email=profile_details[2])
 
 
 @app.route('/contactus', methods=['GET', 'POST'])
@@ -281,7 +325,6 @@ def contactus():
 @app.route("/product_details/<product_id>")
 def product_details(product_id):
     username = request.cookies.get('username')
-
 
     print("username", username)
     print("product_id", product_id)
@@ -820,33 +863,41 @@ def myorders():
 
 @app.route("/register_token", methods=['GET', 'POST'])
 def register_token():
+    username = request.cookies.get('username')
     if request.method == "GET":
         token = request.args.get("token")
         public_ip = request.remote_addr
     else:
         data = request.json
         token = data.get("token")
-        public_ip = data.get("public_ip")
+        public_ip = data.get("public_ip", request.remote_addr)
 
+    # ✅ Store values in session (must be done in the main thread)
     session['token'] = token
     session['public_ip'] = public_ip
 
-    print("Stored Token in Session:", session.get("token"))
-    print("Stored Public IP:", session.get("public_ip"))
+    print("Stored Token in Session:", token)
+    print("Stored Public IP:", public_ip)
 
-    def update_token():
-        result = api.updatetoken("None", token, public_ip)
+    # ✅ Capture values BEFORE threading (safe)
+    def update_token_safe(tkn, ip):
+        result = api.updatetoken("None", tkn, ip)
         print("updatetoken:", result)
 
-    thread = threading.Thread(target=update_token)
-    thread.start()
-    thread.join()
+    # ✅ Start thread (no .join(), let it run)
+    threading.Thread(target=update_token_safe, args=(token, public_ip)).start()
+
+    # result = api.updatetoken(username, token, public_ip)
+
+    # print("updatetoken:", result)
 
     return jsonify({
         "message": "Token stored successfully",
         "token": token,
         "public_ip": public_ip
     })
+
+
 
 
 @app.route("/forgetpassword", methods=["GET", "POST"])

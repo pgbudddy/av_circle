@@ -156,17 +156,15 @@
     <header class="navbar">
         <div class="left-section">
             <div class="menu">
-                <!-- <img src="{{ url_for('static', filename='images/logo2.svg') }}" loading="lazy"  alt="Menu"> -->
-                <p style="font-weight: 600; margin-left: 10px; font-size: 16px; color: #464646;">Pending orders</p>
+                <img src="{{ url_for('static', filename='images/leftarrow.png') }}"
+                     onclick="location.href='{{ url_for('profile') }}'"
+                     alt="Back"
+                     style="width: 25px; margin-left: 15px; cursor: pointer;">
             </div>
-            <div class="logo">
-                
-            </div>
-            <!-- <input type="text" class="search-input" placeholder="Search..."> -->
+            <p style="font-weight: 600; font-size: 16px; color: #464646; margin: 0;">Pending Orders</p>
         </div>
         <div class="user">
-            <!-- <img src="{{ url_for('static', filename='images/search.svg') }}" onclick="location.href='{{ url_for('search_products') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User"> -->
-            <img src="{{ url_for('static', filename='images/profile_profile.png') }}" onclick="location.href='{{ url_for('profile') }}'" loading="lazy"  style="-webkit-tap-highlight-color: transparent;" alt="User">
+            <img src="{{ url_for('static', filename='images/profile_profile.png') }}" onclick="location.href='{{ url_for('seller_profile') }}'" alt="User" style="-webkit-tap-highlight-color: transparent;">
         </div>
     </header>
 
