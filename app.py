@@ -260,6 +260,9 @@ def dashboard():
 
 @app.route("/profile")
 def profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
 
     print("username ", username)
@@ -277,6 +280,9 @@ def profile():
 
 @app.route("/seller_profile")
 def seller_profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
 
     print("username ", username)
@@ -294,6 +300,9 @@ def seller_profile():
 
 @app.route('/contactus', methods=['GET', 'POST'])
 def contactus():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     if request.method == 'POST':
         # Get required data from request
         username = request.cookies.get('username')
@@ -324,6 +333,9 @@ def contactus():
 
 @app.route("/product_details/<product_id>")
 def product_details(product_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
 
     print("username", username)
@@ -387,6 +399,9 @@ def product_details(product_id):
 
 @app.route('/place_bid', methods=['POST'])
 def place_bid():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     data = request.get_json()
     product_id = data.get('product_id')
     bid_amount = data.get('bid_amount')
@@ -405,6 +420,9 @@ def place_bid():
 
 @app.route('/buynow', methods=['POST'])
 def buynow():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     product_id = request.form.get('product_id')
     username = request.form.get('username')
     result = {}
@@ -554,6 +572,9 @@ def paymentfailed():
 
 @app.route("/checkout", methods=["GET"])
 def checkout():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     name = request.args.get("name")
     phone = request.args.get("phone")
     address = request.args.get("address")
@@ -580,6 +601,9 @@ def checkout():
 
 @app.route("/favourite")
 def favourite():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     result = {"products": []}
 
@@ -650,6 +674,9 @@ def add_to_cart():
 
 @app.route("/cart")
 def cart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     result = {"cart_products": [], "total_price": 0}
 
@@ -707,6 +734,9 @@ def remove_from_cart(product_id):
 
 @app.route("/search_products")
 def search_products():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     result = {"products": []}
 
     def fetch_and_process():
@@ -744,6 +774,9 @@ def search_products():
 
 @app.route("/chat")
 def chat():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     return render_template("chat.html")
 
 
@@ -825,6 +858,9 @@ def privacy_policy():
 
 @app.route("/myorders")
 def myorders():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     result = {"cart_products": [], "total_price": 0}
 
@@ -969,13 +1005,14 @@ def change_password():
 @app.route("/pinkvilla")
 def pinkvilla():
     profile = {
-        "name": "Pink Villla",
+        "name": "Bond & Beyond",
         "bio": "The ONLY place for premium adult board games and accessories!",
         "avatar": "https://i.pravatar.cc/150?img=3",
         "links": [
             {"title": "Adultopoly", "url": "https://meesho.com/adultopoly-board-game--the-ultimate-adult-party-experience/p/8w5ue0?_ms=1.2"},
             {"title": "Adultopoly Drunk", "url": "https://meesho.com/adultopoly-drunk/p/90mg52?_ms=1.2"},
             {"title": "Adultopoly Uno Card", "url": "https://meesho.com/18-uno-dare-adults-only-card-game-for-adult-game-night/p/92bm1q?_ms=1.2"},
+            {"title": "Bond & Beyond Tower of Temptation", "url": "https://meesho.com/bond--beyond-tower-of-temptation-18/p/97tdkp?_ms=1.2"},
         ]
     }
     return render_template("pinkvilla.html", profile=profile)
@@ -983,6 +1020,9 @@ def pinkvilla():
 
 @app.route("/seller_dashboard")
 def seller_dashboard():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     # Example chart data (past 7 days sales)
     chart_data = [
         {'date': (datetime.datetime.now() - datetime.timedelta(days=i)).strftime('%Y-%m-%d'), 'value': 100 + i * 10}
@@ -1066,6 +1106,9 @@ def seller_dashboard():
 
 @app.route("/seller_pending_orders")
 def seller_pending_orders():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     
     raw_orders = api.fetch_seller_orders(username, 'pending')  # Must return 6 columns
@@ -1094,6 +1137,9 @@ def seller_pending_orders():
 
 @app.route('/update_order_status', methods=['POST'])
 def update_order_status():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     data = request.get_json()
     order_id = data.get('order_id')
     product_id = data.get('product_id')
@@ -1109,6 +1155,9 @@ def update_order_status():
 
 @app.route("/seller_approved_orders")
 def seller_approved_orders():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     
     raw_orders = api.fetch_seller_orders(username, 'approve')  # Must return 6 columns
@@ -1137,6 +1186,9 @@ def seller_approved_orders():
 
 @app.route("/seller_rejected_orders")
 def seller_rejected_orders():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     
     raw_orders = api.fetch_seller_orders(username, 'reject')  # Must return 6 columns
@@ -1165,6 +1217,9 @@ def seller_rejected_orders():
 
 @app.route("/return_order")
 def return_order():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     orders = [
         {
             "image": "/static/images/product_images/3/1.webp",
@@ -1216,6 +1271,9 @@ def return_order():
 
 @app.route("/old_orders")
 def old_orders():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
     
     raw_orders = api.fetch_old_seller_orders(username)  # Must return 6 columns
@@ -1244,6 +1302,9 @@ def old_orders():
 
 @app.route("/upload_products")
 def upload_products():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = request.cookies.get('username')
 
     results = api.fetch_upload_products(username)  # assuming your function returns the above list
@@ -1268,7 +1329,6 @@ def upload_products():
 
 @app.route("/upload_upload_page")
 def upload_upload_page():
-    
     return render_template("upload_upload_page.html")
 
 

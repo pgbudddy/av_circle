@@ -535,7 +535,7 @@ def fetch_seller_profile(uniqueid):
         # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
         
-        query = 'SELECT * FROM signup where user_id="'+str(uniqueid)+'"'
+        query = 'SELECT * FROM seller_profile where user_id="'+str(uniqueid)+'"'
         mycursor.execute(query)
         myresult = mycursor.fetchone()
 
