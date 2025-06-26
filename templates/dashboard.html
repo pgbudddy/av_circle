@@ -328,7 +328,7 @@
     <header class="navbar">
         <div class="left-section">
             <div class="menu">
-                <img src="{{ url_for('static', filename='images/logo2.svg') }}" loading="lazy"  alt="Menu">
+                <img src="{{ url_for('static', filename='images/logo2.svg') }}" style="-webkit-tap-highlight-color: transparent;" loading="lazy"  alt="Menu">
             </div>
             <div class="logo">
                 
@@ -357,7 +357,7 @@
 
     <div class="scroll-container">
         {% for button in buttons %}
-        <div class="button-container">
+        <div class="button-container" style="-webkit-tap-highlight-color: transparent;">
             <button class="round-button">
                 <img src="{{ url_for('static', filename='images/brand-icons/' + button.image) }}" loading="lazy" alt="{{ button.text }}">
             </button>

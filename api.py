@@ -30,7 +30,7 @@ def login(number, password):
             return True
 
     except Exception as e:
-        print("Error:", e)  # Log the error for debugging
+        #print("Error:", e)  # Log the error for debugging
         return False
 
     finally:
@@ -98,14 +98,14 @@ def contactus(userid, name, number, message):
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except Exception as e:
-        print(e)
+        #print(e)
         return False
 
     finally:
@@ -114,7 +114,7 @@ def contactus(userid, name, number, message):
 
 
 def insert_payment(payment):
-    print("payment ", payment)
+    #print("payment ", payment)
     mydb = None
     mycursor = None
     try:
@@ -159,14 +159,14 @@ def insert_payment(payment):
         mydb.commit()
 
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
 
     except Exception as e:
-        print("Error:", e)
+        #print("Error:", e)
         return False
 
     finally:
@@ -191,14 +191,14 @@ def insert_orders(product_id, user_id, price, order_id):
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except Exception as e:
-        print(e)
+        #print(e)
         return False
 
     finally:
@@ -223,10 +223,10 @@ def signup(name, email, number, password, public_ip):
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except:
@@ -245,17 +245,17 @@ def change_password(number, password):
         # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
         
-        print(number)
+        #print(number)
         trade = "update signup set password = '"+str(password)+"' where number = '"+str(number)+"'"
         mycursor.execute(trade)
         mydb.commit()
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except:
@@ -366,11 +366,11 @@ def send_mail(receiver_email, otp):
 
         # Send email with sender_email as envelope sender
         server.sendmail(sender_email, receiver_email, message.as_string())
-        print(f"Email sent successfully from {sender_alias}!")
+        #print(f"Email sent successfully from {sender_alias}!")
         return True
 
     except Exception as e:
-        print(f"Error: {e}")
+        #print(f"Error: {e}")
         return False
 
     finally:
@@ -388,7 +388,7 @@ def checkuser(email, number):
         query = 'SELECT * FROM signup where email_id="'+str(email)+'" OR number="'+str(number)+'" '
         mycursor.execute(query)
         myresult = mycursor.fetchone()
-        print("myresult ", myresult)
+        #print("myresult ", myresult)
         
         if myresult == None:  
             return False
@@ -414,7 +414,7 @@ def forgetpassword_checkuser(details):
         query = 'SELECT number, email_id FROM signup where email_id="'+str(details)+'" OR number="'+str(details)+'" '
         mycursor.execute(query)
         myresult = mycursor.fetchone()
-        print("myresult ", myresult)
+        #print("myresult ", myresult)
         
         if myresult == None:  
             return False, 0
@@ -430,7 +430,7 @@ def forgetpassword_checkuser(details):
 
     
 def change_password(password, email_id):
-    print(password, email_id)
+    #print(password, email_id)
     try:
         # Get a connection from the pool
         mydb = get_db_connection()
@@ -464,7 +464,7 @@ def fetch_products():
         mycursor.execute(query)
         myresult = mycursor.fetchall()
 
-        print("myresult ", myresult)
+        #print("myresult ", myresult)
 
         return myresult
         
@@ -488,7 +488,7 @@ def fetch_all_products():
         mycursor.execute(query)
         myresult = mycursor.fetchall()
 
-        print("myresult ", myresult)
+        #print("myresult ", myresult)
 
         return myresult
         
@@ -512,7 +512,7 @@ def fetch_profile(uniqueid):
         mycursor.execute(query)
         myresult = mycursor.fetchone()
 
-        # print(myresult)
+        # #print(myresult)
         
         if myresult == None:  
             return False
@@ -539,7 +539,7 @@ def fetch_seller_profile(uniqueid):
         mycursor.execute(query)
         myresult = mycursor.fetchone()
 
-        # print(myresult)
+        # #print(myresult)
         
         if myresult == None:  
             return False
@@ -586,14 +586,14 @@ def fetch_product_details(product_id, user_id):
         mycursor.execute(query, (product_id,))
         product_result = mycursor.fetchone()
 
-        print("product_result ", product_result)
+        #print("product_result ", product_result)
 
         # Check if product is in user's favourites
         fav_query = 'SELECT * FROM favourite WHERE product_id = %s AND user_id = %s'
         mycursor.execute(fav_query, (product_id, user_id))
         fav_result = mycursor.fetchone()
 
-        print("fav", fav_result)
+        #print("fav", fav_result)
 
         if fav_result:
             return product_result, fav_result
@@ -601,7 +601,7 @@ def fetch_product_details(product_id, user_id):
             return product_result, "None"
 
     except Exception as e:
-        print("Error:", str(e))
+        #print("Error:", str(e))
         return False
 
     finally:
@@ -625,10 +625,10 @@ def place_bid_price(product_id, bid_amount, user_id):
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except:
@@ -655,7 +655,7 @@ def fetch_bids_details(product_id):
         return myresult
 
     except Exception as e:
-        print("Error:", str(e))
+        #print("Error:", str(e))
         return False
 
     finally:
@@ -678,7 +678,7 @@ def fetch_competitors(product_id):
         return myresult
 
     except Exception as e:
-        print("Error:", str(e))
+        #print("Error:", str(e))
         return False
 
     finally:
@@ -708,7 +708,7 @@ def fetch_fav_product(user_id):
 
 
 def add_to_favourite(product_id, user_id):
-    print("save_message")
+    #print("save_message")
     try:
         # Get a connection from the pool
         mydb = get_db_connection()
@@ -717,21 +717,21 @@ def add_to_favourite(product_id, user_id):
         mycursor = mydb.cursor(buffered=True)
         
         date = datetime.datetime.now()
-        print(product_id, user_id, date)
+        # #print(product_id, user_id, date)
         trade = "INSERT INTO favourite (product_id, user_id, datetime) VALUES (%s, %s, %s)"
         mycursor.execute(trade, (product_id, user_id, date))
         mydb.commit()
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except Exception as e:
-        print(e)
+        #print(e)
         return False
 
     finally:
@@ -806,7 +806,7 @@ def fetch_orders_product(user_id):
         return myresult
 
     except Exception as e:
-        print("Error:", e)
+        #print("Error:", e)
         return False
 
     finally:
@@ -831,7 +831,31 @@ def fetch_seller_orders(user_id, status):
         return myresult
 
     except Exception as e:
-        print("Error:", e)
+        #print("Error:", e)
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
+def fetch_seller_dashboard(user_id, status):
+    try:
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(buffered=True)
+
+        query = '''
+        SELECT o.product_id, o.price, o.datetime, p.name
+        FROM orders o
+        JOIN products p ON o.product_id = p.product_id
+        WHERE o.user_id = %s AND o.status = %s;
+        '''
+        mycursor.execute(query, (user_id, status,))
+        myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        #print("Error:", e)
         return False
 
     finally:
@@ -852,10 +876,10 @@ def update_order_status(status, order_id):
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except:
@@ -883,7 +907,7 @@ def fetch_old_seller_orders(user_id):
         return myresult
 
     except Exception as e:
-        print("Error:", e)
+        #print("Error:", e)
         return False
 
     finally:
@@ -903,14 +927,14 @@ def remove_product_from_cart(product_id, user_id):
         mydb.commit()
 
         if mycursor.rowcount > 0:
-            print("Data removed successfully.")
+            #print("Data removed successfully.")
             return True
         else:
-            print("Data removal failed.")
+            #print("Data removal failed.")
             return False
         
     except Exception as e:
-        print("Error:", e)
+        #print("Error:", e)
         return False
 
     finally:
@@ -936,7 +960,7 @@ def search_product_db(query):
 
 
 def add_to_cart(product_id, user_id):
-    print("save_message")
+    #print("save_message")
     try:
         # Get a connection from the pool
         mydb = get_db_connection()
@@ -945,21 +969,21 @@ def add_to_cart(product_id, user_id):
         mycursor = mydb.cursor(buffered=True)
         
         date = datetime.datetime.now()
-        print(product_id, user_id, date)
+        #print(product_id, user_id, date)
         trade = "INSERT INTO cart (product_id, user_id, qty, datetime) VALUES (%s, %s, '1', %s)"
         mycursor.execute(trade, (product_id, user_id, date))
         mydb.commit()
         
         # Check if insertion was successful
         if mycursor.rowcount > 0:
-            print("Data inserted successfully.")
+            #print("Data inserted successfully.")
             return True
         else:
-            print("Data insertion failed.")
+            #print("Data insertion failed.")
             return False
         
     except Exception as e:
-        print(e)
+        #print(e)
         return False
 
     finally:
@@ -968,7 +992,7 @@ def add_to_cart(product_id, user_id):
 
 
 def insert_product(name, brand, discription, price, product_images, category, brightness, contrast_ratio, HDR_HLG, lamp_life_hrs_Normal_rco_mode, type, user_id, bid_price):
-    print("save_message")
+    #print("save_message")
     try:
         # Get a connection from the pool
         mydb = get_db_connection()
@@ -993,7 +1017,7 @@ def insert_product(name, brand, discription, price, product_images, category, br
 
         # Get the auto-incremented product_id
         product_id = mycursor.lastrowid
-        print("Inserted product_id:", product_id)
+        #print("Inserted product_id:", product_id)
 
         # Insert into uploaded_products table (or orders, depending on your table name)
         insert_product_profile = """
@@ -1003,7 +1027,7 @@ def insert_product(name, brand, discription, price, product_images, category, br
         mycursor.execute(insert_product_profile, (product_id, user_id, date))
         mydb.commit()
 
-        print("Inserted uploaded_products")
+        #print("Inserted uploaded_products")
 
         # Insert into bids table (or orders, depending on your table name)
         insert_bids = """
@@ -1013,17 +1037,17 @@ def insert_product(name, brand, discription, price, product_images, category, br
         mycursor.execute(insert_bids, (user_id, bid_price, product_id, date))
         mydb.commit()
 
-        print("Inserted bids")
+        #print("Inserted bids")
 
         if mycursor.rowcount > 0:
-            print("All data inserted successfully.")
+            #print("All data inserted successfully.")
             return product_id
         else:
-            print("All data insertion failed.")
+            #print("All data insertion failed.")
             return False
 
     except Exception as e:
-        print("Error:", e)
+        #print("Error:", e)
         return False
 
     finally:
@@ -1032,21 +1056,21 @@ def insert_product(name, brand, discription, price, product_images, category, br
 
 def image_convertor(product_id):
     try:
-        print(f"[image_convertor] Running for product_id: {product_id}")
+        #print(f"[image_convertor] Running for product_id: {product_id}")
         source_dir = f'static/images/product_images/{product_id}/'
-        print(f"[image_convertor] Looking inside: {source_dir}")
+        #print(f"[image_convertor] Looking inside: {source_dir}")
         
         for filename in os.listdir(source_dir):
             if filename.lower().endswith((".jpeg", ".jpg",  ".png")):
                 img = Image.open(os.path.join(source_dir, filename))
                 webp_name = os.path.splitext(filename)[0] + '.webp'
                 img.save(os.path.join(source_dir, webp_name), 'webp', quality=10)
-                print(f"[image_convertor] Converted: {filename} -> {webp_name}")
+                #print(f"[image_convertor] Converted: {filename} -> {webp_name}")
 
         return True
     
     except Exception as e:
-        print("Error in image_convertor:", e)
+        #print("Error in image_convertor:", e)
         return False
    
 
@@ -1083,12 +1107,12 @@ def fetch_upload_products(user_id):
         mycursor.execute(query, (user_id,))
         results = mycursor.fetchall()
 
-        print("results ", results)
+        #print("results ", results)
 
         return results
     
     except requests.RequestException as e:
-        print(f"Error fetching IP address: {e}")
+        #print(f"Error fetching IP address: {e}")
         return None
     
     finally:
@@ -1110,7 +1134,7 @@ def get_public_ip():
         return ip_address
     
     except requests.RequestException as e:
-        print(f"Error fetching IP address: {e}")
+        #print(f"Error fetching IP address: {e}")
         return None
     
     finally:
@@ -1131,7 +1155,7 @@ def updatetoken(user_id, token, public_ip):
         query = 'SELECT * FROM fcm_token where public_ip="'+str(public_ip)+'"'
         mycursor.execute(query)
         myresult = mycursor.fetchone()
-        print("myresult: ", myresult)
+        #print("myresult: ", myresult)
         
         if myresult == None:  
             trade = "INSERT INTO fcm_token (user_id, token, public_ip, datetime) values ('"+str(user_id)+"', '"+str(token)+"', '"+str(public_ip)+"', '"+str(date)+"')"
@@ -1146,7 +1170,7 @@ def updatetoken(user_id, token, public_ip):
             return "Token Updated"
 
     except requests.RequestException as e:
-        print("Error: ", e)
+        #print("Error: ", e)
         return False
 
     finally:

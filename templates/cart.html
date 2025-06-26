@@ -290,6 +290,7 @@
     </header>
 
     <!-- Cart List -->
+    {% if products %}
     <div class="cart-container">
         <p class="shipping-details-p" style="margin-top: 10px;">Review Cart</p>
         {% for product in cart_products %}
@@ -313,7 +314,6 @@
         </div>
         {% endfor %}
     </div>
-
     <!-- Final Price Section -->
     <div class="final-price">
         <div class="final-price-item">
@@ -357,7 +357,6 @@
     </div>
 
 
-
     <!-- Images Section Below Shipping Details -->
     <div class="image-container">
         <div class="image-box">
@@ -376,7 +375,13 @@
 
     <p style="text-align: center; color: rgb(95, 95, 95); font-size: 13px;"><strong>HELP</strong> (Mon-Sat 9am-7pm)</p>
     <p style="text-align: center; color: rgb(95, 95, 95); font-size: 10px;">By proceeding, I accept the <strong>T&C</strong> and <strong>Privacy Policy</strong> </p>
-
+    
+    {% else %}
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
+        <img src="{{ url_for('static', filename='images/product.svg') }}" alt="No Orders" style="width: 120px; opacity: 0.8; margin-bottom: -20px;">
+        <p style="font-size: 16px; color: #999; font-weight: bold;">Cart is empty</p>
+    </div>
+    {% endif %}
     <br>
 
     <form id="remove-cart-form" method="POST" style="display: none;"></form>

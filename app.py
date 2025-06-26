@@ -24,6 +24,8 @@ from google.genai import types
 import uuid
 import urllib3
 import shutil
+from collections import Counter
+
 
 
 # Disable SSL warnings (for testing only, not recommended for production)
@@ -77,24 +79,25 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route("/")
 def index():
+
+    return render_template('index.html')
+
+
+@app.route("/main")
+def main():
     username = request.cookies.get('username')
-    
+
     if username:
         session['username'] = username
-
         return redirect(url_for('dashboard'))
         
     else:
-        return render_template('index.html')
+        return render_template('main.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     username = request.cookies.get('username')
-    # print(username)
-    # if username:
-    #     session['username'] = username
-    #     return redirect(url_for('main'))
 
     if request.method == 'POST':
         username = request.form['number']
@@ -210,9 +213,11 @@ def otp_verification():
 
 @app.route("/dashboard")
 def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-     
+    # if 'username' not in session:
+    #     return redirect(url_for('login'))
+
+    # else:
+        
     buttons = [
         {"text": "B&W", "image": "b-w.jpeg"},
         {"text": "DENON", "image": "denon.jpeg"},
@@ -254,7 +259,6 @@ def dashboard():
         results = executor.map(process_product, fetch_product)
         products = [p for p in results if p is not None]
 
-
     return render_template("dashboard.html", buttons=buttons, products=products)
 
 
@@ -295,7 +299,7 @@ def seller_profile():
         future = executor.submit(fetch_data, username)
         profile_details = future.result()  # Wait for result
 
-    return render_template("seller_profile.html", name=profile_details[0], email=profile_details[2])
+    return render_template("seller_profile.html")
 
 
 @app.route('/contactus', methods=['GET', 'POST'])
@@ -333,8 +337,8 @@ def contactus():
 
 @app.route("/product_details/<product_id>")
 def product_details(product_id):
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    # if 'username' not in session:
+    #     return redirect(url_for('login'))
     
     username = request.cookies.get('username')
 
@@ -344,7 +348,7 @@ def product_details(product_id):
     # Use thread pool to fetch product & bid data concurrently
     with ThreadPoolExecutor() as executor:
         futures = {
-            'product': executor.submit(api.fetch_product_details, product_id, user_id="999"),
+            'product': executor.submit(api.fetch_product_details, product_id, user_id=username),
             'bids': executor.submit(api.fetch_bids_details, product_id),
             'competitors': executor.submit(api.fetch_competitors, product_id)
         }
@@ -379,6 +383,8 @@ def product_details(product_id):
         images = [img.strip() for img in image_string.split(',') if img.strip()]
         
         in_watchlist = bool(fav_data and fav_data != "None")
+
+        print("in_watchlist ", fetch_product)
     else:
         name, brand, description, price, db_product_id, images, in_watchlist = "", "", "", "", "", [], False
 
@@ -405,10 +411,11 @@ def place_bid():
     data = request.get_json()
     product_id = data.get('product_id')
     bid_amount = data.get('bid_amount')
+    username = request.form.get('username')
 
     # Define the task inline
     def run_bid():
-        place_bid_result = api.place_bid_price(product_id, bid_amount, user_id="999")
+        place_bid_result = api.place_bid_price(product_id, bid_amount, user_id=username)
         print("place_bid:", place_bid_result)
         print(f"Received bid of ₹{bid_amount} for product {product_id}")
 
@@ -642,9 +649,11 @@ def favourite():
 
 @app.route('/addtofav/<int:product_id>')
 def addtofav(product_id):
+    username = request.cookies.get('username')
+
     def async_add_to_fav(pid):
         print("Added to favorite (async):", pid)
-        result = api.add_to_favourite(pid, "999")
+        result = api.add_to_favourite(pid, username)
         print("API Result:", result)
     
     # Start a new thread
@@ -658,10 +667,11 @@ def add_to_cart():
     product_id = request.form.get("product_id")
     
     print("Adding to cart:", product_id)
+    username = request.cookies.get('username')
 
     def async_add_to_fav(pid):
         print("Added to cary (async):", pid)
-        result = api.add_to_cart(pid, "999")
+        result = api.add_to_cart(pid, username)
         print("API Result:", result)
     
     # Start a new thread
@@ -734,8 +744,8 @@ def remove_from_cart(product_id):
 
 @app.route("/search_products")
 def search_products():
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    # if 'username' not in session:
+    #     return redirect(url_for('login'))
     
     result = {"products": []}
 
@@ -1022,86 +1032,46 @@ def pinkvilla():
 def seller_dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
-    
-    # Example chart data (past 7 days sales)
-    chart_data = [
-        {'date': (datetime.datetime.now() - datetime.timedelta(days=i)).strftime('%Y-%m-%d'), 'value': 100 + i * 10}
-        for i in reversed(range(7))
-    ]
 
-    # Example orders
-    orders = [
-        {
-            'product_id': 'P001',
-            'name': 'Bluetooth Speaker',
-            'quantity': 2,
-            'price': 1499,
-            'date': '2025-06-06 14:23'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        },
-        {
-            'product_id': 'P002',
-            'name': 'LED Projector',
-            'quantity': 1,
-            'price': 4299,
-            'date': '2025-06-07 10:15'
-        }
-    ]
+    username = request.cookies.get('username')
 
-    # Extracting chart data into separate lists
-    dates = [entry['date'] for entry in chart_data]
-    values = [entry['value'] for entry in chart_data]
+    # Multi-threaded fetch
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(api.fetch_seller_dashboard, username, "approve")
+        fetch_seller_dashboard = future.result()
 
+    # Prepare orders and date counts
+    orders = []
+    date_list = []
+
+    for product_id, price, dt, name in fetch_seller_dashboard:
+        order_date = dt.strftime('%Y-%m-%d') if isinstance(dt, datetime.datetime) else str(dt).split(" ")[0]
+        date_list.append(order_date)
+
+        orders.append({
+            'product_id': product_id,
+            'name': name,
+            'quantity': 1,
+            'price': int(price),
+            'date': order_date
+        })
+
+    # Count orders per date
+    order_counts = Counter(date_list)
+
+    # Use last 7 unique order dates
+    unique_sorted_dates = sorted(set(date_list))[-7:]
+    chart_data = [{'date': date, 'value': order_counts.get(date, 0)} for date in unique_sorted_dates]
+
+    # Prepare chart labels and values
+    dates = [d['date'] for d in chart_data]
+    values = [d['value'] for d in chart_data]
+
+    print("chart_data", chart_data)
+    print("orders", orders)
 
     return render_template("seller_dashboard.html", dates=dates, values=values, orders=orders)
+
 
 
 @app.route("/seller_pending_orders")

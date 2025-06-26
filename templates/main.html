@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main - Fullscreen Slider</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .image-slider {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .image-slider img {
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 1;
+        }
+
+        .image-slider img.active {
+            opacity: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+        }
+
+        .box {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            color: white;
+            text-align: center;
+            width: 85%;
+        }
+
+        .box p {
+            font-size: 13px;
+            margin: -5px;
+            letter-spacing: 1px;
+        }
+
+        .box h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 40px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .box button {
+            background-color: #2e6aff;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            font-size: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: 100%;
+            height: 45px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .box a {
+            display: block;
+            font-size: 14px;
+            color: #ddd;
+            text-decoration: underline;
+            margin-top: 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .box a:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔄 Auto Image Slider -->
+<div class="image-slider">
+    <img src="{{ url_for('static', filename='images/product_images/49/3.webp') }}" class="active" alt="Slide 1">
+    <img src="{{ url_for('static', filename='images/product_images/50/3.webp') }}" alt="Slide 2">
+    <img src="{{ url_for('static', filename='images/product_images/61/6.webp') }}" alt="Slide 3">
+    <img src="{{ url_for('static', filename='images/product_images/85/5.webp') }}" alt="Slide 4">
+    <img src="{{ url_for('static', filename='images/product_images/87/3.webp') }}" alt="Slide 5">
+    <div class="overlay"></div>
+</div>
+
+<!-- 🧾 Bottom Box Content -->
+<div class="box">
+    <p>WELCOME TO THE</p>
+    <h1>AV CIRCLE</h1>
+    <button onclick="location.href='{{ url_for('login') }}'">Login</button>
+    <a href="{{ url_for('dashboard') }}">Start browsing</a>
+</div>
+
+<!-- 🔁 JS Auto Slide -->
+<script>
+    const images = document.querySelectorAll('.image-slider img');
+    let current = 0;
+
+    setInterval(() => {
+        images[current].classList.remove('active');
+        current = (current + 1) % images.length;
+        images[current].classList.add('active');
+    }, 3000);
+</script>
+
+</body>
+</html>

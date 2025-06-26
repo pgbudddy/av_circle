@@ -118,7 +118,7 @@
             <img src="{{ url_for('static', filename='images/leftarrow.png') }}"
                  onclick="location.href='{{ url_for('profile') }}'"
                  alt="Back"
-                 style="width: 25px; margin-left: 15px; cursor: pointer;">
+                 style="width: 25px; margin-left: 15px; cursor: pointer; -webkit-tap-highlight-color: transparent;">
         </div>
         <p style="font-weight: 600; font-size: 16px; color: #464646; margin: 0;">Dashboard</p>
     </div>
@@ -139,26 +139,27 @@
     <h3 style="font-size: 16px; color: #333; margin-bottom: 10px;">Orders</h3>
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <thead>
-                <tr style="background-color: #f4f4f4; text-align: left;">
-                    <th style="padding: 10px; font-size: 13px; color: #555;">Product Name</th>
-                    <th style="padding: 10px; font-size: 13px; color: #555;">Qty</th>
-                    <th style="padding: 10px; font-size: 13px; color: #555;">Price</th>
-                    <th style="padding: 10px; font-size: 13px; color: #555;">Product ID</th>
-                    <th style="padding: 10px; font-size: 13px; color: #555;">Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr style="border-top: 1px solid #eee;">
-                    <td style="padding: 10px; font-size: 13px;">{{ order.name }}</td>
-                    <td style="padding: 10px; font-size: 13px;">{{ order.quantity }}</td>
-                    <td style="padding: 10px; font-size: 13px; color: #2e6aff;">₹{{ order.price }}</td>
-                    <td style="padding: 10px; font-size: 13px;">{{ order.product_id }}</td>
-                    <td style="padding: 10px; font-size: 12px; color: #999;">{{ order.date }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+<thead>
+    <tr style="background-color: #f4f4f4;">
+        <th style="padding: 10px; font-size: 13px; color: #555; text-align: center;">Product Name</th>
+        <th style="padding: 10px; font-size: 13px; color: #555; text-align: center;">Qty</th>
+        <th style="padding: 10px; font-size: 13px; color: #555; text-align: center;">Price</th>
+        <th style="padding: 10px; font-size: 13px; color: #555; text-align: center;">Product ID</th>
+        <th style="padding: 10px; font-size: 13px; color: #555; text-align: center;">Date</th>
+    </tr>
+</thead>
+<tbody>
+    {% for order in orders %}
+    <tr style="border-top: 1px solid #eee;">
+        <td style="padding: 10px; font-size: 13px; text-align: center;">{{ order.name }}</td>
+        <td style="padding: 10px; font-size: 13px; text-align: center;">{{ order.quantity }}</td>
+        <td style="padding: 10px; font-size: 13px; text-align: center; color: #2e6aff;">₹ {{ order.price }}</td>
+        <td style="padding: 10px; font-size: 13px; text-align: center;">{{ order.product_id }}</td>
+        <td style="padding: 10px; font-size: 12px; text-align: center; color: #999;">{{ order.date }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+
         </table>
     </div>
 </div>
