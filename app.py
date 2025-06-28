@@ -366,7 +366,7 @@ def product_details(product_id):
         product_data, fav_data = fetch_product
         name = product_data.get("name", "")
         brand = product_data.get("brand", "")
-        description = product_data.get("description", "")
+        description = product_data.get("discription", "")
         db_product_id = product_data.get("product_id", "")
         
         # Parse and sanitize price
@@ -385,6 +385,8 @@ def product_details(product_id):
         in_watchlist = bool(fav_data and fav_data != "None")
 
         print("in_watchlist ", fetch_product)
+
+        print("description ", description)
     else:
         name, brand, description, price, db_product_id, images, in_watchlist = "", "", "", "", "", [], False
 
@@ -700,7 +702,7 @@ def cart():
         for item in raw_cart_products:
             product_id, name, price, qty = item
             price = int(price)
-            total_price += price * qty
+            total_price += price * int(qty)
 
             cart_products.append({
                 'id': product_id,

@@ -49,16 +49,18 @@
             margin-right: 15px;
         }
 
-        /* Image Slider */
         .image-slider {
             display: flex;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             white-space: nowrap;
+            -webkit-overflow-scrolling: touch; /* 🔥 Adds momentum scroll on iOS */
+            scroll-behavior: smooth;
+            -webkit-scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            scroll-behavior: smooth; /* ✅ Smooth transition */
-            transition: scroll-left 0.3s ease-in-out; /* Optional */
+            touch-action: pan-x; /* Prevents vertical scrolling issues */
         }
 
         .image-slider::-webkit-scrollbar {
@@ -66,14 +68,18 @@
         }
 
         .image-slider img {
-            min-width: 100%; /* Ensures full width */
+            min-width: 100%;
             height: auto;
             object-fit: cover;
             scroll-snap-align: start;
             border-bottom-left-radius: 15px;
             border-bottom-right-radius: 15px;
-            transition: transform 0.3s ease-in-out; /* Optional zoom-like effect */
+            transition: transform 0.3s ease-in-out;
+            user-select: none;
+            pointer-events: auto;
+            touch-action: manipulation;
         }
+
 
         /* Property Info */
         .property-info {
@@ -262,6 +268,11 @@
             height: 16px;
         }
 
+        .faq-right-icon{
+            width: 20px;
+            height: 20px;   
+        }
+
         .faq-answer {
             display: none;
             padding: 5px 0;
@@ -412,7 +423,7 @@
     <!-- Property Info -->
     <div class="property-info">
         <p style="font-size: 18px; font-weight: 600; color: rgb(63, 63, 63);">{{ name }}</p>
-        <p style="margin-top: -6px; font-size: 15px; color: gray;">{{ description }}</p>
+        <!-- <p style="margin-top: -6px; font-size: 15px; color: gray;">{{ description }}</p> -->
     </div>
 
     <center>
@@ -435,7 +446,7 @@
     <div class="auction-container">
         <div class="auction-inputs">
             <input type="text" id="bidAmount" class="auction-input" placeholder="Enter bid amount (₹)">
-            <button onclick="submitBid()" class="auction-submit" style="-webkit-tap-highlight-color: transparent;">Bid Now</button>
+            <button onclick="submitBid()" {% if not username %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} class="auction-submit" style="-webkit-tap-highlight-color: transparent;">Bid Now</button>
         </div>
     
         <div class="auction-box" id="auctionList">
@@ -466,8 +477,13 @@
     </div>
 
 
-    <!-- <p style="margin-top: 10px; font-size: 10px; color: gray; text-align: center;">COMPARE THE PRICE</p> -->
-
+    <!-- Details Tab -->
+    <div style="width: 90%; margin: 30px auto 10px auto;">
+        <h3 style="font-size: 16px; color: #000000; font-weight: normal; margin-bottom: 10px;">Details</h3>
+        <p style="font-size: 16px; color: #000000; line-height: 1.6;">
+            {{ description }}
+        </p>
+    </div>
 
 
     <div class="compare-deals">
@@ -478,7 +494,7 @@
             <span class="platform-name">Add to cart</span>
             <form action="{{ url_for('add_to_cart') }}" method="POST">
                 <input type="hidden" name="product_id" value="{{ product_id }}">
-                <button type="submit" class="buy-now-btn" style="-webkit-tap-highlight-color: transparent;">
+                <button type="submit" {% if not username %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} class="buy-now-btn" style="-webkit-tap-highlight-color: transparent;">
                     {{ price }}&nbsp;
                     <img src="{{ url_for('static', filename='images/cart-light.svg') }}" alt="Cart" class="card-icon">
                 </button>
@@ -525,22 +541,32 @@
     
         <div class="faq-item">
             <button class="faq-question" onclick="toggleFAQ(0)" style="-webkit-tap-highlight-color: transparent;">
-                <img src="{{ url_for('static', filename='images/barcode.png') }}" alt="Q" class="faq-icon">
-                Authenticated
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <img src="{{ url_for('static', filename='images/barcode.png') }}" class="faq-icon">
+                        <span>Authenticated</span>
+                    </div>
+                    <img id="arrow-icon-0" src="{{ url_for('static', filename='images/rightarrow.png') }}" class="faq-right-icon" />
+                </div>
             </button>
             <div class="faq-answer">
                 <ul>
-                    <li>Our legit check system is fash & effective to ensure each product is 100% authentic, along with legit check reports & proof of purchase and quality check.</li>
-                    <li>authenticity is the foundation of our business, and every item we sell is inspected by our expert team. Our authenticators are the most experienced and highly trained in the business.</li>
+                    <li>Our legit check system is fast & effective to ensure each product is 100% authentic, along with legit check reports & proof of purchase and quality check.</li>
+                    <li>Authenticity is the foundation of our business, and every item we sell is inspected by our expert team.</li>
                     <li>In addition, we source our products only from trusted suppliers.</li>
                 </ul>
             </div>
-        </div>
+        </div>        
     
         <div class="faq-item">
             <button class="faq-question" onclick="toggleFAQ(1)" style="-webkit-tap-highlight-color: transparent;">
-                <img src="{{ url_for('static', filename='images/verified.png') }}" alt="Q" class="faq-icon">
-                Our Promise
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <img src="{{ url_for('static', filename='images/verified.png') }}" class="faq-icon">
+                        <span>Our Promise</span>
+                    </div>
+                    <img id="arrow-icon-1" src="{{ url_for('static', filename='images/rightarrow.png') }}" class="faq-right-icon" />
+                </div>
             </button>
             <div class="faq-answer">
                 <ul>
@@ -553,8 +579,13 @@
     
         <div class="faq-item">
             <button class="faq-question" onclick="toggleFAQ(2)" style="-webkit-tap-highlight-color: transparent;">
-                <img src="{{ url_for('static', filename='images/box.png') }}" alt="Q" class="faq-icon">
-                Shipping & EMIs
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <img src="{{ url_for('static', filename='images/box.png') }}" class="faq-icon">
+                        <span>Shipping & EMIs</span>
+                    </div>
+                    <img id="arrow-icon-2" src="{{ url_for('static', filename='images/rightarrow.png') }}" class="faq-right-icon" />
+                </div>
             </button>
             <div class="faq-answer">
                 <ul>
@@ -598,6 +629,39 @@
 
 
 <script>
+
+
+
+const slider = document.querySelector('.image-slider');
+let isDown = false;
+let startX;
+let scrollLeft;
+
+slider.addEventListener('mousedown', (e) => {
+    isDown = true;
+    slider.classList.add('active');
+    startX = e.pageX - slider.offsetLeft;
+    scrollLeft = slider.scrollLeft;
+});
+slider.addEventListener('mouseleave', () => {
+    isDown = false;
+    slider.classList.remove('active');
+});
+slider.addEventListener('mouseup', () => {
+    isDown = false;
+    slider.classList.remove('active');
+});
+slider.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const walk = (x - startX) * 2; // scroll speed
+    slider.scrollLeft = scrollLeft - walk;
+});
+
+
+
+
     function addToFav(productId) {
         fetch(`/addtofav/${productId}`, {
             method: 'GET'
@@ -619,22 +683,28 @@
 
 
     function toggleFAQ(index) {
-        let answers = document.querySelectorAll('.faq-answer');
-        let questions = document.querySelectorAll('.faq-question');
+        const answers = document.querySelectorAll('.faq-answer');
+        const questions = document.querySelectorAll('.faq-question');
+        const arrowIcon = document.getElementById(`arrow-icon-${index}`);
 
-        // Toggle answer visibility
-        let isVisible = answers[index].style.display === 'block';
-        answers[index].style.display = isVisible ? 'none' : 'block';
+        const isVisible = answers[index].style.display === 'block';
 
-        // Remove active color from all questions
-        questions.forEach(q => q.classList.remove('active-question'));
+        // Toggle all answers off except current
+        answers.forEach((ans, i) => {
+            ans.style.display = i === index && !isVisible ? 'block' : 'none';
+            const icon = document.getElementById(`arrow-icon-${i}`);
+            if (icon) {
+                icon.src = i === index && !isVisible
+                    ? "{{ url_for('static', filename='images/downarrow.png') }}"
+                    : "{{ url_for('static', filename='images/rightarrow.png') }}";
+            }
+        });
 
-        // Add active color only if the answer is opened
-        if (!isVisible) {
-            questions[index].classList.add('active-question');
-        }
+        // Toggle active-question class
+        questions.forEach((q, i) => {
+            q.classList.toggle('active-question', i === index && !isVisible);
+        });
     }
-
 
 
     function submitBid() {
