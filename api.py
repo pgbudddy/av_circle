@@ -459,6 +459,10 @@ def fetch_products():
 
         # Create a cursor from the connection
         mycursor = mydb.cursor(buffered=True)
+
+        import time
+
+        time.sleep(1)
         
         query = 'SELECT name, brand, product_id, price, product_images FROM products LIMIT 20'
         mycursor.execute(query)
@@ -648,7 +652,7 @@ def fetch_bids_details(product_id):
         mycursor = mydb.cursor(dictionary=True, buffered=True)
 
         # Updated query with JOIN
-        query = 'SELECT b.*, s.name FROM bids b JOIN signup s ON b.user_id = s.user_id WHERE b.product_id = %s'
+        query = 'SELECT b.*, s.name FROM bids b JOIN signup s ON b.user_id = s.number WHERE b.product_id = %s'
         mycursor.execute(query, (product_id,))
         myresult = mycursor.fetchall()
 

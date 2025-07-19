@@ -204,6 +204,44 @@
 
 
 
+<script>
+
+        // Loader show function
+        function showLoaderAndNavigate(url) {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) loader.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = url;
+            }, 100); // Delay navigation slightly so loader shows
+        }
+    
+        // Update all tags that use onclick navigation manually
+        document.querySelectorAll('[onclick^="location.href"]').forEach(el => {
+            const raw = el.getAttribute('onclick');
+            const urlMatch = raw.match(/location\.href=['"]([^'"]+)['"]/);
+            if (urlMatch && urlMatch[1]) {
+                const url = urlMatch[1];
+                el.removeAttribute('onclick');
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                });
+            }
+        });
+    
+        // Same for <a href="..."> directly
+        document.querySelectorAll('a[href]').forEach(el => {
+            el.addEventListener('click', function (e) {
+                const url = el.getAttribute('href');
+                if (url && url !== '#') {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                }
+            });
+        });
+
+        
+</script>
 
 </body>
 </html>

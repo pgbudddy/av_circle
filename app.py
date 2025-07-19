@@ -413,7 +413,9 @@ def place_bid():
     data = request.get_json()
     product_id = data.get('product_id')
     bid_amount = data.get('bid_amount')
-    username = request.form.get('username')
+    username = request.cookies.get('username')
+
+    print("username for bids ", username)
 
     # Define the task inline
     def run_bid():
