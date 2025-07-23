@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>List of Theaters</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      header {
+        background-color: black;
+        padding: 25px 50px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo {
+        max-height: 50px;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        object-fit: contain;
+      }
+
+      #loader-overlay {
+        position: fixed;
+        inset: 0;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-family: "Montserrat", sans-serif;
+        animation: fadeOut 0.5s ease-out 2.5s forwards;
+      }
+
+      .text {
+        font-size: 60px;
+        font-weight: 600;
+        color: white;
+        animation: clarity 2.5s ease-in-out both;
+      }
+
+      @keyframes clarity {
+        0% {
+          opacity: 0;
+          filter: blur(10px);
+          transform: scale(0.85);
+        }
+        50% {
+          opacity: 0.7;
+          filter: blur(4px);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: scale(1);
+        }
+      }
+
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+
+      .auth-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+      }
+
+      .auth-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        transition: opacity 0.2s;
+      }
+
+      .auth-links a:hover {
+        opacity: 0.8;
+      }
+
+      .separator {
+        color: white;
+        font-size: 16px;
+        user-select: none;
+      }
+
+      .desktop-theater-detail {
+        display: flex;
+        padding: 40px 60px;
+        gap: 40px;
+        color: white;
+        background: #111;
+      }
+
+      .detail-left {
+        width: 60%;
+      }
+
+      .image-scroller {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        margin-bottom: 20px;
+      }
+
+      .image-scroller img {
+        width: 200px;
+        height: 130px;
+        border-radius: 10px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .address {
+        font-size: 14px;
+        color: #ccc;
+        margin-bottom: 20px;
+      }
+
+      .amenity-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 25px;
+      }
+
+      .amenity-list div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #222;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      .amenity-list img {
+        height: 18px;
+        width: 18px;
+      }
+
+      .about {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #bbb;
+        margin-bottom: 25px;
+      }
+
+      .policies {
+        list-style: disc;
+        padding-left: 20px;
+        font-size: 14px;
+        color: #ccc;
+      }
+
+      .detail-right {
+        width: 40%;
+        background: #1c1c1c;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .price {
+        font-size: 28px;
+        font-weight: bold;
+        color: #8b61c2;
+      }
+
+      .slots {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .slots button {
+        background: #8b61c2;
+        border: none;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .promo-section {
+        display: flex;
+        gap: 10px;
+      }
+
+      .promo-section input {
+        flex: 1;
+        padding: 10px;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        outline: none;
+      }
+
+      .apply-btn {
+        background: #444;
+        color: white;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .total-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #ccc;
+      }
+
+      .confirm-btn {
+        background: #8b61c2;
+        color: white;
+        font-size: 16px;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .image-carousel-wrapper {
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .carousel {
+        display: flex;
+        gap: 16px;
+        padding-bottom: 5px;
+      }
+
+      .carousel img {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 100%;
+        height: 320px;
+        object-fit: cover;
+        scroll-snap-align: start;
+        border-radius: 12px;
+      }
+
+      .footer-wrapper {
+        background-color: #0d0d0d;
+        padding: 60px 80px;
+        color: white;
+        font-size: 14px;
+        border-top: 1px solid #222;
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .footer-logo {
+        height: 50px;
+        width: auto;
+        margin-bottom: 20px;
+        margin-left: -10px;
+      }
+
+      .footer-links a {
+        display: inline-block;
+        color: #ccc;
+        text-decoration: none;
+        margin-right: 20px;
+        transition: color 0.2s ease;
+      }
+
+      .footer-links a:hover {
+        color: #8b61c2;
+      }
+
+      .footer-address {
+        margin-top: 10px;
+        color: #999;
+      }
+
+      .footer-socials {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .footer-socials .social-btn {
+        background-color: #222;
+        padding: 10px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+      }
+
+      .footer-socials .social-btn img {
+        width: 20px;
+        height: 20px;
+        filter: brightness(0) invert(1);
+      }
+
+      .footer-socials .social-btn:hover {
+        background-color: #8b61c2;
+      }
+
+      .mobile-theater-detail {
+        display: none;
+        background-color: #111;
+        color: white;
+        padding: 16px;
+      }
+
+      .mobile-header {
+        position: fixed;
+        padding: 12px 12px;
+        top: 0;
+        width: 30px;
+        margin-left: -10px;
+        margin-top: 10px;
+        z-index: 10;
+        background-color: #1c1c1c;
+        border-radius: 50px;
+      }
+
+      .back-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-right: 12px;
+        padding: 0;
+      }
+
+      .back-btn img {
+        height: 28px;
+        width: 28px;
+        filter: brightness(0) invert(1); /* makes black icons white */
+      }
+
+      .mobile-image-carousel {
+        display: flex;
+        overflow-x: scroll;
+        gap: 10px;
+        margin: 10px 0;
+      }
+
+      .mobile-image-carousel img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
+
+      .mobile-title {
+        font-size: 20px;
+        margin: 20px 0 5px;
+        color: #8b61c2;
+      }
+
+      .mobile-address {
+        font-size: 14px;
+        color: #ccc;
+        margin-bottom: 16px;
+      }
+
+      .mobile-section-title {
+        font-size: 16px;
+        margin-top: 20px;
+        color: #eee;
+        border-bottom: 1px solid #333;
+        padding-bottom: 4px;
+      }
+
+      .mobile-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .mobile-amenity {
+        background: #222;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .mobile-amenity img {
+        width: 16px;
+        height: 16px;
+      }
+
+      .mobile-about {
+        color: #bbb;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 10px;
+      }
+
+      .mobile-policies {
+        color: #ccc;
+        padding-left: 20px;
+        margin-top: 8px;
+      }
+
+      .mobile-map iframe {
+        width: 100%;
+        height: 250px;
+        border: none;
+        border-radius: 10px;
+        margin-top: 10px;
+      }
+
+      .mobile-slots {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px 0 20px;
+      }
+
+      .mobile-slots button {
+        background: #8b61c2;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .slot-btn {
+        background: #8b61c2;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .slot-btn.selected {
+        background: white;
+        color: #8b61c2;
+        font-weight: bold;
+      }
+
+      .mobile-bottom-bar {
+        display: none;
+      }
+
+      /* Desktop only */
+      @media (max-width: 768px) {
+        header {
+          display: none;
+        }
+
+        .desktop-theater-detail {
+          display: none;
+        }
+
+        .footer-wrapper {
+          display: none;
+        }
+
+        .mobile-theater-detail {
+          display: block;
+        }
+
+        .mobile-bottom-bar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          background: #111;
+          padding: 12px 16px;
+          border-top: 1px solid #333;
+          z-index: 99;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .mobile-bottom-bar .price {
+          font-size: 20px;
+          font-weight: bold;
+          color: #8b61c2;
+          margin-left: 0;
+          margin-top: 0;
+        }
+
+        .mobile-bottom-bar .book-btn {
+          background: #8b61c2;
+          color: white;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 6px;
+          font-size: 16px;
+          font-weight: 600;
+          width: 75%;
+          cursor: pointer;
+        }
+      }
+
+
+      .loader-logo {
+  width: 240px;
+  max-width: 90%;
+  filter: blur(10px) brightness(1.3) drop-shadow(0 0 25px rgba(255, 255, 255, 0.7));
+  opacity: 0;
+  transform: scale(1.05);
+  animation: blurToClear 2.4s ease-in-out forwards;
+}
+
+@keyframes blurToClear {
+  0% {
+    filter: blur(12px) brightness(1.4) drop-shadow(0 0 35px rgba(255, 255, 255, 0.9));
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.03);
+  }
+  100% {
+    filter: blur(0px) brightness(1) drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+    </style>
+  </head>
+  <body>
+    <!-- <div id="loader-overlay">
+      <div class="text">MINIPLEX</div>
+    </div> -->
+
+    <div id="loader-overlay">
+      <img src="{{ url_for('static', filename='images/logo3.png') }}" class="loader-logo" alt="Miniplex Logo">
+    </div>
+
+    <header>
+      <img
+        src="{{ url_for('static', filename='images/logo3.png') }}"
+        alt="Logo"
+        class="logo"
+      />
+
+      <!-- <div class="mobile-hamburger" onclick="toggleMobileMenu()">☰</div> -->
+
+      <div class="auth-links">
+        {% if name %}
+        <a href="/profile">Welcome, {{ name|title }}</a>
+        {% else %}
+        <a href="/login">Login</a>
+        <span class="separator">/</span>
+        <a href="/signup">Signup</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="desktop-theater-detail">
+      <!-- Left Section (60%) -->
+      <!-- Left Section (60%) -->
+      <div class="detail-left">
+        <!-- Image Carousel Above -->
+        <div class="image-carousel-wrapper">
+          <div class="carousel">
+            {% for img in theater.images %}
+            <img
+              src="{{ url_for('static', filename='images/theater_images/' + theater.id|string + '/' + img) }}"
+              alt="Image"
+            />
+            {% endfor %}
+          </div>
+        </div>
+
+        <h2>{{ theater.name }}</h2>
+        <p class="address">{{ theater.address }}</p>
+
+        <h3>Amenities</h3>
+        <div class="amenity-list">
+          {% for item in theater.amenities %}
+          <div>
+            <img
+              src="{{ url_for('static', filename='images/' + item.icon) }}"
+            />
+            {{ item.name }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <h3>About this Theater</h3>
+        <p class="about">{{ theater.about }}</p>
+
+        <h3>Theater Policies</h3>
+        <ul class="policies">
+          {% for policy in theater.policies %}
+          <li>{{ policy }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Right Section (40%) -->
+      <div class="detail-right">
+        <div class="price">₹{{ theater.price_per_hour }}</div>
+
+        <input
+          type="date"
+          name="selectedDateInput"
+          id="selectedDateInputDesktop"
+          style="
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: none;
+            margin-bottom: 0px;
+            width: 100%;
+            background: #2a2a2a;
+            color: white;
+          "
+        />
+
+        <div class="slots">
+          {% for slot in theater.slots %} {% if slot in theater.booked_slots %}
+          <button
+            type="button"
+            class="slot-btn"
+            disabled
+            style="opacity: 0.5; cursor: not-allowed"
+          >
+            {{ slot }}
+          </button>
+          {% else %}
+          <button type="button" class="slot-btn" onclick="selectSlot(this)">
+            {{ slot }}
+          </button>
+          {% endif %} {% endfor %}
+        </div>
+
+        <div class="promo-section">
+          <input type="text" placeholder="Enter promo code" />
+          <button class="apply-btn">Apply</button>
+        </div>
+
+        <!-- <button class="confirm-btn">BOOK NOW</button> -->
+
+        <form method="POST" action="/place_book" id="desktopBookingForm">
+          <!-- NEW: Mobile Bottom Price + Book Button -->
+          <!-- Hidden inputs -->
+          <input type="hidden" name="theater_id" value="{{ theater.id }}" />
+          <input
+            type="hidden"
+            name="selected_slot"
+            id="selectedSlotInput"
+            value=""
+          />
+          <input
+            type="hidden"
+            name="selected_date"
+            id="selectedDateFormInput"
+            value=""
+          />
+          <input type="hidden" name="name" value="{{ theater.name }}" />
+          <input type="hidden" name="address" value="{{ theater.address }}" />
+
+          <button class="confirm-btn" style="width: 100%">BOOK NOW</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer Section (Desktop Only) -->
+    <div class="footer-wrapper">
+      <div class="footer-content">
+        <div class="footer-left">
+          <img
+            src="{{ url_for('static', filename='images/logo3.png') }}"
+            alt="Logo"
+            class="footer-logo"
+          />
+          <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contactus">Contact</a>
+            <a href="https://www.miniplexindia.com/terms-conditions">Privacy Policy</a>
+            <a href="https://www.miniplexindia.com/refund-policy">Refund Policy</a>
+            <a href="https://www.miniplexindia.com/terms-conditions">Terms & Conditions</a>
+          </div>
+          <div class="footer-address">
+            <p>
+              Miniplex India, Suncity Success Tower, Sector 65, Gurugram, HR
+              122102
+            </p>
+          </div>
+          <div class="footer-socials">
+            <a
+              href="https://www.instagram.com"
+              target="_blank"
+              class="social-btn"
+              title="Instagram"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/128/717/717392.png"
+                alt="Instagram Icon"
+              />
+            </a>
+            <a
+              href="https://www.facebook.com"
+              target="_blank"
+              class="social-btn"
+              title="Facebook"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/128/20/20837.png"
+                alt="Facebook Icon"
+              />
+            </a>
+            <a
+              href="https://www.youtube.com"
+              target="_blank"
+              class="social-btn"
+              title="YouTube"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/128/152/152810.png"
+                alt="YouTube Icon"
+              />
+            </a>
+            <a
+              href="https://www.linkedin.com"
+              target="_blank"
+              class="social-btn"
+              title="LinkedIn"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/128/3536/3536569.png"
+                alt="LinkedIn Icon"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile View Only -->
+    <div class="mobile-theater-detail">
+      <div class="mobile-header">
+        <button onclick="window.history.back()" class="back-btn">
+          <img
+            src="{{ url_for('static', filename='images/leftarrow.png') }}"
+            alt="Back"
+          />
+        </button>
+      </div>
+
+      <div class="mobile-image-carousel">
+        {% for img in theater.images %}
+        <img
+          src="{{ url_for('static', filename='images/theater_images/' + theater.id|string + '/' + img) }}"
+          alt="Image"
+        />
+        {% endfor %}
+      </div>
+
+      <h2 class="mobile-title">{{ theater.name }}</h2>
+      <p class="mobile-address">{{ theater.address }}</p>
+      <form method="POST" action="/place_book" id="mobileBookingForm">
+        <h3 class="mobile-section-title">Select Date</h3>
+        <input
+          type="date"
+          name="selectedDateInput"
+          id="selectedDateInputMobile"
+          style="
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: none;
+            margin: 0px 0 0px;
+            width: 95%;
+            background: #2a2a2a;
+            color: white;
+          "
+        />
+
+        <h3 class="mobile-section-title">Time Slots</h3>
+        <!-- NEW: Time slots -->
+        <div class="mobile-slots">
+          {% for slot in theater.slots %} {% if slot in theater.booked_slots %}
+          <button
+            type="button"
+            class="slot-btn"
+            disabled
+            style="opacity: 0.5; cursor: not-allowed"
+          >
+            {{ slot }}
+          </button>
+          {% else %}
+          <button type="button" class="slot-btn" onclick="selectSlot(this)">
+            {{ slot }}
+          </button>
+          {% endif %} {% endfor %}
+        </div>
+
+        <h3 class="mobile-section-title">Amenities</h3>
+        <div class="mobile-amenities">
+          {% for item in theater.amenities %}
+          <div class="mobile-amenity">
+            <img
+              src="{{ url_for('static', filename='images/' + item.icon) }}"
+            />
+            {{ item.name }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <h3 class="mobile-section-title">About this Theater</h3>
+        <p class="mobile-about">{{ theater.about }}</p>
+
+        <h3 class="mobile-section-title">Theater Policies</h3>
+        <ul class="mobile-policies">
+          {% for policy in theater.policies %}
+          <li>{{ policy }}</li>
+          {% endfor %}
+        </ul>
+
+        <!-- ✅ Hidden inputs -->
+        <input type="hidden" name="theater_id" value="{{ theater.id }}" />
+        <input
+          type="hidden"
+          name="selected_slot"
+          id="selectedSlotInput"
+          value=""
+        />
+        <input
+          type="hidden"
+          name="selected_date"
+          id="selectedDateFormInput"
+          value=""
+        />
+        <input type="hidden" name="name" value="{{ theater.name }}" />
+        <input type="hidden" name="address" value="{{ theater.address }}" />
+
+        <div class="mobile-bottom-bar">
+          <div class="price">₹{{ theater.price_per_hour }}</div>
+
+          <button type="submit" class="book-btn">BOOK NOW</button>
+        </div>
+      </form>
+
+      <h3 class="mobile-section-title">Location</h3>
+      <div class="mobile-map">
+        <!-- You can update this iframe src with dynamic theater location -->
+        <iframe
+          src="https://www.google.com/maps?q={{ theater.address | urlencode }}&output=embed"
+          frameborder="0"
+          allowfullscreen=""
+          loading="lazy"
+        ></iframe>
+        <br /><br /><br /><br />
+      </div>
+    </div>
+
+    <!-- NEW: Mobile Bottom Price + Book Button -->
+
+    <!-- NEW: Mobile Bottom Price + Book Button -->
+  </body>
+</html>
+
+<script>
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("loader-overlay");
+    loader.style.display = "none";
+  });
+
+  // On form submit or Google button click
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    const googleBtn = document.querySelector(".google-btn");
+
+    function showLoader() {
+      const loader = document.getElementById("loader-overlay");
+      loader.style.display = "flex";
+    }
+
+    if (form) {
+      form.addEventListener("submit", () => {
+        showLoader();
+      });
+    }
+
+    if (googleBtn) {
+      googleBtn.addEventListener("click", () => {
+        showLoader();
+      });
+    }
+  });
+
+  function selectSlot(clickedBtn) {
+    document.querySelectorAll(".slot-btn").forEach((btn) => {
+      btn.classList.remove("selected");
+    });
+
+    clickedBtn.classList.add("selected");
+    const selectedSlot = clickedBtn.textContent.trim();
+    document.querySelectorAll("#selectedSlotInput").forEach((el) => {
+      el.value = selectedSlot;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const mobileForm = document.getElementById("mobileBookingForm");
+    const desktopForm = document.getElementById("desktopBookingForm");
+
+    const handleFormSubmit = (form, isMobile) => {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const selectedSlot = form.querySelector("#selectedSlotInput").value;
+        const selectedDate = isMobile
+          ? document.getElementById("selectedDateInputMobile").value
+          : document.getElementById("selectedDateInputDesktop").value;
+
+        form.querySelector("#selectedDateFormInput").value = selectedDate;
+
+        console.log("📅 Selected Date:", selectedDate);
+        console.log("⏰ Selected Slot:", selectedSlot);
+
+        if (!selectedDate || !selectedSlot) {
+          alert("❗ Please select both a date and a time slot.");
+          return;
+        }
+
+        form.submit();
+      });
+    };
+
+    if (mobileForm) handleFormSubmit(mobileForm, true);
+    if (desktopForm) handleFormSubmit(desktopForm, false);
+  });
+</script>

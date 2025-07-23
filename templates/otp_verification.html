@@ -1,171 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Book Property</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Otp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-    body {
-      font-family: Arial, sans-serif;
-    }
+      header {
+        background-color: black;
+        padding: 25px 50px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 10px 0;
-    }
+      .logo {
+        max-height: 50px;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        object-fit: contain;
+      }
 
-    .back-button {
-      position: absolute;
-      left: 10px;
-      cursor: pointer;
-      width: 30px;
-    }
+      .content-wrapper {
+        display: flex;
+        height: calc(100vh - 98px);
+      }
 
-    .loginpage {
-      margin: 20px auto;
-      padding: 30px;
-      border-radius: 12px;
-    }
+      .login-side {
+        width: 70%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+      }
 
-    .loginpage h2 {
-      margin-bottom: 5px;
-      text-align: center;
-      font-weight: 500;
-    }
+      .slider-side {
+        width: 40%;
+        overflow: hidden;
+        position: relative;
+      }
 
-    .loginpage p {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 13px;
-      margin-bottom: 20px;
-      color: #797979;
-    }
-
-    .loginpage input{
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
-    .loginpage button[type="submit"] {
+      .slider-side img {
         width: 100%;
-        height: 50px;
+        height: 100%;
+        object-fit: cover;
+        animation: slide 20s infinite;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 1s;
+      }
+
+      .slider-side img:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .slider-side img:nth-child(2) {
+        animation-delay: 4s;
+      }
+
+      .slider-side img:nth-child(3) {
+        animation-delay: 8s;
+      }
+
+      .slider-side img:nth-child(4) {
+        animation-delay: 12s;
+      }
+
+      .slider-side img:nth-child(5) {
+        animation-delay: 16s;
+      }
+
+      @keyframes slide {
+        0% {
+          opacity: 0;
+        }
+        8% {
+          opacity: 1;
+        }
+        33% {
+          opacity: 1;
+        }
+        41% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .login-box {
+        background: #ffffff;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 360px;
+      }
+
+      .login-box h2 {
+        margin-top: 0;
+        margin-bottom: 25px;
+        text-align: center;
+        color: #333;
+      }
+
+      form input[type="number"] {
+        width: 100%;
         padding: 12px;
-        margin-top: 30px;
-        background-color: #1a1a1aff;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 15px;
+        box-sizing: border-box;
+      }
+
+      form button {
+        width: 100%;
+        padding: 12px;
+        background-color: #4285f4;
         color: white;
         border: none;
-        border-radius: 5px;
-        font-size: 15px;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
         cursor: pointer;
-    }
+        transition: background-color 0.2s;
+      }
 
+      form button:hover {
+        background-color: #3367d6;
+      }
 
-    #equalizer-loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: white;
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-}
+      .form-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        font-size: 14px;
+      }
 
-#equalizer-loader .bar {
-    width: 5px;
-    height: 30px;
-    background-color: black;
-    animation: equalizer 1s infinite ease-in-out;
-}
+      .form-footer a {
+        text-decoration: none;
+        color: #4285f4;
+      }
 
-#equalizer-loader .bar:nth-child(1) {
-    animation-delay: -0.4s;
-}
-#equalizer-loader .bar:nth-child(2) {
-    animation-delay: -0.3s;
-}
-#equalizer-loader .bar:nth-child(3) {
-    animation-delay: -0.2s;
-}
-#equalizer-loader .bar:nth-child(4) {
-    animation-delay: -0.1s;
-}
-#equalizer-loader .bar:nth-child(5) {
-    animation-delay: 0s;
-}
+      .form-footer a:hover {
+        text-decoration: underline;
+      }
 
-@keyframes equalizer {
-    0%, 100% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(2.5);
-    }
-}
+      ul {
+        padding: 0;
+        list-style: none;
+        margin-bottom: 15px;
+      }
 
-  </style>
-</head>
-<body>
-    
-  <div id="equalizer-loader">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-</div>
-<script>
-    window.addEventListener('load', function () {
-        const loader = document.getElementById('equalizer-loader');
-        if (loader) {
-            loader.style.display = 'none';
+      li {
+        color: red;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .content-wrapper {
+          flex-direction: column;
         }
-    });
-</script>
 
-  <!-- Header -->
-  <div class="header">
-    <img src="{{ url_for('static', filename='images/leftarrow.png') }}" alt="Back" class="back-button" onclick="history.back()">
-    <!-- <p>OTP Verification</p> -->
-  </div>
+        .slider-side {
+          display: none;
+        }
 
-  <div class="loginpage">
-    <h2>Verify Code</h2>
-    <p>Enter the code we just send to your email id and phone number</p>
-    <br>
-    <form method="POST" onsubmit="return handleFormSubmit(event)">
-        <!-- OTP Input -->
-        <input type="number" id="otp" name="otp" placeholder="Enter OTP" required>
-      
-        <!-- Hidden IP Field -->
-        <input type="hidden" id="ip_address" name="ip_address">
-      
-        {% if error %}
-          <p style="color: rgb(255, 47, 47); font-size: 13px;">{{ error }}</p>
-        {% endif %}
-      
-        <!-- Resend and Button -->
-        <div class="or-signin" style="margin-top: 20px; text-align: center; font-size: 15px; color: #797979;">Or sign up with</div>
-        <div class="or-signin" style="text-align: center; font-size: 15px; color: black; text-decoration: underline;">Resend Code</div>
-      
-        <button type="submit">Verify</button>
-      </form>
-      
-      <script>
-        let ipFetched = false;
+        .login-side {
+          width: auto;
+          height: auto;
+          margin-top: 50px;
+        }
+
+        .login-box {
+          padding: 30px 20px;
+        }
+
+        .logo {
+          max-height: 50px;
+          margin-left: -20px;
+        }
+      }
+
+      #loader-overlay {
+        position: fixed;
+        inset: 0;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-family: "Montserrat", sans-serif;
+        animation: fadeOut 0.5s ease-out 2.5s forwards;
+      }
+
+      .text {
+        font-size: 60px;
+        font-weight: 600;
+        color: white;
+        animation: clarity 2.5s ease-in-out both;
+      }
+
+      @keyframes clarity {
+        0% {
+          opacity: 0;
+          filter: blur(10px);
+          transform: scale(0.85);
+        }
+        50% {
+          opacity: 0.7;
+          filter: blur(4px);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: scale(1);
+        }
+      }
+
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+
+            
+    .loader-logo {
+  width: 240px;
+  max-width: 90%;
+  filter: blur(10px) brightness(1.3) drop-shadow(0 0 25px rgba(255, 255, 255, 0.7));
+  opacity: 0;
+  transform: scale(1.05);
+  animation: blurToClear 2.4s ease-in-out forwards;
+}
+
+@keyframes blurToClear {
+  0% {
+    filter: blur(12px) brightness(1.4) drop-shadow(0 0 35px rgba(255, 255, 255, 0.9));
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.03);
+  }
+  100% {
+    filter: blur(0px) brightness(1) drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+    </style>
+  </head>
+  <body>
+    <!-- <div id="loader-overlay">
+      <div class="text">MINIPLEX</div>
+    </div> -->
+
+    <div id="loader-overlay">
+      <img src="{{ url_for('static', filename='images/logo3.png') }}" class="loader-logo" alt="Miniplex Logo">
+    </div>
+
+    <header>
+      <img
+        src="{{ url_for('static', filename='images/logo3.png') }}"
+        alt="Logo"
+        class="logo"
+      />
+    </header>
+
+    <div class="content-wrapper">
+      <div class="login-side">
+        <div class="login-box">
+          <h2>Otp</h2>
+          {% with messages = get_flashed_messages() %} {% if messages %}
+          <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %} {% endwith %}
+          <form method="POST">
+            <input type="number" name="otp" placeholder="Enter OTP" required />
+            <input type="hidden" id="ip_address" name="ip_address">
+
+            {% if error %}
+            <p style="color: red; font-size: 14px; margin-top: -10px; text-align: center;">
+              {{ error }}
+            </p>
+            {% endif %}
+
+            <button type="submit">CONFIRM</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="slider-side">
+        <img
+          src="{{ url_for('static', filename='images/1.webp') }}"
+          alt="Slide 1"
+        />
+        <img
+          src="{{ url_for('static', filename='images/2.webp') }}"
+          alt="Slide 2"
+        />
+        <img
+          src="{{ url_for('static', filename='images/3.webp') }}"
+          alt="Slide 3"
+        />
+        <img
+          src="{{ url_for('static', filename='images/4.webp') }}"
+          alt="Slide 4"
+        />
+        <img
+          src="{{ url_for('static', filename='images/5.webp') }}"
+          alt="Slide 5"
+        />
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("loader-overlay");
+    loader.style.display = "none";
+  });
+
+  // On form submit or Google button click
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    const googleBtn = document.querySelector(".google-btn");
+
+    function showLoader() {
+      const loader = document.getElementById("loader-overlay");
+      loader.style.display = "flex";
+    }
+
+    if (form) {
+      form.addEventListener("submit", () => {
+        showLoader();
+      });
+    }
+
+    if (googleBtn) {
+      googleBtn.addEventListener("click", () => {
+        showLoader();
+      });
+    }
+  });
+
+
+
+  let ipFetched = false;
         let fetchedIP = '';
       
         // Fetch the IP
@@ -187,53 +388,4 @@
           document.getElementById('ip_address').value = fetchedIP;
           return true;
         }
-      </script>
-      
-      
-  </div>
-
-
-<script>
-
-        // Loader show function
-        function showLoaderAndNavigate(url) {
-            const loader = document.getElementById('equalizer-loader');
-            if (loader) loader.style.display = 'flex';
-            setTimeout(() => {
-                window.location.href = url;
-            }, 100); // Delay navigation slightly so loader shows
-        }
-    
-        // Update all tags that use onclick navigation manually
-        document.querySelectorAll('[onclick^="location.href"]').forEach(el => {
-            const raw = el.getAttribute('onclick');
-            const urlMatch = raw.match(/location\.href=['"]([^'"]+)['"]/);
-            if (urlMatch && urlMatch[1]) {
-                const url = urlMatch[1];
-                el.removeAttribute('onclick');
-                el.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    showLoaderAndNavigate(url);
-                });
-            }
-        });
-    
-        // Same for <a href="..."> directly
-        document.querySelectorAll('a[href]').forEach(el => {
-            el.addEventListener('click', function (e) {
-                const url = el.getAttribute('href');
-                if (url && url !== '#') {
-                    e.preventDefault();
-                    showLoaderAndNavigate(url);
-                }
-            });
-        });
-
 </script>
-
-
-
-</body>
-</html>
-
-  

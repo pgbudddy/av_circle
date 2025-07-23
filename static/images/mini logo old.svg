@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="426.379mm"
+   height="99.999992mm"
+   viewBox="0 0 426.379 99.999992"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   sodipodi:docname="mini logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     showguides="true"
+     inkscape:zoom="0.5"
+     inkscape:cx="631"
+     inkscape:cy="125"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-48.842897,-95.652509)">
+    <g
+       id="g8655">
+      <g
+         aria-label="M"
+         id="text1064"
+         style="font-size:104.225px;font-family:Arial;-inkscape-font-specification:Arial;opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:4.2206;stroke-linecap:round;paint-order:fill markers stroke" />
+      <path
+         id="rect1941"
+         style="opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.47495;stroke-linecap:round;paint-order:fill markers stroke"
+         d="M 49.580372,96.389984 H 75.17474 l 24.9177,39.386726 25.06988,-39.386726 h 22.94309 V 194.91503 H 49.580372 Z"
+         sodipodi:nodetypes="cccccccc" />
+      <text
+         xml:space="preserve"
+         style="font-size:68.6376px;font-family:Arial;-inkscape-font-specification:Arial;opacity:1;fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:2.77947;stroke-linecap:round;paint-order:fill markers stroke"
+         x="153.86966"
+         y="146.55255"
+         id="text5013"><tspan
+           sodipodi:role="line"
+           id="tspan5011"
+           style="stroke-width:2.77947"
+           x="153.86966"
+           y="146.55255">MINIPLEX</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:52.2758px;font-family:Arial;-inkscape-font-specification:Arial;opacity:1;fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:2.1169;stroke-linecap:round;paint-order:fill markers stroke"
+         x="154.57005"
+         y="192.71751"
+         id="text7195"><tspan
+           sodipodi:role="line"
+           id="tspan7193"
+           style="stroke-width:2.1169"
+           x="154.57005"
+           y="192.71751">INDIA</tspan></text>
+    </g>
+  </g>
+</svg>
