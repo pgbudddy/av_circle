@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Property</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 10px 0;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 10px;
+      cursor: pointer;
+      width: 30px;
+    }
+
+    .loginpage {
+      margin: 20px auto;
+      padding: 30px;
+      border-radius: 12px;
+    }
+
+    .loginpage h2 {
+      margin-bottom: 5px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .loginpage p {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      color: #797979;
+    }
+
+    .loginpage input{
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .loginpage button[type="submit"] {
+        width: 100%;
+        height: 50px;
+        padding: 12px;
+        margin-top: 30px;
+        background-color: #1a1a1aff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+
+    #equalizer-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#equalizer-loader .bar {
+    width: 5px;
+    height: 30px;
+    background-color: black;
+    animation: equalizer 1s infinite ease-in-out;
+}
+
+#equalizer-loader .bar:nth-child(1) {
+    animation-delay: -0.4s;
+}
+#equalizer-loader .bar:nth-child(2) {
+    animation-delay: -0.3s;
+}
+#equalizer-loader .bar:nth-child(3) {
+    animation-delay: -0.2s;
+}
+#equalizer-loader .bar:nth-child(4) {
+    animation-delay: -0.1s;
+}
+#equalizer-loader .bar:nth-child(5) {
+    animation-delay: 0s;
+}
+
+@keyframes equalizer {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(2.5);
+    }
+}
+
+  </style>
+</head>
+<body>
+    
+  <div id="equalizer-loader">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+</div>
+<script>
+    window.addEventListener('load', function () {
+        const loader = document.getElementById('equalizer-loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    });
+</script>
+
+  <!-- Header -->
+  <div class="header">
+    <img src="{{ url_for('static', filename='images/leftarrow.png') }}" alt="Back" class="back-button" onclick="history.back()">
+    <!-- <p>OTP Verification</p> -->
+  </div>
+
+  <div class="loginpage">
+    <h2>Verify Code</h2>
+    <p>Enter the code we just send to your email id and phone number</p>
+    <br>
+    <form method="POST" onsubmit="return handleFormSubmit(event)">
+        <!-- OTP Input -->
+        <input type="number" id="otp" name="otp" placeholder="Enter OTP" required>
+      
+        <!-- Hidden IP Field -->
+        <input type="hidden" id="ip_address" name="ip_address">
+      
+        {% if error %}
+          <p style="color: rgb(255, 47, 47); font-size: 13px;">{{ error }}</p>
+        {% endif %}
+      
+        <!-- Resend and Button -->
+        <div class="or-signin" style="margin-top: 20px; text-align: center; font-size: 15px; color: #797979;">Or sign up with</div>
+        <div class="or-signin" style="text-align: center; font-size: 15px; color: black; text-decoration: underline;">Resend Code</div>
+      
+        <button type="submit">Verify</button>
+      </form>
+      
+      <script>
+        let ipFetched = false;
+        let fetchedIP = '';
+      
+        // Fetch the IP
+        fetch('https://api.ipify.org?format=json')
+          .then(response => response.json())
+          .then(data => {
+            fetchedIP = data.ip;
+            document.getElementById('ip_address').value = fetchedIP;
+            ipFetched = true;
+          });
+      
+        // Prevent form submission until IP is set
+        function handleFormSubmit(event) {
+          if (!ipFetched || !fetchedIP) {
+            event.preventDefault();
+            alert("Please wait a moment while we verify your connection...");
+            return false;
+          }
+          document.getElementById('ip_address').value = fetchedIP;
+          return true;
+        }
+      </script>
+      
+      
+  </div>
+
+
+<script>
+
+        // Loader show function
+        function showLoaderAndNavigate(url) {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) loader.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = url;
+            }, 100); // Delay navigation slightly so loader shows
+        }
+    
+        // Update all tags that use onclick navigation manually
+        document.querySelectorAll('[onclick^="location.href"]').forEach(el => {
+            const raw = el.getAttribute('onclick');
+            const urlMatch = raw.match(/location\.href=['"]([^'"]+)['"]/);
+            if (urlMatch && urlMatch[1]) {
+                const url = urlMatch[1];
+                el.removeAttribute('onclick');
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                });
+            }
+        });
+    
+        // Same for <a href="..."> directly
+        document.querySelectorAll('a[href]').forEach(el => {
+            el.addEventListener('click', function (e) {
+                const url = el.getAttribute('href');
+                if (url && url !== '#') {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                }
+            });
+        });
+
+</script>
+
+
+
+</body>
+</html>
+
+  

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+    <style>
+
+        #equalizer-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        }
+        
+        #equalizer-loader .bar {
+        width: 5px;
+        height: 30px;
+        background-color: black;
+        animation: equalizer 1s infinite ease-in-out;
+        }
+        
+        #equalizer-loader .bar:nth-child(1) {
+        animation-delay: -0.4s;
+        }
+        #equalizer-loader .bar:nth-child(2) {
+        animation-delay: -0.3s;
+        }
+        #equalizer-loader .bar:nth-child(3) {
+        animation-delay: -0.2s;
+        }
+        #equalizer-loader .bar:nth-child(4) {
+        animation-delay: -0.1s;
+        }
+        #equalizer-loader .bar:nth-child(5) {
+        animation-delay: 0s;
+        }
+        
+        @keyframes equalizer {
+        0%, 100% {
+        transform: scaleY(1);
+        }
+        50% {
+        transform: scaleY(2.5);
+        }
+        }
+        
+        </style>
+
+
+</head>
+<body>
+    <!-- <h2>Buy Product - ₹{{ price }}</h2> -->
+    <div id="equalizer-loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <script>
+        window.addEventListener('pageshow', function (event) {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+
+
+    <script>
+        const userData = {
+            name: "{{ name }}",
+            phone: "{{ phone }}",
+            address: "{{ address }}",
+            pincode: "{{ pincode }}",
+            city: "{{ city }}",
+            state: "{{ state }}",
+            price: "{{ price }}",
+            product_id: "{{ product_id }}",
+            username: "{{ username }}"
+        };
+
+        async function payNow() {
+            const res = await fetch('/create_order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price: userData.price })
+            });
+
+            const order = await res.json();
+
+            const options = {
+                key: "rzp_live_KwWU7BnuboSLCV",
+                amount: order.amount,
+                currency: order.currency,
+                name: "AV Circle",
+                description: "Payment for Order",
+                order_id: order.id,
+                handler: async function (response) {
+                    const verifyRes = await fetch('/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            payment_id: response.razorpay_payment_id,
+                            order_id: response.razorpay_order_id,
+                            signature: response.razorpay_signature,
+                            user: userData
+                        })
+                    });
+
+                    const result = await verifyRes.json();
+                    window.location.href = result.redirect_url;
+                },
+                prefill: {
+                    name: userData.name,
+                    contact: userData.phone
+                },
+                theme: {
+                    color: "#528FF0"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        // Automatically click Pay Now on page load
+        window.onload = function () {
+            payNow();
+        };
+
+
+
+        // Loader show function
+        function showLoaderAndNavigate(url) {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) loader.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = url;
+            }, 100); // Delay navigation slightly so loader shows
+        }
+    
+        // Update all tags that use onclick navigation manually
+        document.querySelectorAll('[onclick^="location.href"]').forEach(el => {
+            const raw = el.getAttribute('onclick');
+            const urlMatch = raw.match(/location\.href=['"]([^'"]+)['"]/);
+            if (urlMatch && urlMatch[1]) {
+                const url = urlMatch[1];
+                el.removeAttribute('onclick');
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                });
+            }
+        });
+    
+        // Same for <a href="..."> directly
+        document.querySelectorAll('a[href]').forEach(el => {
+            el.addEventListener('click', function (e) {
+                const url = el.getAttribute('href');
+                if (url && url !== '#') {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -556,7 +556,64 @@ def fetch_seller_profile(uniqueid):
     finally:
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
+
+
+def fetch_seller_product_details(product_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
         
+        query = 'SELECT name, brand, discription, price, category, brightness, contrast_ratio, HDR_HLG, lamp_life_hrs_Normal_rco_mode, type FROM products where product_id="'+str(product_id)+'"'
+        mycursor.execute(query)
+        myresult = mycursor.fetchone()
+
+        # #print(myresult)
+        
+        if myresult == None:  
+            return False
+        else:
+            return myresult
+
+    except Exception as e:
+        print(e)
+        return False
+    
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+        
+
+def update_product(product_name, brand_name, product_description, product_price, brand_category, brand_brightness, brand_contrast_ratio, brand_hdr_hlg, brand_lamp_life_hrs_Normal_rco_mode, brand_type, product_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        trade = "update products set name = '"+str(product_name)+"', brand = '"+str(brand_name)+"', discription = '"+str(product_description)+"', price = '"+str(product_price)+"', category = '"+str(brand_category)+"', brightness = '"+str(brand_brightness)+"', contrast_ratio = '"+str(brand_contrast_ratio)+"', HDR_HLG = '"+str(brand_hdr_hlg)+"', lamp_life_hrs_Normal_rco_mode = '"+str(brand_lamp_life_hrs_Normal_rco_mode)+"', type = '"+str(brand_type)+"' where product_id = '"+str(product_id)+"'"
+        mycursor.execute(trade)
+        mydb.commit()
+        
+        # Check if insertion was successful
+        if mycursor.rowcount > 0:
+            #print("Data inserted successfully.")
+            return True
+        else:
+            #print("Data insertion failed.")
+            return False
+        
+    except Exception as e:
+        print(e)
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
 
 def buy_product(product_id):
     try:
@@ -939,6 +996,34 @@ def remove_product_from_cart(product_id, user_id):
         
     except Exception as e:
         #print("Error:", e)
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
+def delete_product(product_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        # Use %s placeholders for MySQL
+        mycursor.execute("DELETE FROM products WHERE product_id = %s", (product_id,))
+        mydb.commit()
+
+        if mycursor.rowcount > 0:
+            #print("Data removed successfully.")
+            return True
+        else:
+            #print("Data removal failed.")
+            return False
+        
+    except Exception as e:
+        print("Error:", e)
         return False
 
     finally:

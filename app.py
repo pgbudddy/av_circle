@@ -34,7 +34,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from flask_socketio import SocketIO, emit
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key'  # Ensure you use a secure key for session
 app.config['SESSION_PERMANENT'] = True  # Make session persistent
 app.config['SESSION_TYPE'] = 'filesystem'  # Store session on server
@@ -264,22 +264,29 @@ def dashboard():
 
 @app.route("/profile")
 def profile():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    
     username = request.cookies.get('username')
-
     print("username ", username)
 
-    def fetch_data(username):
-        return api.fetch_profile(username)
+    if not username:
+        #executor.submit(api.insert_log, "None", "profile", "none")
+        return redirect(url_for('login'))
 
-    # Use ThreadPoolExecutor to get return value
-    with ThreadPoolExecutor() as executor:
-        future = executor.submit(fetch_data, username)
-        profile_details = future.result()  # Wait for result
+    else:
+        def fetch_data(username):
+            return api.fetch_profile(username)
 
-    return render_template("profile.html", name=profile_details[0], email=profile_details[2])
+        try:
+            # Use ThreadPoolExecutor to get return value
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(fetch_data, username)
+                profile_details = future.result()  # Wait for result
+
+            return render_template("profile.html", name=profile_details[0], email=profile_details[2])
+
+        except Exception as e:
+            print(e)
+            return redirect(url_for('login'))
+
 
 
 @app.route("/seller_profile")
@@ -1074,7 +1081,9 @@ def seller_dashboard():
     print("chart_data", chart_data)
     print("orders", orders)
 
-    return render_template("seller_dashboard.html", dates=dates, values=values, orders=orders)
+    no_data = len(chart_data) == 0 and len(orders) == 0
+
+    return render_template("seller_dashboard.html", dates=dates, values=values, orders=orders, no_data=no_data)
 
 
 
@@ -1295,15 +1304,117 @@ def upload_products():
             "name": name,
             "date": datetime.datetime.now().strftime("%d-%m-%Y"),
             "price": price,
-            "bidprice": bid_price if bid_price else "0"
+            "bidprice": bid_price if bid_price else "0",
+            "product_id": product_id
         })
 
     return render_template("upload_products.html", orders=orders)
 
 
+@app.route('/delete_product/<int:product_id>')
+def delete_product(product_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    print("Delete product_id:", product_id)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(api.delete_product, product_id)
+        delete_result = future.result()
+
+    print("delete_product:", delete_result)
+    return redirect(url_for('upload_products'))
+
+    
+
 @app.route("/upload_upload_page")
 def upload_upload_page():
     return render_template("upload_upload_page.html")
+
+
+@app.route('/seller_edit_product/<int:product_id>')
+def seller_edit_product(product_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    print("edit product product_id:", product_id)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(api.fetch_seller_product_details, product_id)
+        product_details = future.result()
+
+    print("product_details:", product_details)
+
+    # Map to dictionary
+    product = {
+        'name': product_details[0],
+        'brand': product_details[1],
+        'description': product_details[2],
+        'price': product_details[3],
+        'category': product_details[4],
+        'brightness': product_details[5],
+        'contrast_ratio': product_details[6],
+        'hdr_hlg': product_details[7],
+        'lamp_life_hrs_Normal_rco_mode': product_details[8],
+        'type': product_details[9],
+        'product_id': product_id
+
+    }
+
+    return render_template("seller_edit_product.html", product=product)
+
+
+@app.route('/update_product_details', methods=['POST'])
+def update_product_details():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    # Retrieve data from form
+    product_name = request.form.get('product_name')
+    brand_name = request.form.get('brand_name')
+    product_description = request.form.get('product_description')
+    product_price = request.form.get('product_price')
+    brand_category = request.form.get('brand_category')
+    brand_brightness = request.form.get('brand_brightness')
+    brand_contrast_ratio = request.form.get('brand_contrast_ratio')
+    brand_hdr_hlg = request.form.get('brand_hdr_hlg')
+    brand_lamp_life_hrs_Normal_rco_mode = request.form.get('brand_lamp_life_hrs_Normal_rco_mode')
+    brand_type = request.form.get('brand_type')
+    product_id = request.form.get('product_id')
+
+    print("product_name:", product_name)
+    print("brand_name:", brand_name)
+    print("product_description:", product_description)
+    print("product_price:", product_price)
+    print("brand_category:", brand_category)
+    print("brand_brightness:", brand_brightness)
+    print("brand_contrast_ratio:", brand_contrast_ratio)
+    print("brand_hdr_hlg:", brand_hdr_hlg)
+    print("brand_lamp_life_hrs_Normal_rco_mode:", brand_lamp_life_hrs_Normal_rco_mode)
+    print("brand_type:", brand_type)
+    print("product_id:", product_id)
+
+    # Use ThreadPoolExecutor to run update in a separate thread
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(
+            api.update_product,
+            product_name,
+            brand_name,
+            product_description,
+            product_price,
+            brand_category,
+            brand_brightness,
+            brand_contrast_ratio,
+            brand_hdr_hlg,
+            brand_lamp_life_hrs_Normal_rco_mode,
+            brand_type,
+            product_id
+        )
+        update_product = future.result()
+
+    print("update_product ", update_product)
+    
+    return redirect(url_for('upload_products'))  # or some success page
 
 
 @app.route('/submit_upload_button', methods=['POST'])

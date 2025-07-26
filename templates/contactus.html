@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick-up Location</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Container for input */
+        .container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .text {
+            position: relative;
+            margin-left: 25px;
+            margin-top: 30px;
+            width: 80%;
+            color: rgb(64, 64, 64);
+        }
+
+        .back-button {
+            margin-left: 10px;
+            margin-top: 20px;
+            width: 95%;
+        }
+
+        .info-table {
+            position: relative;
+            margin-top: 30px;
+            width: 95%;
+            border: 1px solid black;
+            border-collapse: collapse;
+            font-family: 'Arial', sans-serif;
+            font-size: 15px;
+        }
+
+        .info-table th, .info-table td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+            color: grey;
+        }
+
+        .info-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+            color: rgb(64, 64, 64);
+        }
+
+        .text2 {
+            position: relative;
+            margin-left: 25px;
+            margin-top: 50px;
+            width: 80%;
+            color: rgb(64, 64, 64);
+        }
+
+        .nameinput {
+            position: relative;
+            margin-left: 25px;
+            margin-top: 30px;
+            width: 85%;
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
+            color: grey;
+            font-weight: normal;
+            border-top: 0px;
+            border-left: 0px;
+            border-right: 0px;
+            border-bottom: 1px solid black;
+        }
+        
+        .numberinput {
+            position: relative;
+            margin-left: 25px;
+            margin-top: 20px;
+            width: 85%;
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
+            color: grey;
+            font-weight: normal;
+            border-top: 0px;
+            border-left: 0px;
+            border-right: 0px;
+            border-bottom: 1px solid black;
+        }
+
+        .messageinput {
+            position: relative;
+            margin-left: 25px;
+            margin-top: 20px;
+            width: 85%;
+            font-family: 'Arial', sans-serif;
+            font-size: 16px;
+            color: grey;
+            font-weight: normal;
+            border-top: 0px;
+            border-left: 0px;
+            border-right: 0px;
+            border-bottom: 1px solid black;
+        }
+
+        button {
+            position: relative;
+            margin-top: 40px;
+            background-color: #2e6aff;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            border: 0px solid black;
+            font-size: 15px;
+            border-radius: 50px;
+            height: 40px;
+            width: 40%;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        #equalizer-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#equalizer-loader .bar {
+    width: 5px;
+    height: 30px;
+    background-color: black;
+    animation: equalizer 1s infinite ease-in-out;
+}
+
+#equalizer-loader .bar:nth-child(1) {
+    animation-delay: -0.4s;
+}
+#equalizer-loader .bar:nth-child(2) {
+    animation-delay: -0.3s;
+}
+#equalizer-loader .bar:nth-child(3) {
+    animation-delay: -0.2s;
+}
+#equalizer-loader .bar:nth-child(4) {
+    animation-delay: -0.1s;
+}
+#equalizer-loader .bar:nth-child(5) {
+    animation-delay: 0s;
+}
+
+@keyframes equalizer {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(2.5);
+    }
+}
+
+.popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #796eff; /* Semi-transparent background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            width: 90%;
+            height: 90%;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #796eff;
+            text-align: center;
+            position: relative; /* Ensure child elements can use absolute positioning */
+        }
+
+        .popup-content h2{
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .popup-content p{
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            font-size: 17px;
+            margin-top: 10px;
+        }
+
+        .popup-content img{
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .popup-content button {
+            position: absolute; /* Position the button relative to .popup-content */
+            bottom: 20px; /* Space from the bottom edge */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust centering */
+            padding: 10px 20px;
+            background-color: white;
+            color: #5e51ff;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            font-weight: bold;
+            border: 0px;
+        }
+
+        .popup-content button:hover {
+            background-color: #4343ff;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="equalizer-loader">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <script>
+        window.addEventListener('pageshow', function (event) {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+
+    <!-- Input Section -->
+    <div class="container">
+
+        <a href="{{ url_for('profile') }}" class="back-button" style="-webkit-tap-highlight-color: transparent;">
+            <img src="{{ url_for('static', filename='images/leftarrow.png') }}" alt="Back" style="width: 30px; height: 30px;">
+        </a>
+
+        <h2 class="text" style="font-family: 'Arial', sans-serif; font-weight: bold;">
+            Help
+        </h2>
+
+        <center>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Contact number</td>
+                        <td>+917678256722</td>
+                    </tr>
+                    <tr>
+                        <td>Email id</td>
+                        <td>support@avcircles.com</td>
+                    </tr>
+                    <tr>
+                        <td>Address</td>
+                        <td>182GF, Block C, BPTP Astaire Garden, Sector 70A, Gurugram, HR 122101, India.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </center>
+
+
+        <h2 class="text2" style="font-weight: bold;">
+            Raise a ticket
+        </h2>
+
+            <input type="text" class="nameinput" name="name" id="name" placeholder="Enter name">
+            <input type="number" class="numberinput" name="number" id="number" placeholder="Enter number">
+            <textarea class="messageinput" name="description" id="description" placeholder="Enter message" rows="4" cols="50"></textarea>
+            <center><button type="button" style="-webkit-tap-highlight-color: transparent;" onclick="sendticket()">submit</button></center>
+
+        <br><br><br><br><br>
+
+
+        <div id="email-verification-popup" class="popup" style="display: none;">
+            <div class="popup-content">
+                <h2>Ticket raised successfully</h2>
+                <p>You will get response in 24 hours<br>from our team on your registered mail id</p>
+                <img src="{{ url_for('static', filename='images/raise_ticket.svg') }}" alt="plane">
+                <center><button onclick="location.href='{{ url_for('profile') }}'">Close</button></center>
+            </div>
+        </div>
+
+
+    </div>
+
+</body>
+</html>
+<script>
+    function sendticket() {
+        const name = document.getElementById('name').value;
+        const number = document.getElementById('number').value;
+        const message = document.getElementById('description').value;
+
+        if (!name || !number || !message) {
+            console.log("Please fill in all fields.");
+            return;
+        }
+
+        fetch('/contactus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, number, message })
+        })
+        .then(response => {
+            console.log('Raw response:', response);
+            if (!response.ok) {
+                throw new Error('Failed to raise the ticket');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response JSON:', data);
+            if (data.success) {
+                document.getElementById('email-verification-popup').style.display = 'flex';
+            } else {
+                console.log('Error: ' + (data.error || 'Unknown error occurred.'));
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            console.log('Something went wrong. Check the console for details.');
+        });
+    }
+
+
+
+        // Loader show function
+        function showLoaderAndNavigate(url) {
+            const loader = document.getElementById('equalizer-loader');
+            if (loader) loader.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = url;
+            }, 100); // Delay navigation slightly so loader shows
+        }
+    
+        // Update all tags that use onclick navigation manually
+        document.querySelectorAll('[onclick^="location.href"]').forEach(el => {
+            const raw = el.getAttribute('onclick');
+            const urlMatch = raw.match(/location\.href=['"]([^'"]+)['"]/);
+            if (urlMatch && urlMatch[1]) {
+                const url = urlMatch[1];
+                el.removeAttribute('onclick');
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                });
+            }
+        });
+    
+        // Same for <a href="..."> directly
+        document.querySelectorAll('a[href]').forEach(el => {
+            el.addEventListener('click', function (e) {
+                const url = el.getAttribute('href');
+                if (url && url !== '#') {
+                    e.preventDefault();
+                    showLoaderAndNavigate(url);
+                }
+            });
+        });
+</script>

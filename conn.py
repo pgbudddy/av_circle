@@ -10,7 +10,8 @@ dbconfig = {
 
 # Create the connection pool
 connection_pool = pooling.MySQLConnectionPool(pool_name="mypool",
-                                              pool_size=10,
+                                              pool_size=20,
+                                              pool_reset_session=True,
                                               **dbconfig)
 
 def get_db_connection():
