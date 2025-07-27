@@ -176,7 +176,7 @@ def insert_payment(payment):
             mydb.close()
 
 
-def insert_orders(product_id, user_id, price, order_id):
+def insert_orders(product_id, user_id, price, status, order_id, epoch):
     try:
         # Get a connection from the pool
         mydb = get_db_connection()
@@ -185,8 +185,8 @@ def insert_orders(product_id, user_id, price, order_id):
         mycursor = mydb.cursor(buffered=True)
         
         date = datetime.datetime.now()
-        trade = "INSERT INTO orders (product_id, user_id, price, order_id, staus, datetime) VALUES (%s, %s, %s, %s, %s, %s)"
-        mycursor.execute(trade, (product_id, user_id, price, order_id, date))
+        trade = "INSERT INTO orders (product_id, user_id, price, order_id, status, epoch, datetime) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        mycursor.execute(trade, (product_id, user_id, price, order_id, status, epoch, date))
         mydb.commit()
         
         # Check if insertion was successful
@@ -198,12 +198,44 @@ def insert_orders(product_id, user_id, price, order_id):
             return False
         
     except Exception as e:
-        #print(e)
+        print(e)
         return False
 
     finally:
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
+
+
+def payment_verifier(epoch_id):
+    try:
+        # epoch_id = 1753590333249641
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+
+        print("epoch_id ", epoch_id)
+        
+        query = 'SELECT * FROM orders where epoch="'+str(epoch_id)+'" AND status="success" OR epoch="'+str(epoch_id)+'" AND status="failed"'
+        mycursor.execute(query)
+        myresult = mycursor.fetchone()
+        print("myresult ", myresult)
+        print("myresult ", myresult[4])
+        
+        if myresult[4] == "failed":
+            return "failed"
+        else:
+            return "success"
+
+    except:
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+# print(payment_verifier(1))
 
 
 def signup(name, email, number, password, public_ip):

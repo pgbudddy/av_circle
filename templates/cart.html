@@ -334,7 +334,8 @@
     <!-- Shipping Details -->
     <p class="shipping-details-p">Shipping Details</p>
     <div class="shipping-details">
-        <form action="/checkout" method="GET" target="_blank">
+        <!-- <form action="/checkout" method="GET" target="_blank"> -->
+        <form id="checkoutForm" onsubmit="handleCheckout(event)">
             <input type="text" placeholder="Full Name" id="name" name="name" required>
             <input type="number" placeholder="Phone Number" id="phone" name="phone" required>
             <input type="text" placeholder="Address" id="address" name="address" required>
@@ -350,6 +351,9 @@
             </div>
         
             <input type="hidden" name="price" value="{{ total_price }}">
+            <input type="hidden" name="epoch_id" value="{{ epoch_id }}">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="product_id" value="{{ cart_products[0].product_id }}">
         
             <button type="submit" class="submit-btn" style="-webkit-tap-highlight-color: transparent;">CHECKOUT</button>
         </form>
@@ -433,6 +437,25 @@
                 }
             });
         });
+
+
+        function handleCheckout(event) {
+            event.preventDefault();
+
+            const form = document.getElementById("checkoutForm");
+
+            // Build query parameters manually
+            const params = new URLSearchParams(new FormData(form)).toString();
+
+            const checkoutURL = `/checkout?${params}`;
+            const verifyURL = `/payment_verifier?${params}`;  // Adjust this route if needed
+
+            // Open checkout in new tab
+            window.open(checkoutURL, '_blank');
+
+            // Navigate to payment_verifier in same tab
+            window.location.href = verifyURL;
+        }
     </script>
     
 

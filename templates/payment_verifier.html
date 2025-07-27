@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Verifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Hide page on non-mobile screens */
+    @media (min-width: 768px) {
+      body {
+        display: none;
+      }
+    }
+  
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0fdf4;
+    }
+  
+    .center-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  
+    .clock-img {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+    }
+  
+    #timer {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+  
+    #status {
+      font-size: 16px;
+      color: gray;
+    }
+  </style>
+  
+</head>
+<body>
+
+    <div class="center-content">
+        <img src="{{ url_for('static', filename='images/clock_time.gif') }}" alt="Clock Timer" class="clock-img">
+        <div id="timer">5:00</div>
+        <div id="status">Waiting for payment confirmation...</div>
+    </div>
+
+  <script>
+    let timeLeft = 5 * 60; // 5 minutes in seconds
+    const timerEl = document.getElementById("timer");
+    const statusEl = document.getElementById("status");
+    const epochId = "{{ epoch_id }}";
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const secs = (seconds % 60).toString().padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    // Countdown timer
+    const timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = formatTime(timeLeft);
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(pollingInterval);
+        window.location.href = "/paymentfailed";
+      }
+    }, 1000);
+
+    // Polling payment status every 5 seconds
+    const pollingInterval = setInterval(() => {
+      fetch(`/check_payment_status/${epochId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success") {
+            clearInterval(timerInterval);
+            clearInterval(pollingInterval);
+            window.location.href = "/paymentsuccess";
+          } else if (data.status === "failed") {
+            clearInterval(timerInterval);
+            clearInterval(pollingInterval);
+            window.location.href = "/paymentfailed";
+          }
+        })
+        .catch(err => {
+          console.error("Error checking status:", err);
+        });
+    }, 5000);
+  </script>
+</body>
+</html>

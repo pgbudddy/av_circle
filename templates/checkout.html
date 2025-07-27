@@ -86,7 +86,8 @@
             state: "{{ state }}",
             price: "{{ price }}",
             product_id: "{{ product_id }}",
-            username: "{{ username }}"
+            username: "{{ username }}",
+            epoch_id: "{{ epoch_id }}"
         };
 
         async function payNow() {
@@ -99,7 +100,7 @@
             const order = await res.json();
 
             const options = {
-                key: "rzp_live_KwWU7BnuboSLCV",
+                key: "rzp_test_SWjvcpME4fGCmq",
                 amount: order.amount,
                 currency: order.currency,
                 name: "AV Circle",
@@ -137,7 +138,6 @@
         window.onload = function () {
             payNow();
         };
-
 
 
         // Loader show function

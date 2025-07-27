@@ -25,8 +25,10 @@ import uuid
 import urllib3
 import shutil
 from collections import Counter
+import time
 
-
+from threading import Thread
+import queue
 
 # Disable SSL warnings (for testing only, not recommended for production)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -52,7 +54,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 # cache = Cache(app)
 
 GOOGLE_MAPS_API_KEY = "AIzaSyCdc5N7AzzvPiWddsegRCRmna3LxG5HCmk"
-razorpay_client = razorpay.Client(auth=("rzp_live_KwWU7BnuboSLCV", "nXSeMZXRHJs0ZcAal1Aljmy5"))
+razorpay_client = razorpay.Client(auth=("rzp_test_SWjvcpME4fGCmq", "ZuTowFTbz7voWmL6VmstfMgc"))
 
 
 # Upload folder configuration
@@ -264,7 +266,7 @@ def dashboard():
 
 @app.route("/profile")
 def profile():
-    username = request.cookies.get('username')
+    username = session.get('username')
     print("username ", username)
 
     if not username:
@@ -288,13 +290,12 @@ def profile():
             return redirect(url_for('login'))
 
 
-
 @app.route("/seller_profile")
 def seller_profile():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     print("username ", username)
 
@@ -316,7 +317,7 @@ def contactus():
     
     if request.method == 'POST':
         # Get required data from request
-        username = request.cookies.get('username')
+        username = session.get('username')
         data = request.get_json()
         name = data.get('name')
         number = data.get('number')
@@ -347,7 +348,7 @@ def product_details(product_id):
     # if 'username' not in session:
     #     return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     print("username", username)
     print("product_id", product_id)
@@ -420,7 +421,7 @@ def place_bid():
     data = request.get_json()
     product_id = data.get('product_id')
     bid_amount = data.get('bid_amount')
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     print("username for bids ", username)
 
@@ -487,7 +488,13 @@ def buynow():
     thread.start()
     thread.join()  # Wait for the thread to complete before rendering
 
-    return render_template("buynow.html", cart_products=[result["product"]], total_price=result["total_price"], product_id=product_id, username=username)
+    epoch_id = f"{int(time.time() * 1000)}{random.randint(100, 999)}"
+
+    session["epoch"] = epoch_id
+
+    print("Generated Epoch ID:", epoch_id)
+
+    return render_template("buynow.html", cart_products=[result["product"]], total_price=result["total_price"], product_id=product_id, username=username, epoch_id=epoch_id)
 
 
 @app.route("/create_order", methods=["POST"])
@@ -505,7 +512,7 @@ def create_order():
 
 @app.route("/verify", methods=["POST"])
 def verify():
-    username = request.cookies.get('username')
+    username = session.get('username')
     data = request.get_json()
 
     print("data ", data)
@@ -545,16 +552,17 @@ def verify():
             "payment_method": data.get('payment_method', "card"),
             "uniqueid": str(data['user']['product_id']),
             "contact": data.get('user', {}).get('phone', ""),
-            "username": str(data['user']['username'])
+            "username": str(data['user']['username']),
+            "epoch_id": str(data['user']['epoch_id'])
         }
 
         print("payment_details ", payment_details)
 
-        # Call insert_payment
-        if api.insert_payment(payment_details):
-            print("Payment details saved to database.")
-        else:
-            print("Failed to save payment details to database.")
+        # # Call insert_payment
+        # if api.insert_payment(payment_details):
+        #     print("Payment details saved to database.")
+        # else:
+        #     print("Failed to save payment details to database.")
 
 
         if 'user' in data:
@@ -567,13 +575,70 @@ def verify():
             print("State:", data['user']['state'])
             print("Price:", data['user']['price'])
             print("username:", data['user']['username'])
+            print("epoch_id:", data['user']['epoch_id'])
 
 
-        api.insert_orders(str(data['user']['product_id']), str(data['user']['username']), str(data['user']['price']), "pending", str(data['order_id']))
+        # insert_orders = api.insert_orders(
+        #     str(data['user']['product_id']),
+        #     str(data['user']['username']),
+        #     str(data['user']['price']),
+        #     "success",
+        #     str(data['order_id']),
+        #     str(data['user']['epoch_id'])
+        # )
+            
+        # Step 3: Background function for DB inserts
+        def background_db_tasks():
+            print("🧵 Starting background DB insert thread...")
+            if api.insert_payment(payment_details):
+                print("✅ Payment inserted")
+            else:
+                print("❌ Payment insert failed")
+
+            result = api.insert_orders(
+                str(data['user']['product_id']),
+                str(data['user']['username']),
+                str(data['user']['price']),
+                "success",
+                str(data['order_id']),
+                str(data['user']['epoch_id'])
+            )
+            print("✅ Order insert result:", result)
+
+        # Step 4: Start thread
+        thread = Thread(target=background_db_tasks)
+        thread.start()
+
+        # print("insert_orders ", insert_orders)
 
         return jsonify({ "redirect_url": "/paymentsuccess" })
 
     except Exception as e:
+        # insert_orders = api.insert_orders(
+        #     str(data['user']['product_id']),
+        #     str(data['user']['username']),
+        #     str(data['user']['price']),
+        #     "failed",
+        #     str(data['order_id']),
+        #     str(data['user']['epoch_id'])
+        # )
+
+        # print("insert_orders ", insert_orders)
+
+        # Thread for failed order insert
+        def failed_order_insert():
+            result = api.insert_orders(
+                str(data['user']['product_id']),
+                str(data['user']['username']),
+                str(data['user']['price']),
+                "failed",
+                str(data['order_id']),
+                str(data['user']['epoch_id'])
+            )
+            print("⚠️ Failed order insert:", result)
+
+        Thread(target=failed_order_insert).start()
+
         print("Payment verification failed:", e)
         return jsonify({ "redirect_url": "/paymentfailed" })
 
@@ -602,6 +667,7 @@ def checkout():
     price = request.args.get("price")
     product_id = request.args.get("product_id")
     username = request.args.get("username")
+    epoch_id = request.args.get("epoch_id")
 
     print("name ", name)
     print("phone ", phone)
@@ -612,9 +678,47 @@ def checkout():
     print("price ", price)
     print("product_id ", product_id)
     print("username ", username)
+    print("epoch_id ", epoch_id)
 
     return render_template("checkout.html", name=name, phone=phone, address=address,
-                           pincode=pincode, city=city, state=state, price=price, product_id=product_id, username=username)
+                           pincode=pincode, city=city, state=state, price=price, product_id=product_id, username=username, epoch_id=epoch_id)
+
+
+@app.route("/payment_verifier")
+def payment_verifier():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    epoch_id = request.args.get("epoch_id")
+    print("Epoch ID in verifier:", epoch_id)
+
+    return render_template("payment_verifier.html", epoch_id=epoch_id)
+
+
+@app.route("/check_payment_status/<epoch_id>")
+def check_payment_status(epoch_id):
+    result_queue = queue.Queue()
+
+    def check_status():
+        try:
+            status = api.payment_verifier(epoch_id)
+            result_queue.put(status)
+        except Exception as e:
+            print("Error checking payment status:", e)
+            result_queue.put(None)
+
+    # Start thread
+    thread = threading.Thread(target=check_status)
+    thread.start()
+    thread.join(timeout=5)  # max 5 seconds wait
+
+    if not result_queue.empty():
+        status = result_queue.get()
+    else:
+        status = None
+
+    print("status ", status)
+    return jsonify({"status": status})
 
 
 @app.route("/favourite")
@@ -622,7 +726,7 @@ def favourite():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
     result = {"products": []}
 
     def fetch_and_process():
@@ -660,7 +764,7 @@ def favourite():
 
 @app.route('/addtofav/<int:product_id>')
 def addtofav(product_id):
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     def async_add_to_fav(pid):
         print("Added to favorite (async):", pid)
@@ -678,7 +782,7 @@ def add_to_cart():
     product_id = request.form.get("product_id")
     
     print("Adding to cart:", product_id)
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     def async_add_to_fav(pid):
         print("Added to cary (async):", pid)
@@ -698,7 +802,11 @@ def cart():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    #username = session.get('username')
+    username = session.get('username')
+
+    print("username ", username)
+    
     result = {"cart_products": [], "total_price": 0}
 
     def fetch_and_process_cart():
@@ -730,13 +838,19 @@ def cart():
     thread.start()
     thread.join()
 
-    return render_template("cart.html", cart_products=result["cart_products"], total_price=result["total_price"])
+    epoch_id = f"{int(time.time() * 1000)}{random.randint(100, 999)}"
+
+    session["epoch"] = epoch_id
+
+    print("Generated Epoch ID:", epoch_id)
+
+    return render_template("cart.html", cart_products=result["cart_products"], total_price=result["total_price"], epoch_id=epoch_id, username=username)
 
 
 @app.route('/remove_from_cart/<int:product_id>', methods=['POST'])
 def remove_from_cart(product_id):
     print("remove product_id", product_id)
-    username = request.cookies.get('username')
+    username = session.get('username')
     user_id = username
     result_holder = {}
 
@@ -882,7 +996,7 @@ def myorders():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
     result = {"cart_products": [], "total_price": 0}
 
     def fetch_and_process_orders():
@@ -920,7 +1034,7 @@ def myorders():
 
 @app.route("/register_token", methods=['GET', 'POST'])
 def register_token():
-    username = request.cookies.get('username')
+    username = session.get('username')
     if request.method == "GET":
         token = request.args.get("token")
         public_ip = request.remote_addr
@@ -1044,7 +1158,7 @@ def seller_dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
 
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     # Multi-threaded fetch
     with ThreadPoolExecutor(max_workers=1) as executor:
@@ -1092,7 +1206,7 @@ def seller_pending_orders():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
     
     raw_orders = api.fetch_seller_orders(username, 'pending')  # Must return 6 columns
     orders = []
@@ -1141,7 +1255,7 @@ def seller_approved_orders():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
     
     raw_orders = api.fetch_seller_orders(username, 'approve')  # Must return 6 columns
     orders = []
@@ -1172,7 +1286,7 @@ def seller_rejected_orders():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
     
     raw_orders = api.fetch_seller_orders(username, 'reject')  # Must return 6 columns
     orders = []
@@ -1257,7 +1371,7 @@ def old_orders():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
     
     raw_orders = api.fetch_old_seller_orders(username)  # Must return 6 columns
     orders = []
@@ -1288,7 +1402,7 @@ def upload_products():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     results = api.fetch_upload_products(username)  # assuming your function returns the above list
 
@@ -1421,7 +1535,7 @@ def update_product_details():
 def submit_upload_button():
     executor = ThreadPoolExecutor(max_workers=4)
 
-    username = request.cookies.get('username')
+    username = session.get('username')
 
     category = request.form.get('category')
     product_name = request.form.get('product_name')
