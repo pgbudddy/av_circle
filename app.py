@@ -29,6 +29,8 @@ import time
 
 from threading import Thread
 import queue
+import firebase_admin
+from firebase_admin import credentials
 
 # Disable SSL warnings (for testing only, not recommended for production)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -79,10 +81,41 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 #     return response
 
 
+# Only initialize once
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
+
+
 @app.route("/")
 def index():
 
     return render_template('index.html')
+
+
+@app.route('/save_token', methods=['POST'])
+def save_token():
+    executor = ThreadPoolExecutor()
+
+    username = request.cookies.get('username')
+    data = request.get_json()
+    token = data.get('token')
+    public_ip = data.get('public_ip')
+
+    print("username ", username)
+    print("🔐 Received Firebase Token:", token)
+    print("🌐 Public IP Address:", public_ip)
+
+    session['fcm_token'] = token  # optional
+    session['public_ip'] = public_ip
+
+    executor.submit(api.insert_fmctoken, token, public_ip, username or "none")
+
+    return jsonify({"status": "success"})
+
+
+@app.route('/firebase-messaging-sw.js')
+def sw():
+    return app.send_static_file('firebase-messaging-sw.js')
 
 
 @app.route("/main")
@@ -655,8 +688,8 @@ def paymentfailed():
 
 @app.route("/checkout", methods=["GET"])
 def checkout():
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    # if 'username' not in session:
+    #     return redirect(url_for('login'))
     
     name = request.args.get("name")
     phone = request.args.get("phone")

@@ -235,7 +235,35 @@ def payment_verifier(epoch_id):
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
-# print(payment_verifier(1))
+
+def insert_fmctoken(token, public_ip, user_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+        
+        date = datetime.datetime.now()
+        trade = "INSERT INTO fmc_token (token, public_ip, user_id, datetime) VALUES (%s, %s, %s, %s)"
+        mycursor.execute(trade, (token, public_ip, user_id, date))
+        mydb.commit()
+        
+        # Check if insertion was successful
+        if mycursor.rowcount > 0:
+            #print("Data inserted successfully.")
+            return True
+        else:
+            #print("Data insertion failed.")
+            return False
+        
+    except Exception as e:
+        #print(e)
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
 
 
 def signup(name, email, number, password, public_ip):
@@ -1273,19 +1301,19 @@ def updatetoken(user_id, token, public_ip):
 
         date = datetime.datetime.now()
         
-        query = 'SELECT * FROM fcm_token where public_ip="'+str(public_ip)+'"'
+        query = 'SELECT * FROM fcm_token_app where public_ip="'+str(public_ip)+'"'
         mycursor.execute(query)
         myresult = mycursor.fetchone()
         #print("myresult: ", myresult)
         
         if myresult == None:  
-            trade = "INSERT INTO fcm_token (user_id, token, public_ip, datetime) values ('"+str(user_id)+"', '"+str(token)+"', '"+str(public_ip)+"', '"+str(date)+"')"
+            trade = "INSERT INTO fcm_token_app (user_id, token, public_ip, datetime) values ('"+str(user_id)+"', '"+str(token)+"', '"+str(public_ip)+"', '"+str(date)+"')"
             mycursor.execute(trade)
             mydb.commit()
             return "Token Inserted"
         
         else:
-            trade = "UPDATE fcm_token SET user_id='"+str(user_id)+"', token='"+str(token)+"' WHERE public_ip='"+str(public_ip)+"'"
+            trade = "UPDATE fcm_token_app SET user_id='"+str(user_id)+"', token='"+str(token)+"' WHERE public_ip='"+str(public_ip)+"'"
             mycursor.execute(trade)
             mydb.commit()
             return "Token Updated"

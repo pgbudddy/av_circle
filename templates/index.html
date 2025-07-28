@@ -1,38 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centered Image with Delay</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #000000ff;
-        }
-        #image-container {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <title>Centered Image with Delay</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #000000ff;
+    }
+    #image-container {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <div id="image-container">
-        <img src="{{ url_for('static', filename='images/logo-light.svg') }}" style="height: 150px;" alt="Centered Image">
-    </div>
-    
-    <script>
-        // Show the image after 0.5s
-        setTimeout(() => {
-            document.getElementById('image-container').style.display = 'block';
-        }, 500);
+  <div id="image-container">
+    <img src="{{ url_for('static', filename='images/logo-light.svg') }}" style="height: 150px;" alt="Centered Image">
+  </div>
 
-        // Redirect to dashboard after 2s
-        setTimeout(() => {
-            window.location.href = "{{ url_for('main') }}";
-        }, 2000);
-    </script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn9U9xtcEHLnULN71X2nN-SUcd3WDN6GE",
+      authDomain: "miniplex-66f40.firebaseapp.com",
+      projectId: "miniplex-66f40",      
+      messagingSenderId: "100301976368",
+      appId: "1:100301976368:web:2185594b8c6f38834c8ef5",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    async function sendTokenToServer(token) {
+      try {
+        const ipResponse = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipResponse.json();
+        const publicIp = ipData.ip;
+
+        await fetch("/save_token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, public_ip: publicIp }),
+        });
+
+        console.log("✅ Token and IP sent to server:", token, publicIp);
+      } catch (err) {
+        console.error("❌ Failed to send token and IP:", err);
+      }
+    }
+
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        navigator.serviceWorker
+          .register("/firebase-messaging-sw.js")
+          .then((registration) => {
+            console.log("✅ Service Worker registered:", registration);
+
+            return messaging.getToken({
+              vapidKey: "BAxr-OgmIOPPITAxj6C3w9qT4mhWwZrFZIfeij0QutF5wY2V2vNRPmVF3fa3ix4kqxN-wLp8oiBLj6CMfJuej18",
+              serviceWorkerRegistration: registration,
+            });
+          })
+          .then((token) => {
+            if (token) {
+              console.log("✅ FCM Token:", token);
+              return sendTokenToServer(token);
+            } else {
+              console.warn("❌ No token received");
+            }
+          })
+          .catch((err) => {
+            console.error("Token Error:", err);
+          });
+      } else {
+        console.warn("❌ Notification permission denied");
+      }
+    });
+
+    // Show the image after 0.5s
+    setTimeout(() => {
+      document.getElementById('image-container').style.display = 'block';
+    }, 500);
+
+    // Redirect to dashboard after 2s
+    setTimeout(() => {
+      window.location.href = "{{ url_for('main') }}";
+    }, 2000);
+  </script>
 </body>
 </html>
