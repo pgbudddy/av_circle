@@ -26,6 +26,18 @@
   </div>
 
   <script>
+    // Show logo after short delay
+    setTimeout(() => {
+      document.getElementById("image-container").style.display = "block";
+    }, 300);
+
+    // Redirect after 1.5 seconds
+    setTimeout(() => {
+      window.location.href = "{{ url_for('main') }}";
+    }, 1500);
+  </script>
+
+  <!-- <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCn9U9xtcEHLnULN71X2nN-SUcd3WDN6GE",
       authDomain: "miniplex-66f40.firebaseapp.com",
@@ -95,6 +107,6 @@
         window.location.href = "{{ url_for('main') }}";
       }
     });
-  </script>
+  </script> -->
 </body>
 </html>
