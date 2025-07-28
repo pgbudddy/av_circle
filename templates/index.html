@@ -33,62 +33,21 @@
       messagingSenderId: "100301976368",
       appId: "1:100301976368:web:2185594b8c6f38834c8ef5",
     };
-  
+
     firebase.initializeApp(firebaseConfig);
     const messaging = firebase.messaging();
-  
-    function log(message) {
-      const debugEl = document.getElementById("debug");
-      if (debugEl) {
-        debugEl.innerHTML += message + "<br>";
-      } else {
-        console.log(message);
-      }
-    }
-  
-    function redirectToMain() {
-      try {
-        log("🚀 Redirecting using location.assign...");
-        location.assign("{{ url_for('main') }}");
-  
-        setTimeout(() => {
-          log("⏱ Fallback redirect using window.location...");
-          window.location = "{{ url_for('main') }}";
-        }, 1500);
-      } catch (e) {
-        log("⚠️ Exception during redirect, using fallback...");
-        window.location = "{{ url_for('main') }}";
-      }
-    }
-  
+
     async function sendTokenToServer(token) {
       try {
-        log("🌐 Fetching public IP...");
         const ipResponse = await fetch("https://api.ipify.org?format=json");
         const ipData = await ipResponse.json();
         const publicIp = ipData.ip;
-  
-        log("📡 Sending token and IP to server...");
+
         await fetch("/save_token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token, public_ip: publicIp }),
         });
-<<<<<<< HEAD
-  
-        log("✅ Token and IP sent. Proceeding to redirect.");
-        redirectToMain();
-      } catch (err) {
-        log("❌ Failed to send token and IP. Proceeding anyway.");
-        redirectToMain();
-      }
-    }
-  
-    setTimeout(() => {
-      document.getElementById("image-container").style.display = "block";
-    }, 500);
-  
-=======
 
         console.log("✅ Token and IP sent to server:", token, publicIp);
 
@@ -106,16 +65,13 @@
       document.getElementById("image-container").style.display = "block";
     }, 500);
 
->>>>>>> ddb0a652cfd4d46043eb7596497454528db7513d
     Notification.requestPermission().then((permission) => {
-      log("🔔 Notification permission: " + permission);
-  
       if (permission === "granted") {
         navigator.serviceWorker
           .register("/firebase-messaging-sw.js")
           .then((registration) => {
-            log("✅ Service Worker registered");
-  
+            console.log("✅ Service Worker registered:", registration);
+
             return messaging.getToken({
               vapidKey: "BAxr-OgmIOPPITAxj6C3w9qT4mhWwZrFZIfeij0QutF5wY2V2vNRPmVF3fa3ix4kqxN-wLp8oiBLj6CMfJuej18",
               serviceWorkerRegistration: registration,
@@ -123,22 +79,6 @@
           })
           .then((token) => {
             if (token) {
-<<<<<<< HEAD
-              log("✅ FCM Token: " + token);
-              return sendTokenToServer(token);
-            } else {
-              log("❌ No FCM token received.");
-              redirectToMain();
-            }
-          })
-          .catch((err) => {
-            log("❌ Error getting token: " + err);
-            redirectToMain();
-          });
-      } else {
-        log("❌ Notification permission denied.");
-        redirectToMain();
-=======
               console.log("✅ FCM Token:", token);
               return sendTokenToServer(token); // redirect will happen here
             } else {
@@ -153,13 +93,8 @@
       } else {
         console.warn("❌ Notification permission denied");
         window.location.href = "{{ url_for('main') }}";
->>>>>>> ddb0a652cfd4d46043eb7596497454528db7513d
       }
     });
   </script>
-  
-  <!-- Optional visible logs (for debugging in WebView) -->
-  <div id="debug" style="color:white;position:fixed;top:10px;left:10px;font-size:12px;z-index:9999;"></div>
-  
 </body>
 </html>
