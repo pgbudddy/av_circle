@@ -29,7 +29,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyCn9U9xtcEHLnULN71X2nN-SUcd3WDN6GE",
       authDomain: "miniplex-66f40.firebaseapp.com",
-      projectId: "miniplex-66f40",      
+      projectId: "miniplex-66f40",
       messagingSenderId: "100301976368",
       appId: "1:100301976368:web:2185594b8c6f38834c8ef5",
     };
@@ -50,10 +50,20 @@
         });
 
         console.log("✅ Token and IP sent to server:", token, publicIp);
+
+        // 🔁 Redirect only after token is successfully sent
+        window.location.href = "{{ url_for('main') }}";
       } catch (err) {
         console.error("❌ Failed to send token and IP:", err);
+        // Optionally redirect even on failure
+        window.location.href = "{{ url_for('main') }}";
       }
     }
+
+    // Show image after 0.5s
+    setTimeout(() => {
+      document.getElementById("image-container").style.display = "block";
+    }, 500);
 
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
@@ -70,28 +80,21 @@
           .then((token) => {
             if (token) {
               console.log("✅ FCM Token:", token);
-              return sendTokenToServer(token);
+              return sendTokenToServer(token); // redirect will happen here
             } else {
               console.warn("❌ No token received");
+              window.location.href = "{{ url_for('main') }}";
             }
           })
           .catch((err) => {
             console.error("Token Error:", err);
+            window.location.href = "{{ url_for('main') }}";
           });
       } else {
         console.warn("❌ Notification permission denied");
+        window.location.href = "{{ url_for('main') }}";
       }
     });
-
-    // Show the image after 0.5s
-    setTimeout(() => {
-      document.getElementById('image-container').style.display = 'block';
-    }, 500);
-
-    // Redirect to dashboard after 2s
-    setTimeout(() => {
-      window.location.href = "{{ url_for('main') }}";
-    }, 2000);
   </script>
 </body>
 </html>
