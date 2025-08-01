@@ -405,7 +405,7 @@
             <img src="{{ url_for('static', filename='images/leftarrow.png') }}" alt="Back">
         </button>
         <div class="header-buttons">
-            <button style="-webkit-tap-highlight-color: transparent;">
+            <button onclick="shareProduct('{{ product_id }}')" style="-webkit-tap-highlight-color: transparent;">
                 <img src="{{ url_for('static', filename='images/share.svg') }}" alt="Share">
             </button>
             <button id="fav-button" onclick="addToFav('{{ product_id }}')" style="-webkit-tap-highlight-color: transparent;">
@@ -744,6 +744,41 @@ function scrollSlider(direction) {
         .catch(error => {
             console.error('Error:', error);
         });
+    }
+
+
+    function shareProduct(productId) {
+        const baseUrl = window.location.origin;
+        const shareUrl = `${baseUrl}/product_details/${productId}`;
+        const shareTitle = "Check out this product!";
+        const shareText = "Here’s a product you might like:";
+
+        // ✅ Case 1: Web Browser with Web Share API support
+        if (navigator.share) {
+            navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+            }).then(() => {
+            console.log('🔗 Shared successfully');
+            }).catch((error) => {
+            console.error('❌ Error sharing:', error);
+            });
+
+        // ✅ Case 2: Android WebView with custom scheme
+        } else if (/Android/i.test(navigator.userAgent) && window.location.protocol.startsWith("http")) {
+            const androidShareUrl = `share://?title=${encodeURIComponent(shareTitle)}&text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+            window.location.href = androidShareUrl;
+
+        // ❌ Fallback: copy to clipboard
+        } else {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+            alert("🔗 Link copied to clipboard");
+            }).catch(err => {
+            alert("❌ Could not copy link");
+            console.error("Clipboard error:", err);
+            });
+        }
     }
 
 
