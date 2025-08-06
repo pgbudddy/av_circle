@@ -1649,4 +1649,6 @@ if __name__ == '__main__':
     # app.run(debug=True)
     # app = WsgiToAsgi(app)
     #app.run(port=8080, debug=True)
-    socketio.run(app, debug=True, port=8080, allow_unsafe_werkzeug=True)
+    # socketio.run(app, debug=True, host="0.0.0.0", port=8080, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, port=5050, allow_unsafe_werkzeug=True)
+

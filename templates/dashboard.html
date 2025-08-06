@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
     <title>Horizontal Scroll Buttons</title>
     <style>
         body {
@@ -355,9 +357,9 @@
         <input type="text" class="search-input" placeholder="Search...">
     </div> -->
 
-    <div class="scroll-container">
+    <div class="scroll-container" style="-webkit-tap-highlight-color: transparent;">
         {% for button in buttons %}
-        <div class="button-container" style="-webkit-tap-highlight-color: transparent;">
+        <div class="button-container">
             <button class="round-button">
                 <img src="{{ url_for('static', filename='images/brand-icons/' + button.image) }}" loading="lazy" alt="{{ button.text }}">
             </button>
@@ -470,4 +472,71 @@
 
     // Auto slide every 3 seconds
     setInterval(showNextSlide, 3000);
+
+
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn9U9xtcEHLnULN71X2nN-SUcd3WDN6GE",
+      authDomain: "miniplex-66f40.firebaseapp.com",
+      projectId: "miniplex-66f40",
+      messagingSenderId: "100301976368",
+      appId: "1:100301976368:web:2185594b8c6f38834c8ef5",
+    };
+  
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+  
+    async function sendTokenToServer(token) {
+      try {
+        const ipResponse = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipResponse.json();
+        const publicIp = ipData.ip;
+  
+        await fetch("/save_token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, public_ip: publicIp }),
+        });
+  
+        console.log("✅ Token and IP sent to server:", token, publicIp);
+      } catch (err) {
+        console.error("❌ Failed to send token and IP:", err);
+      }
+    }
+  
+    // Show image after 0.5s
+    setTimeout(() => {
+      document.getElementById("image-container").style.display = "block";
+    }, 500);
+  
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        navigator.serviceWorker
+          .register("/firebase-messaging-sw.js")
+          .then((registration) => {
+            console.log("✅ Service Worker registered:", registration);
+  
+            return messaging.getToken({
+              vapidKey: "BAxr-OgmIOPPITAxj6C3w9qT4mhWwZrFZIfeij0QutF5wY2V2vNRPmVF3fa3ix4kqxN-wLp8oiBLj6CMfJuej18",
+              serviceWorkerRegistration: registration,
+            });
+          })
+          .then((token) => {
+            if (token) {
+              console.log("✅ FCM Token:", token);
+              return sendTokenToServer(token);
+            } else {
+              console.warn("❌ No token received");
+            }
+          })
+          .catch((err) => {
+            console.error("Token Error:", err);
+          });
+      } else {
+        console.warn("❌ Notification permission denied");
+      }
+    });
 </script>
+
+

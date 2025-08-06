@@ -760,6 +760,37 @@ def place_bid_price(product_id, bid_amount, user_id):
         close_connection(mydb, mycursor)
 
 
+def fetch_bids_tokens(product_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Use dictionary cursor for better readability
+        mycursor = mydb.cursor(dictionary=True, buffered=True)
+
+        # Updated query with JOIN
+        query = """
+            SELECT DISTINCT b.user_id, ft.token AS fmc_token, fta.token AS fcm_token_app
+            FROM bids b
+            LEFT JOIN fmc_token ft ON b.user_id = ft.user_id
+            LEFT JOIN fcm_token_app fta ON b.user_id = fta.user_id
+            WHERE b.product_id = %s
+        """
+        mycursor.execute(query, (product_id,))
+        myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        print("Error:", str(e))
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+print(fetch_bids_tokens(2))
+
+
 def fetch_bids_details(product_id):
     try:
         # Get a connection from the pool
