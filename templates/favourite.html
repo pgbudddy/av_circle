@@ -64,6 +64,30 @@
             /* border: 1px solid #ddd; Optional: Add border */
             border-radius: 10px;
             background-color: #fff;
+
+            position: relative;
+        }
+
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            color: red;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 50%;
+            z-index: 2;
+            transition: background 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: red;
+            color: white;
         }
 
         .product-image {
@@ -181,14 +205,25 @@
     {% if products %}
     <div class="product-scroller">
         {% for product in products %}
-            <div class="product-item" onclick="location.href='{{ url_for('product_details', product_id=product.product_id) }}'">
-                <img class="product-image" src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" alt="{{ product.name }}">
-                <div class="product-name">{{ product.name }}</div>
-                <div class="brand-price-row">
-                    <span class="brand-name">{{ product.brand }}</span>
-                    <span class="price">{{ product.price }}</span>
-                </div>
+        <div class="product-item">
+            <!-- Remove from favorites -->
+            <form action="{{ url_for('remove_from_fav') }}" method="POST" style="position:absolute; top:5px; right:5px; z-index:2;">
+                <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                <button type="submit" class="remove-btn">&times;</button>
+            </form>
+        
+            <img class="product-image" 
+                 src="{{ url_for('static', filename='images/product_images/' + product.product_id + '/' + product.image) }}" 
+                 alt="{{ product.name }}" 
+                 onclick="location.href='{{ url_for('product_details', product_id=product.product_id) }}'">
+        
+            <div class="product-name">{{ product.name }}</div>
+            <div class="brand-price-row">
+                <span class="brand-name">{{ product.brand }}</span>
+                <span class="price">{{ product.price }}</span>
             </div>
+        </div>
+        
         {% endfor %}
     </div>
     {% else %}

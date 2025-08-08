@@ -797,6 +797,23 @@ def favourite():
     return render_template("favourite.html", products=result["products"])
 
 
+@app.route('/remove_from_fav', methods=['POST'])
+def remove_from_fav():
+    executor = ThreadPoolExecutor(max_workers=4)
+    product_id = request.form.get('product_id')
+    username = session.get('username')
+    
+    print("product_id ", product_id)
+    print("username ", username)
+
+    if username and product_id:
+        executor.submit(api.remove_favorite, username, product_id)
+        print(f"🧵 Removal task submitted for product {product_id}")
+    
+    return redirect(url_for('favourite'))  # Redirect back to fav page
+
+
+
 @app.route('/addtofav/<int:product_id>')
 def addtofav(product_id):
     username = session.get('username')

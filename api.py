@@ -1097,6 +1097,34 @@ def remove_product_from_cart(product_id, user_id):
         close_connection(mydb, mycursor)
 
 
+def remove_favorite(username, product_id):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+
+        # Use %s placeholders for MySQL
+        mycursor.execute("DELETE FROM favourite WHERE product_id = %s AND user_id = %s", (product_id, username))
+        mydb.commit()
+
+        if mycursor.rowcount > 0:
+            #print("Data removed successfully.")
+            return True
+        else:
+            #print("Data removal failed.")
+            return False
+        
+    except Exception as e:
+        #print("Error:", e)
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
+
+
 def delete_product(product_id):
     try:
         # Get a connection from the pool
