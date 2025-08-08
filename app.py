@@ -409,6 +409,7 @@ def product_details(product_id):
         brand = product_data.get("brand", "")
         description = product_data.get("discription", "")
         db_product_id = product_data.get("product_id", "")
+        min_qty = product_data.get("min_qty", "")
         
         # Parse and sanitize price
         try:
@@ -437,6 +438,7 @@ def product_details(product_id):
         brand=brand,
         description=description,
         price=price,
+        min_qty=min_qty,
         images=images,
         product_id=str(db_product_id),
         in_watchlist=in_watchlist,
@@ -493,9 +495,9 @@ def buynow():
             brand = raw_cart_products[1]
             description = raw_cart_products[2]
             price = raw_cart_products[3]
-            #qty = raw_cart_products[4]
-            qty = 1
-            current_price = raw_cart_products[12]
+            qty = raw_cart_products[12]
+            # qty = 1
+            current_price = raw_cart_products[13]
             images = raw_cart_products[5].split(",")
             image = images[0].strip()
 
@@ -813,21 +815,23 @@ def addtofav(product_id):
 @app.route("/add_to_cart", methods=["POST"])
 def add_to_cart():
     product_id = request.form.get("product_id")
+    min_qty = request.form.get("min_qty")  # ✅ Capture min_qty from form
     
-    print("Adding to cart:", product_id)
+    print(f"Adding to cart: {product_id} | Min Qty: {min_qty}")
     username = session.get('username')
 
-    def async_add_to_fav(pid):
-        print("Added to cary (async):", pid)
-        result = api.add_to_cart(pid, username)
+    def async_add_to_cart(pid, qty):
+        print(f"Added to cart (async): {pid} | Qty: {qty}")
+        result = api.add_to_cart(pid, username, qty)  # ✅ Pass qty to API
         print("API Result:", result)
     
     # Start a new thread
-    threading.Thread(target=async_add_to_fav, args=(product_id,)).start()
+    threading.Thread(target=async_add_to_cart, args=(product_id, min_qty)).start()
 
-    # Store product in cart here (e.g., insert into DB or session)
+    # Optionally store in DB/session here
 
-    return redirect(url_for("dashboard"))  # Redirect to dashboard
+    return redirect(url_for("dashboard"))
+
 
 
 @app.route("/cart")
@@ -1575,7 +1579,9 @@ def submit_upload_button():
     brand_name = request.form.get('brand_name')
     product_price = request.form.get('product_price')
     start_bid_price = request.form.get('start_bid_price')
+    min_qty = request.form.get('min_qty')
     product_description = request.form.get('product_description')
+    
 
     uploaded_files = request.files.getlist('product_images[]')
     image_names = []
@@ -1608,8 +1614,11 @@ def submit_upload_button():
         "0", "0", "0", "0",
         category,
         username,
-        start_bid_price
+        start_bid_price,
+        min_qty
     )
+
+    print("args ", args)
 
     # Submit product insert task
     future_insert = executor.submit(api.insert_product, *args)

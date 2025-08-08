@@ -695,6 +695,7 @@ def buy_product(product_id):
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
+# print("buy ", buy_product(2))
 
 def fetch_product_details(product_id, user_id):
     try:
@@ -703,7 +704,7 @@ def fetch_product_details(product_id, user_id):
         mycursor = mydb.cursor(dictionary=True, buffered=True)
 
         # Query to fetch product with max bid or default price
-        query = 'SELECT p.product_id, p.name, p.discription, p.price, COALESCE(MAX(b.price), p.price) AS current_price, p.product_images FROM products p LEFT JOIN bids b ON p.product_id = b.product_id WHERE p.product_id = %s GROUP BY p.product_id, p.name, p.discription, p.price, p.product_images'
+        query = 'SELECT p.product_id, p.name, p.discription, p.price, p.min_qty, COALESCE(MAX(b.price), p.price) AS current_price, p.product_images FROM products p LEFT JOIN bids b ON p.product_id = b.product_id WHERE p.product_id = %s GROUP BY p.product_id, p.name, p.discription, p.price, p.product_images'
         mycursor.execute(query, (product_id,))
         product_result = mycursor.fetchone()
 
@@ -787,8 +788,6 @@ def fetch_bids_tokens(product_id):
 
     finally:
         close_connection(mydb, mycursor)
-
-print(fetch_bids_tokens(2))
 
 
 def fetch_bids_details(product_id):
@@ -1139,7 +1138,7 @@ def search_product_db(query):
     return results
 
 
-def add_to_cart(product_id, user_id):
+def add_to_cart(product_id, user_id, min_qty):
     #print("save_message")
     try:
         # Get a connection from the pool
@@ -1150,8 +1149,8 @@ def add_to_cart(product_id, user_id):
         
         date = datetime.datetime.now()
         #print(product_id, user_id, date)
-        trade = "INSERT INTO cart (product_id, user_id, qty, datetime) VALUES (%s, %s, '1', %s)"
-        mycursor.execute(trade, (product_id, user_id, date))
+        trade = "INSERT INTO cart (product_id, user_id, qty, datetime) VALUES (%s, %s, %s, %s)"
+        mycursor.execute(trade, (product_id, user_id, min_qty, date))
         mydb.commit()
         
         # Check if insertion was successful
@@ -1171,7 +1170,7 @@ def add_to_cart(product_id, user_id):
         close_connection(mydb, mycursor)
 
 
-def insert_product(name, brand, discription, price, product_images, category, brightness, contrast_ratio, HDR_HLG, lamp_life_hrs_Normal_rco_mode, type, user_id, bid_price):
+def insert_product(name, brand, discription, price, product_images, category, brightness, contrast_ratio, HDR_HLG, lamp_life_hrs_Normal_rco_mode, type, user_id, bid_price, min_qty):
     #print("save_message")
     try:
         # Get a connection from the pool
@@ -1185,13 +1184,13 @@ def insert_product(name, brand, discription, price, product_images, category, br
             INSERT INTO products(
                 name, brand, discription, price, product_images, category,
                 brightness, contrast_ratio, HDR_HLG,
-                lamp_life_hrs_Normal_rco_mode, type
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                lamp_life_hrs_Normal_rco_mode, type, min_qty
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         mycursor.execute(insert_product, (
             name, brand, discription, price, product_images, category,
             brightness, contrast_ratio, HDR_HLG,
-            lamp_life_hrs_Normal_rco_mode, type
+            lamp_life_hrs_Normal_rco_mode, type, min_qty
         ))
         mydb.commit()
 
@@ -1227,7 +1226,7 @@ def insert_product(name, brand, discription, price, product_images, category, br
             return False
 
     except Exception as e:
-        #print("Error:", e)
+        print("Error:", e)
         return False
 
     finally:
