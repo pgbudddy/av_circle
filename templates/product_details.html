@@ -574,7 +574,7 @@
           margin-bottom: 10px;
         "
       >
-        Details
+        Description
       </h3>
       <p style="font-size: 16px; color: #000000; line-height: 1.6">
         {{ description }}
@@ -628,7 +628,8 @@
         <!-- <img src="{{ url_for('static', filename='images/logo2.svg') }}" alt="Amazon" class="platform-logo"> -->
         {% for c in competitors %}
         <span class="platform-name">{{ c.name }}</span>
-        <span style="font-size: 15px">₹ {{ c.price }}</span>
+        <!-- <span style="font-size: 15px">₹ {{ c.price }}</span> -->
+        <span style="font-size: 15px">{{ c.price }}</span>
         {% endfor %}
         <!-- <button class="buy-now-btn">
                 ₹ 10,80,000

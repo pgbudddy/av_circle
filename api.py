@@ -6,6 +6,10 @@ from email.mime.text import MIMEText
 import smtplib
 import os
 from PIL import Image
+import json
+from google import genai
+from google.genai import types
+
 
 
 def login(number, password):
@@ -1170,6 +1174,67 @@ def add_to_cart(product_id, user_id, min_qty):
         close_connection(mydb, mycursor)
 
 
+def find_compatitor(brand, name, category, product_id):
+    try:
+        # Initialize Gemini client
+        client = genai.Client(api_key="AIzaSyDDsRayQsXO8Qo6vpUC_lGu3rDUSeLPQfk")
+
+        # Generate content
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=(
+                f"Find the max 1 top online retailers who are selling {brand} {name} {category}. "
+                f"Find only website name, price in INR, and url in array format without any other response."
+            ),
+            config=types.GenerateContentConfig(
+                max_output_tokens=500,
+                temperature=0.1
+            )
+        )
+
+        # Clean and parse response
+        response_text = response.text.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
+
+        try:
+            website_data = json.loads(response_text)
+            print("✅ Parsed Array:", website_data)
+
+            mydb = get_db_connection()
+            mycursor = mydb.cursor(buffered=True)
+
+            # Loop through the parsed data
+            for entry in website_data:
+                website = entry.get("website")
+                price = entry.get("price_inr") or entry.get("price")
+                url = entry.get("url")
+
+                if website and price and url:
+                    insert_query = """
+                        INSERT INTO competitors (name, price, product_id, link)
+                        VALUES (%s, %s, %s, %s)
+                    """
+                    mycursor.execute(insert_query, (website, price, product_id, url))
+
+            mydb.commit()
+            print(f"✅ Inserted {mycursor.rowcount} competitor(s) for product_id {product_id}")
+            return True
+
+        except json.JSONDecodeError as e:
+            print("❌ Failed to parse JSON:", e)
+            print("Raw response was:", response_text)
+            return False
+
+    except Exception as e:
+        print("❌ Error:", e)
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
+
 def insert_product(name, brand, discription, price, product_images, category, brightness, contrast_ratio, HDR_HLG, lamp_life_hrs_Normal_rco_mode, type, user_id, bid_price, min_qty):
     #print("save_message")
     try:
@@ -1250,8 +1315,7 @@ def image_convertor(product_id):
     
     except Exception as e:
         #print("Error in image_convertor:", e)
-        return False
-   
+        return False   
 
 
 def fetch_upload_products(user_id):

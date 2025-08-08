@@ -1641,6 +1641,9 @@ def submit_upload_button():
     # Submit image_convertor to a separate thread (non-blocking)
     executor.submit(api.image_convertor, product_id)
 
+    # 4️⃣ Find competitors in background
+    executor.submit(api.find_compatitor, brand_name, product_name, category, product_id)
+
     # Debug prints
     print("Category: ", category)
     print("Product Name: ", product_name)
@@ -1649,6 +1652,7 @@ def submit_upload_button():
     print("Start Bid Price: ", start_bid_price)
     print("Description: ", product_description)
     print("Images:", image_string)
+
 
     return redirect(url_for('upload_products'))
 
