@@ -821,7 +821,7 @@ def send_fcm_notification(token, title, body):
     except messaging.UnregisteredError:
         print(f"⚠ Token invalid/unregistered: {token}")
         # Optionally remove from DB
-        # remove_fcm_token_from_db(token)
+        remove_fcm_token(token)
         return False
     except Exception as e:
         print(f"❌ Failed to send to {token[:20]}... : {e}")
