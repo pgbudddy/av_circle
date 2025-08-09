@@ -82,8 +82,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 # Only initialize once
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+# cred = credentials.Certificate("serviceAccountKey.json")
+# firebase_admin.initialize_app(cred)
 
 
 @app.route("/")
@@ -458,18 +458,27 @@ def place_bid():
     bid_amount = data.get('bid_amount')
     username = session.get('username')
 
-    print("username for bids ", username)
-
-    # Define the task inline
     def run_bid():
         place_bid_result = api.place_bid_price(product_id, bid_amount, user_id=username)
         print("place_bid:", place_bid_result)
         print(f"Received bid of ₹{bid_amount} for product {product_id}")
 
-    # Start the thread
+        fetch_tokens = api.fetch_fmc_tokens(product_id)
+        print("fetch_tokens", fetch_tokens)
+
+        title = "New Bid Placed"
+        body = f"New bid placed of ₹{bid_amount}. Check now!"
+        
+        for token_data in fetch_tokens:
+            token = token_data.get("token")
+            if token:
+                if not api.send_fcm_notification(token, title, body):
+                    print(f"Removing invalid token: {token}")
+                    # api.remove_fcm_token(token)  # Optional DB cleanup
+
     threading.Thread(target=run_bid).start()
 
-    return jsonify({"message": "Bid is being processed in the background."})
+    return jsonify({"message": "Bid is being processed and notifications are being sent."})
 
 
 @app.route('/buynow', methods=['POST'])

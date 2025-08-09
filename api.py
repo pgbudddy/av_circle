@@ -9,6 +9,8 @@ from PIL import Image
 import json
 from google import genai
 from google.genai import types
+import firebase_admin
+from firebase_admin import credentials, messaging
 
 
 
@@ -699,7 +701,6 @@ def buy_product(product_id):
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
-# print("buy ", buy_product(2))
 
 def fetch_product_details(product_id, user_id):
     try:
@@ -764,6 +765,69 @@ def place_bid_price(product_id, bid_amount, user_id):
         # Ensure that the cursor and connection are closed
         close_connection(mydb, mycursor)
 
+
+def fetch_fmc_tokens(product_id):
+    try:
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(dictionary=True, buffered=True)
+
+        query = """
+            SELECT token
+            FROM fmc_token
+            WHERE user_id IN (
+                SELECT DISTINCT user_id
+                FROM bids
+                WHERE product_id = %s
+            )
+            UNION
+            SELECT token
+            FROM fcm_token_app
+            WHERE user_id IN (
+                SELECT DISTINCT user_id
+                FROM bids
+                WHERE product_id = %s
+            )
+        """
+        mycursor.execute(query, (product_id, product_id))
+        myresult = mycursor.fetchall()
+
+        return myresult
+
+    except Exception as e:
+        print("Error:", str(e))
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate("serviceAccountKey.json")
+    firebase_admin.initialize_app(cred)
+
+
+def send_fcm_notification(token, title, body):
+    message = messaging.Message(
+        notification=messaging.Notification(
+            title=title,
+            body=body,
+        ),
+        token=token
+    )
+    try:
+        response = messaging.send(message)
+        print(f"✅ Successfully sent to {token[:20]}... : {response}")
+        return True
+    except messaging.UnregisteredError:
+        print(f"⚠ Token invalid/unregistered: {token}")
+        # Optionally remove from DB
+        # remove_fcm_token_from_db(token)
+        return False
+    except Exception as e:
+        print(f"❌ Failed to send to {token[:20]}... : {e}")
+        return False
+
+    
 
 def fetch_bids_tokens(product_id):
     try:
