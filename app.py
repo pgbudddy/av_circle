@@ -797,6 +797,42 @@ def favourite():
     return render_template("favourite.html", products=result["products"])
 
 
+@app.route("/bidproducts")
+def bidproducts():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    username = session.get('username')
+    result = {"products": []}
+
+    def fetch_and_process():
+        bid_products = api.fetch_bid_product(user_id=username)
+        print("fetch_bid_product", bid_products)
+
+        products = []
+        for item in bid_products:
+            name = item[1]           # p.name
+            product_id = item[0]     # p.product_id
+            price = item[2]          # p.price
+            max_price = item[4]      # b.max_price
+
+            products.append({
+                "name": name,
+                "product_id": str(product_id),
+                "price": price,
+                "image": '1.jpg',  # TODO: fetch from DB if needed
+                "max_price": str(max_price)
+            })
+
+        result["products"] = products
+
+    thread = threading.Thread(target=fetch_and_process)
+    thread.start()
+    thread.join()
+
+    return render_template("bidproducts.html", products=result["products"])
+
+
 @app.route('/remove_from_fav', methods=['POST'])
 def remove_from_fav():
     executor = ThreadPoolExecutor(max_workers=4)

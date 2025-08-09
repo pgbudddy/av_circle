@@ -862,6 +862,43 @@ def fetch_fav_product(user_id):
         close_connection(mydb, mycursor)
 
 
+def fetch_bid_product(user_id):
+    try:
+        mydb = get_db_connection()
+        mycursor = mydb.cursor(buffered=True)
+
+        query = """
+            SELECT 
+                p.product_id, 
+                p.name, 
+                p.price AS product_price, 
+                b.user_id, 
+                b.max_price
+            FROM (
+                SELECT 
+                    user_id,
+                    product_id, 
+                    MAX(price) AS max_price
+                FROM bids
+                WHERE user_id = %s
+                GROUP BY product_id, user_id
+            ) AS b
+            JOIN products p 
+                ON p.product_id = b.product_id
+        """
+
+        mycursor.execute(query, (user_id,))
+        myresult = mycursor.fetchall()
+        return myresult
+
+    except Exception as e:
+        print("Error:", e)
+        return False
+
+    finally:
+        close_connection(mydb, mycursor)
+
+
 def add_to_favourite(product_id, user_id):
     #print("save_message")
     try:
