@@ -826,7 +826,37 @@ def send_fcm_notification(token, title, body):
     except Exception as e:
         print(f"❌ Failed to send to {token[:20]}... : {e}")
         return False
+    
 
+def remove_fcm_token(token):
+    try:
+        # Get a connection from the pool
+        mydb = get_db_connection()
+
+        # Create a cursor from the connection
+        mycursor = mydb.cursor(buffered=True)
+
+        # Use %s placeholders for MySQL
+        mycursor.execute("DELETE FROM fmc_token WHERE token = %s", (token))
+        mydb.commit()
+
+        mycursor.execute("DELETE FROM fcm_token_app WHERE token = %s", (token))
+        mydb.commit()
+
+        if mycursor.rowcount > 0:
+            #print("Data removed successfully.")
+            return True
+        else:
+            #print("Data removal failed.")
+            return False
+        
+    except Exception as e:
+        #print("Error:", e)
+        return False
+
+    finally:
+        # Ensure that the cursor and connection are closed
+        close_connection(mydb, mycursor)
     
 
 def fetch_bids_tokens(product_id):

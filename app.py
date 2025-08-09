@@ -474,7 +474,7 @@ def place_bid():
             if token:
                 if not api.send_fcm_notification(token, title, body):
                     print(f"Removing invalid token: {token}")
-                    # api.remove_fcm_token(token)  # Optional DB cleanup
+                    api.remove_fcm_token(token)  # Optional DB cleanup
 
     threading.Thread(target=run_bid).start()
 
